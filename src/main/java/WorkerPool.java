@@ -4,8 +4,6 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 
-import com.hazelcast.core.Hazelcast;
-import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.IMap;
 import com.hazelcast.core.IQueue;
 
@@ -23,8 +21,6 @@ public class WorkerPool {
 	private static int monitorSleep = 3; 
 
 	private static int taskNumber = 0; 
-	
-	private static HazelcastInstance hz;
 	
 	private static final String stopProcessingSignal = "STOP_PROCESSING_SIGNAL";
 	private static final String taskQueueName = "taskQueue";
@@ -65,14 +61,13 @@ public class WorkerPool {
 		MyThreadPoolExecutor executorPool = new MyThreadPoolExecutor(poolCoreSize, poolMaxSize, timeoutSecs, TimeUnit.SECONDS, new ArrayBlockingQueue<Runnable>(queueCapacity), threadFactory, rejectionHandler); 
 		
 		//Initialize hazelcast and get inetAddressAndPort
-		hz = Hazelcast.newHazelcastInstance();
 
 		long startTime = System.currentTimeMillis();
 		
 		NodeDetails currentNodeDetails = new NodeDetails(
-				getNodeId(), 
-				getInetAddress(),
-				getInetPort(),
+				HazelcastManager.getNodeId(), 
+				HazelcastManager.getInetAddress(),
+				HazelcastManager.getInetPort(),
 				poolCoreSize,
 				poolMaxSize,
 				queueCapacity,
@@ -86,16 +81,16 @@ public class WorkerPool {
 				startTime);
 		
 		// Start the monitoring thread 
-		MyMonitorThread monitor = new MyMonitorThread(executorPool, monitorSleep, getInetAddress()+":"+getInetPort()); 
+		MyMonitorThread monitor = new MyMonitorThread(executorPool, monitorSleep, HazelcastManager.getInetAddress()+":"+HazelcastManager.getInetPort()); 
 		Thread monitorThread = new Thread(monitor); 
 		monitorThread.start(); 
 
 		//Initialize and define the hazelcast cache maps and queues
-		IMap<String, NodeDetails> monitorMap = hz.getMap(monitorMapName);
-		monitorMap.put(getNodeId(),currentNodeDetails);
+		IMap<String, NodeDetails> monitorMap = HazelcastManager.getInstance().getMap(monitorMapName);
+		monitorMap.put(HazelcastManager.getNodeId(),currentNodeDetails);
 		
 		// Listen to tasks (taskQueue) and submit work to the thread pool 
-		IQueue<String> hazelcastTaskQueue = hz.getQueue( taskQueueName );
+		IQueue<String> hazelcastTaskQueue = HazelcastManager.getInstance().getQueue( taskQueueName );
 		while ( true ) {
 			String item = hazelcastTaskQueue.take();
 			printLog("Consumed: " + item + " from Hazelcast Task Queue",true);
@@ -104,7 +99,7 @@ public class WorkerPool {
 				hazelcastTaskQueue.put( stopProcessingSignal );
 				break;
 			}
-			executorPool.execute(new WorkerThread(processTime,item,retrySleepTime,retryMaxAttempts, hz, getNodeId()));
+			executorPool.execute(new WorkerThread(processTime,item,retrySleepTime,retryMaxAttempts, HazelcastManager.getNodeId()));
 			taskNumber++;
 		}
 		printLog("Hazelcast consumer Finished",true);
@@ -126,12 +121,12 @@ public class WorkerPool {
 		printLog("Shutting down monitor thread... done",true); 
 		long stopTime = System.currentTimeMillis();
 
-		currentNodeDetails = monitorMap.get(getNodeId());
+		currentNodeDetails = monitorMap.get(HazelcastManager.getNodeId());
 		currentNodeDetails.setStopTime(stopTime);
-		monitorMap.put(getNodeId(),currentNodeDetails);
+		monitorMap.put(HazelcastManager.getNodeId(),currentNodeDetails);
 		
 		printLog("Shutting down hazelcast client...",true);
-		hz.getLifecycleService().shutdown();
+		HazelcastManager.getInstance().getLifecycleService().shutdown();
 		
 		printParameters ("Finished");
 		printLog("Results:"); 
@@ -183,28 +178,4 @@ public class WorkerPool {
 		
 		System.out.println (includeTimeStamp?((new Timestamp((new java.util.Date()).getTime())) + " - " + textToPrint):textToPrint);
 	}
-	
-    private static String getNodeId () {
-    	String result = "unknown";
-        try {
-            result = hz.getCluster().getLocalMember().getUuid();
-        } catch (Exception ex) {}
-        return result;
-    }
-
-    private static String getInetAddress () {
-    	String result = "unknown";
-        try {
-            result = hz.getCluster().getLocalMember().getSocketAddress().getHostName();
-        } catch (Exception ex) {}
-        return result;
-    }
-
-    private static int getInetPort () {
-    	int result = 0;
-        try {
-            result = hz.getCluster().getLocalMember().getSocketAddress().getPort();
-        } catch (Exception ex) {}
-        return result;
-    }
 } 

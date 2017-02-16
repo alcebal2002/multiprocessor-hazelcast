@@ -8,8 +8,6 @@ import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Map;
 
-import com.hazelcast.core.Hazelcast;
-import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.IMap;
 import com.hazelcast.core.IQueue;
 
@@ -40,8 +38,7 @@ public class HazelcastQueueProducer {
 			printLog (""); 
 		} 
 		  
-		HazelcastInstance hz = Hazelcast.newHazelcastInstance();
-		IQueue<String> queue = hz.getQueue( taskQueueName );
+		IQueue<String> queue = HazelcastManager.getInstance().getQueue( taskQueueName );
 
 /*		
 		IMap<String,IMap<String,String>> historicalTicksMap = hz.getMap(hitoricalTicksMapName);
@@ -74,7 +71,7 @@ public class HazelcastQueueProducer {
 		
 		while ( true ) {
 			result = "";
-			IMap<String,NodeDetails> monitorMap = hz.getMap(monitorMapName);
+			IMap<String,NodeDetails> monitorMap = HazelcastManager.getInstance().getMap(monitorMapName);
 			if (monitorMap != null && monitorMap.size() > 0) {
 				printLog("******************************************");
 				printLog("Node | Start Time | Stop Time | # Tasks processed | Avg time");
@@ -119,7 +116,7 @@ public class HazelcastQueueProducer {
 			totalProcessed = 0;
 		}
 		printLog("Shutting down hazelcast client...",true);
-		hz.getLifecycleService().shutdown();
+		HazelcastManager.getInstance().getLifecycleService().shutdown();
 		
 		writeLogFile (result);
 		

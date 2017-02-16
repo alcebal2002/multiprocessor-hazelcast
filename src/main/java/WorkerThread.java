@@ -1,6 +1,6 @@
+
 import java.sql.Timestamp;
 
-import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.IMap;
 
 /*
@@ -11,34 +11,32 @@ import org.jsoup.select.Elements;
 
 public class WorkerThread implements Runnable { 
 
-	private String command; 
+	private String taskItem; 
 	private int processTime; 
 	private int retrySleepTime; 
 	private int retryMaxAttempts; 
 	private long elapsedTimeMillis;
-	private HazelcastInstance hz;
 	private String nodeId;
 	private static final String monitorMapName = "monitorMap";
 
-	public WorkerThread(int processTime, String command, int retrySleepTime, int retryMaxAttempts, HazelcastInstance hz, String nodeId) { 
-		this.command=command; 
+	public WorkerThread(final int processTime, final String taskItem, final int retrySleepTime, final int retryMaxAttempts, final String nodeId) { 
+		this.taskItem=taskItem; 
 		this.processTime=processTime; 
 		this.retrySleepTime=retrySleepTime; 
 		this.retryMaxAttempts=retryMaxAttempts;
-		this.hz = hz;
 		this.nodeId = nodeId;
 	} 
 
 	@Override 
 	public void run() { 
-		printLog(Thread.currentThread().getName()+" Start. Command = "+command,true); 
+		printLog(Thread.currentThread().getName()+" Start. Command = "+taskItem,true); 
 		long startTime = System.currentTimeMillis(); 
 
 		processCommand(); 
 
 		long stopTime = System.currentTimeMillis(); 
 		elapsedTimeMillis = stopTime - startTime; 
-		IMap<String, NodeDetails> monitorMap = hz.getMap(monitorMapName);
+		IMap<String, NodeDetails> monitorMap = HazelcastManager.getInstance().getMap(monitorMapName);
 		
 		monitorMap.lock(nodeId);
 		NodeDetails nodeDetails = monitorMap.get(nodeId);
@@ -46,7 +44,7 @@ public class WorkerThread implements Runnable {
 		monitorMap.put(nodeId,nodeDetails);
 		monitorMap.unlock(nodeId);
 		
-		printLog(Thread.currentThread().getName()+" End. Command = "+command+" ["+elapsedTimeMillis+"ms]",true); 
+		printLog(Thread.currentThread().getName()+" End. Command = "+taskItem+" ["+elapsedTimeMillis+"ms]",true); 
 	} 
 
 	private void processCommand() { 
@@ -94,7 +92,7 @@ public class WorkerThread implements Runnable {
 
 	@Override 
 	public String toString(){ 
-		return this.command; 
+		return this.taskItem; 
 	} 
 
 	private static void printLog (final String textToPrint, final boolean includeTimeStamp) {
