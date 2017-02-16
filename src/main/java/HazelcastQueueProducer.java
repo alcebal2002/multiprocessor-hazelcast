@@ -124,7 +124,7 @@ public class HazelcastQueueProducer {
 	
 	private static void writeLogFile (final String result) {
 		
-		Path path = Paths.get("results/"+LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HHmmss"))+".csv");
+		Path path = Paths.get("target/"+LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HHmmss"))+".csv");
 		printLog("Writing result file " + path);
 		try (BufferedWriter writer = Files.newBufferedWriter(path)) {
 		    writer.write(result);
