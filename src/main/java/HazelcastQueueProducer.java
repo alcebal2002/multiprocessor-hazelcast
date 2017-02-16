@@ -19,6 +19,7 @@ public class HazelcastQueueProducer {
 	private static int sleepTime = 0;
 	private static boolean sendStopProcessingSignal = false;
 	private static final String stopProcessingSignal = "STOP_PROCESSING_SIGNAL";
+//	private static final String hitoricalTicksMapName = "historicalTicksMap";
 	private static final String taskQueueName = "taskQueue";
 	private static final String monitorMapName = "monitorMap";
 	private static final int monitorDelay = 10;
@@ -41,9 +42,21 @@ public class HazelcastQueueProducer {
 		  
 		HazelcastInstance hz = Hazelcast.newHazelcastInstance();
 		IQueue<String> queue = hz.getQueue( taskQueueName );
+
+/*		
+		IMap<String,IMap<String,String>> historicalTicksMap = hz.getMap(hitoricalTicksMapName);
+		
+		CSVReader reader = new CSVReader(new FileReader("src/main/resources/eurofxref-hist.csv"));
+	    String [] nextLine;
+	    while ((nextLine = reader.readNext()) != null) {
+//	    	historicalTicksMap.put(arg0, arg1)
+	    	printLog (nextLine[0] + nextLine[1] + "etc...");
+	    }
+	    reader.close();
+*/		
 		for ( int k = 1; k <= numberOfTaks; k++ ) {
 		  queue.put( "Task-"+k );
-		  System.out.println( "Producing: " + k );
+		  printLog ("Producing: " + k);
 		  Thread.sleep(sleepTime);
 		}
 		
