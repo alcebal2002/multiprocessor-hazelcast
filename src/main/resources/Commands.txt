@@ -1,0 +1,6 @@
+
+Multithread Consumer
+java -Dhazelcast.config=myhazelcast.xml -cp .;..\lib\hazelcast-3.7.4.jar WorkerPool 20 20 100 25 0 5000 5000 5 5 3
+
+Hazelcast queue producer
+java -Dhazelcast.config=myhazelcast.xml -cp .;..\lib\hazelcast-3.7.4.jar HazelcastQueueProducer 1000 5
