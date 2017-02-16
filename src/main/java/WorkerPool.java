@@ -22,10 +22,6 @@ public class WorkerPool {
 
 	private static int taskNumber = 0; 
 	
-	private static final String stopProcessingSignal = "STOP_PROCESSING_SIGNAL";
-	private static final String taskQueueName = "taskQueue";
-	private static final String monitorMapName = "monitorMap";
-	
 	public static void main(String args[]) throws InterruptedException { 
 
 		if (args != null && args.length == 9) { 
@@ -44,7 +40,7 @@ public class WorkerPool {
 			printLog("Usage: java WorkerPool <pool core size> <pool max size> <queue capacity> <timeout (secs)> <task process (ms)> <retry sleep (ms)> <retry max attempts> <initial sleep (secs)> <monitor sleep (secs)>"); 
 			printLog("  Example: java WorkerPool 10 15 20 50 5000 5000 5 5 3"); 
 			printLog(""); 
-			printLog("System will continue processing until a task with " + stopProcessingSignal + " content is received");
+			printLog("System will continue processing until a task with " + HazelcastManager.getStopProcessingSignal() + " content is received");
 			printLog(""); 
 		} 
 
@@ -86,17 +82,16 @@ public class WorkerPool {
 		monitorThread.start(); 
 
 		//Initialize and define the hazelcast cache maps and queues
-		IMap<String, NodeDetails> monitorMap = HazelcastManager.getInstance().getMap(monitorMapName);
-		monitorMap.put(HazelcastManager.getNodeId(),currentNodeDetails);
+		HazelcastManager.putIntoMap(HazelcastManager.getMonitorMapName(), HazelcastManager.getNodeId(), currentNodeDetails);
 		
 		// Listen to tasks (taskQueue) and submit work to the thread pool 
-		IQueue<String> hazelcastTaskQueue = HazelcastManager.getInstance().getQueue( taskQueueName );
+		IQueue<String> hazelcastTaskQueue = HazelcastManager.getInstance().getQueue( HazelcastManager.getTaskQueueName() );
 		while ( true ) {
 			String item = hazelcastTaskQueue.take();
 			printLog("Consumed: " + item + " from Hazelcast Task Queue",true);
-			if ( stopProcessingSignal.equals(item) ) {
-				printLog("Detected " + stopProcessingSignal, true);
-				hazelcastTaskQueue.put( stopProcessingSignal );
+			if ( (HazelcastManager.getStopProcessingSignal()).equals(item) ) {
+				printLog("Detected " + HazelcastManager.getStopProcessingSignal(), true);
+				hazelcastTaskQueue.put( HazelcastManager.getStopProcessingSignal() );
 				break;
 			}
 			executorPool.execute(new WorkerThread(processTime,item,retrySleepTime,retryMaxAttempts, HazelcastManager.getNodeId()));
@@ -121,9 +116,9 @@ public class WorkerPool {
 		printLog("Shutting down monitor thread... done",true); 
 		long stopTime = System.currentTimeMillis();
 
-		currentNodeDetails = monitorMap.get(HazelcastManager.getNodeId());
+		currentNodeDetails = (NodeDetails)HazelcastManager.getFromMap(HazelcastManager.getMonitorMapName(),HazelcastManager.getNodeId());
 		currentNodeDetails.setStopTime(stopTime);
-		monitorMap.put(HazelcastManager.getNodeId(),currentNodeDetails);
+		HazelcastManager.putIntoMap(HazelcastManager.getMonitorMapName(), HazelcastManager.getNodeId(), currentNodeDetails);
 		
 		printLog("Shutting down hazelcast client...",true);
 		HazelcastManager.getInstance().getLifecycleService().shutdown();

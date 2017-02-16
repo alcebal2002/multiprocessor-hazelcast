@@ -9,17 +9,13 @@ import java.util.List;
 import java.util.Map;
 
 import com.hazelcast.core.IMap;
-import com.hazelcast.core.IQueue;
 
 public class HazelcastQueueProducer {
 	
 	private static int numberOfTaks = 0;
 	private static int sleepTime = 0;
 	private static boolean sendStopProcessingSignal = false;
-	private static final String stopProcessingSignal = "STOP_PROCESSING_SIGNAL";
 //	private static final String hitoricalTicksMapName = "historicalTicksMap";
-	private static final String taskQueueName = "taskQueue";
-	private static final String monitorMapName = "monitorMap";
 	private static final int monitorDelay = 10;
 	
 	public static void main( String[] args ) throws Exception {
@@ -38,28 +34,15 @@ public class HazelcastQueueProducer {
 			printLog (""); 
 		} 
 		  
-		IQueue<String> queue = HazelcastManager.getInstance().getQueue( taskQueueName );
 
-/*		
-		IMap<String,IMap<String,String>> historicalTicksMap = hz.getMap(hitoricalTicksMapName);
-		
-		CSVReader reader = new CSVReader(new FileReader("src/main/resources/eurofxref-hist.csv"));
-	    String [] nextLine;
-	    while ((nextLine = reader.readNext()) != null) {
-//	    	historicalTicksMap.put(arg0, arg1)
-	    	printLog (nextLine[0] + nextLine[1] + "etc...");
-	    }
-	    reader.close();
-*/		
 		for ( int k = 1; k <= numberOfTaks; k++ ) {
-		  queue.put( "Task-"+k );
-		  printLog ("Producing: " + k);
-		  Thread.sleep(sleepTime);
+			HazelcastManager.putIntoQueue(HazelcastManager.getTaskQueueName(), ("Task-"+k) );
+			printLog ("Producing: " + k);
+			Thread.sleep(sleepTime);
 		}
 		
 		if (sendStopProcessingSignal) {
-			printLog ("Sending " + stopProcessingSignal,true);
-			queue.put( stopProcessingSignal );
+			HazelcastManager.putStopSignalIntoQueue(HazelcastManager.getTaskQueueName());
 		}
 		printLog ("Producer Finished!",true);
 
@@ -71,7 +54,7 @@ public class HazelcastQueueProducer {
 		
 		while ( true ) {
 			result = "";
-			IMap<String,NodeDetails> monitorMap = HazelcastManager.getInstance().getMap(monitorMapName);
+			IMap<String,NodeDetails> monitorMap = HazelcastManager.getInstance().getMap(HazelcastManager.getMonitorMapName());
 			if (monitorMap != null && monitorMap.size() > 0) {
 				printLog("******************************************");
 				printLog("Node | Start Time | Stop Time | # Tasks processed | Avg time");
@@ -102,9 +85,9 @@ public class HazelcastQueueProducer {
 							avgElapsedTime+"\n";
 				}
 			} else {
-				printLog("No " + monitorMapName + " found",true);
+				printLog("No " + HazelcastManager.getMonitorMapName() + " found",true);
 			}
-			printLog("Waiting " + monitorDelay + " secs to check " + monitorMapName,true);
+			printLog("Waiting " + monitorDelay + " secs to check " + HazelcastManager.getMonitorMapName(),true);
 			Thread.sleep(monitorDelay*1000);
 			
 			if (totalProcessed > 0 && totalProcessedPrev == totalProcessed) {
