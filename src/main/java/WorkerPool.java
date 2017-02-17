@@ -141,7 +141,6 @@ public class WorkerPool {
 		HazelcastManager.printLog("**************************************************"); 
 		HazelcastManager.printLog("  - Min elapsed execution time: " + executorPool.getMinExecutionTime() + " ms"); 
 		HazelcastManager.printLog("  - Max elapsed execution time: " + executorPool.getMaxExecutionTime() + " ms"); 
-		HazelcastManager.printLog("  - Avg elapsed execution time: " + (executorPool.getMaxExecutionTime() + executorPool.getMinExecutionTime())/2 + " ms");
 		HazelcastManager.printLog("**************************************************"); 
 		System.exit(0);	
 	}
