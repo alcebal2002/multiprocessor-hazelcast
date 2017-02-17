@@ -5,6 +5,7 @@ import java.nio.file.Paths;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -34,7 +35,9 @@ public class HazelcastQueueProducer {
 			printLog (""); 
 		} 
 		  
-
+		// Populate historical data
+		HazelcastManager.populateHistoricalData();
+		
 		for ( int k = 1; k <= numberOfTaks; k++ ) {
 			HazelcastManager.putIntoQueue(HazelcastManager.getTaskQueueName(), ("Task-"+k) );
 			printLog ("Producing: " + k);
@@ -98,6 +101,14 @@ public class HazelcastQueueProducer {
 			totalProcessedPrev = totalProcessed;
 			totalProcessed = 0;
 		}
+		
+		Iterator<Object> iterator = HazelcastManager.getInstance().getList(HazelcastManager.getHistoricalListName()).iterator();
+		int numHistoricalRecords=0;
+		while ( iterator.hasNext() ) {
+			numHistoricalRecords++;
+			printLog ("Historical Value["+numHistoricalRecords+"]: " + iterator.next());
+		}
+		
 		printLog("Shutting down hazelcast client...",true);
 		HazelcastManager.getInstance().getLifecycleService().shutdown();
 		

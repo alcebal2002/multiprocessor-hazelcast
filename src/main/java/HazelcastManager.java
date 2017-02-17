@@ -1,13 +1,26 @@
+import java.io.FileReader;
 import java.sql.Timestamp;
+import java.util.Arrays;
 
 import com.hazelcast.core.Hazelcast;
 import com.hazelcast.core.HazelcastInstance;
+import com.opencsv.CSVReader;
 
 public class HazelcastManager {
 
 	private static HazelcastInstance hazelcastInstance;
 	private static final String taskQueueName = "taskQueue";
 	private static final String monitorMapName = "monitorMap";
+	private static final String historicalListName = "historicalList";
+	private static final String[] historicalListHeader = {"Date","USD","JPY","BGN","CYP",
+														  "CZK","DKK","EEK","GBP","HUF",
+														  "LTL","LVL","MTL","PLN","ROL",
+														  "RON","SEK","SIT","SKK","CHF",
+														  "ISK","NOK","HRK","RUB","TRL",
+														  "TRY","AUD","BRL","CAD","CNY",
+														  "HKD","IDR","INR","KRW","MXN",
+														  "MYR","NZD","PHP","SGD","THB",
+														  "ZAR","ILS"};
 
 	private static final String stopProcessingSignal = "STOP_PROCESSING_SIGNAL";
 
@@ -33,9 +46,13 @@ public class HazelcastManager {
 		return stopProcessingSignal;
 	}
 
+	public static String getHistoricalListName () {
+		return historicalListName;
+	}
+
 	public static void putStopSignalIntoQueue (final String queueName) {
-		printLog ("Sending " + stopProcessingSignal,true);
-		putIntoQueue(queueName,stopProcessingSignal);
+		printLog ("Sending " + getStopProcessingSignal(),true);
+		putIntoQueue(queueName,getStopProcessingSignal());
 	}
 
 	public static void putIntoQueue (final String queueName, final String value) {
@@ -46,7 +63,7 @@ public class HazelcastManager {
 		}
 	}
 
-	public static Object getFromMap (final String mapName, final String key) {
+	public static Object getFromMap  (final String mapName, final String key) {
 		return getInstance().getMap(mapName).get(key);
 	}
 	
@@ -54,6 +71,10 @@ public class HazelcastManager {
 		getInstance().getMap(mapName).put(key,value);
 	}
 	
+	public static void putIntoList (final String listName, final Object value) {
+		getInstance().getList(listName).add(value);
+	}
+
 	public static String getNodeId () {
     	String result = "unknown";
         try {
@@ -78,6 +99,27 @@ public class HazelcastManager {
         return result;
     }
 
+    public static int populateHistoricalData () {
+    	int counter=0;
+    	printLog ("Populating historical data...",true);
+    	try {
+	    	CSVReader reader = new CSVReader(new FileReader("src/main/resources/eurofxref-hist.csv"));
+	        String [] nextLine;
+	        while ((nextLine = reader.readNext()) != null) {
+	        	counter++;
+	        	putIntoList (getHistoricalListName(), Arrays.toString(nextLine));
+	        	//printLog (nextLine[0] + nextLine[1] + "etc...");
+	        }
+	        reader.close();
+	    	printLog ("Populating historical data done",true);
+	    	
+    	} catch (Exception ex) {
+    		printLog ("Exception: " + ex.getClass() + " - " + ex.getMessage());
+    	}
+    	return counter;
+    }
+    
+    
     private static void printLog (final String textToPrint) {
 		printLog (textToPrint, false);
 	}
