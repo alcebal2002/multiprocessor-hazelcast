@@ -120,11 +120,11 @@ public class HazelcastManager {
     }
     
     
-    private static void printLog (final String textToPrint) {
+	public static void printLog (final String textToPrint) {
 		printLog (textToPrint, false);
 	}
 
-	private static void printLog (final String textToPrint, final boolean includeTimeStamp) {
+	public static void printLog (final String textToPrint, final boolean includeTimeStamp) {
 		
 		System.out.println (includeTimeStamp?((new Timestamp((new java.util.Date()).getTime())) + " - " + textToPrint):textToPrint);
 	}

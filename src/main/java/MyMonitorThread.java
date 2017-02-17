@@ -22,7 +22,7 @@ public class MyMonitorThread implements Runnable {
         while(run) {
 					
 			try {
-				printLog (String.format("["+inetAddress+"][monitor] [%d/%d] Active: %d, Completed: %d, Task: %d, isShutdown: %s, isTerminated: %s",
+				HazelcastManager.printLog (String.format("["+inetAddress+"][monitor] [%d/%d] Active: %d, Completed: %d, Task: %d, isShutdown: %s, isTerminated: %s",
 					this.executor.getPoolSize(),
 					this.executor.getCorePoolSize(),
 					this.executor.getActiveCount(),
@@ -36,9 +36,4 @@ public class MyMonitorThread implements Runnable {
 			}
         }
     }
-    
-	private static void printLog (final String textToPrint, final boolean includeTimeStamp) {
-		
-		System.out.println (includeTimeStamp?((new Timestamp((new java.util.Date()).getTime())) + " - " + textToPrint):textToPrint);
-	}
 }

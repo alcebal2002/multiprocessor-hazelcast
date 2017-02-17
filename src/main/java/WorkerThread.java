@@ -28,7 +28,7 @@ public class WorkerThread implements Runnable {
 
 	@Override 
 	public void run() { 
-		printLog(Thread.currentThread().getName()+" Start. Command = "+taskItem,true); 
+		HazelcastManager.printLog(Thread.currentThread().getName()+" Start. Command = "+taskItem,true); 
 		long startTime = System.currentTimeMillis(); 
 
 		processCommand(); 
@@ -43,7 +43,7 @@ public class WorkerThread implements Runnable {
 		monitorMap.put(nodeId,nodeDetails);
 		monitorMap.unlock(nodeId);
 		
-		printLog(Thread.currentThread().getName()+" End. Command = "+taskItem+" ["+elapsedTimeMillis+"ms]",true); 
+		HazelcastManager.printLog(Thread.currentThread().getName()+" End. Command = "+taskItem+" ["+elapsedTimeMillis+"ms]",true); 
 	} 
 
 	private void processCommand() { 
@@ -93,9 +93,4 @@ public class WorkerThread implements Runnable {
 	public String toString(){ 
 		return this.taskItem; 
 	} 
-
-	private static void printLog (final String textToPrint, final boolean includeTimeStamp) {
-		
-		System.out.println (includeTimeStamp?((new Timestamp((new java.util.Date()).getTime())) + " - " + textToPrint):textToPrint);
-	}
 }

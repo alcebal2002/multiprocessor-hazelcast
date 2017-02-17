@@ -34,16 +34,16 @@ public class WorkerPool {
 			initialSleep = Integer.parseInt(args[7]); 
 			monitorSleep = Integer.parseInt(args[8]); 
 		} else { 
-			printLog("Not all parameters informed. Using default values"); 
-			printLog(""); 
-			printLog("Usage: java WorkerPool <pool core size> <pool max size> <queue capacity> <timeout (secs)> <task process (ms)> <retry sleep (ms)> <retry max attempts> <initial sleep (secs)> <monitor sleep (secs)>"); 
-			printLog("  Example: java WorkerPool 10 15 20 50 5000 5000 5 5 3"); 
-			printLog(""); 
-			printLog("System will continue processing until a task with " + HazelcastManager.getStopProcessingSignal() + " content is received");
-			printLog(""); 
+			HazelcastManager.printLog("Not all parameters informed. Using default values"); 
+			HazelcastManager.printLog(""); 
+			HazelcastManager.printLog("Usage: java WorkerPool <pool core size> <pool max size> <queue capacity> <timeout (secs)> <task process (ms)> <retry sleep (ms)> <retry max attempts> <initial sleep (secs)> <monitor sleep (secs)>"); 
+			HazelcastManager.printLog("  Example: java WorkerPool 10 15 20 50 5000 5000 5 5 3"); 
+			HazelcastManager.printLog(""); 
+			HazelcastManager.printLog("System will continue processing until a task with " + HazelcastManager.getStopProcessingSignal() + " content is received");
+			HazelcastManager.printLog(""); 
 		} 
 
-		printLog("Waiting " + initialSleep + " secs to start...",true); 
+		HazelcastManager.printLog("Waiting " + initialSleep + " secs to start...",true); 
 		Thread.sleep(initialSleep*1000); 
 
 		printParameters ("Started");
@@ -87,46 +87,46 @@ public class WorkerPool {
 		IQueue<String> hazelcastTaskQueue = HazelcastManager.getInstance().getQueue( HazelcastManager.getTaskQueueName() );
 		while ( true ) {
 			String item = hazelcastTaskQueue.take();
-			printLog("Consumed: " + item + " from Hazelcast Task Queue",true);
+			HazelcastManager.printLog("Consumed: " + item + " from Hazelcast Task Queue",true);
 			if ( (HazelcastManager.getStopProcessingSignal()).equals(item) ) {
-				printLog("Detected " + HazelcastManager.getStopProcessingSignal(), true);
+				HazelcastManager.printLog("Detected " + HazelcastManager.getStopProcessingSignal(), true);
 				hazelcastTaskQueue.put( HazelcastManager.getStopProcessingSignal() );
 				break;
 			}
 			executorPool.execute(new WorkerThread(processTime,item,retrySleepTime,retryMaxAttempts, HazelcastManager.getNodeId()));
 			taskNumber++;
 		}
-		printLog("Hazelcast consumer Finished",true);
+		HazelcastManager.printLog("Hazelcast consumer Finished",true);
 
 		// Shut down the pool 
-		printLog("Shutting down executor pool...",true); 
+		HazelcastManager.printLog("Shutting down executor pool...",true); 
 		executorPool.shutdown(); 
-		printLog(executorPool.getTaskCount() + " tasks. No additional tasks will be accepted",true); 
+		HazelcastManager.printLog(executorPool.getTaskCount() + " tasks. No additional tasks will be accepted",true); 
 
 		// Shut down the monitor thread 
 		while (!executorPool.isTerminated()) { 
-			printLog("Waiting for all the Executor to terminate",true); 
+			HazelcastManager.printLog("Waiting for all the Executor to terminate",true); 
 			Thread.sleep(monitorSleep*1000); 
 		} 
 
-		printLog("Executor terminated",true); 
-		printLog("Shutting down monitor thread...",true); 
+		HazelcastManager.printLog("Executor terminated",true); 
+		HazelcastManager.printLog("Shutting down monitor thread...",true); 
 		monitor.shutdown(); 
-		printLog("Shutting down monitor thread... done",true); 
+		HazelcastManager.printLog("Shutting down monitor thread... done",true); 
 		long stopTime = System.currentTimeMillis();
 
 		currentNodeDetails = (NodeDetails)HazelcastManager.getFromMap(HazelcastManager.getMonitorMapName(),HazelcastManager.getNodeId());
 		currentNodeDetails.setStopTime(stopTime);
 		HazelcastManager.putIntoMap(HazelcastManager.getMonitorMapName(), HazelcastManager.getNodeId(), currentNodeDetails);
 		
-		printLog("Shutting down hazelcast client...",true);
+		HazelcastManager.printLog("Shutting down hazelcast client...",true);
 		HazelcastManager.getInstance().getLifecycleService().shutdown();
 		
 		printParameters ("Finished");
-		printLog("Results:"); 
-		printLog("**************************************************"); 
-		printLog("  - Start time  : " + new Timestamp(startTime)); 
-		printLog("  - Stop time   : " + new Timestamp(stopTime)); 
+		HazelcastManager.printLog("Results:"); 
+		HazelcastManager.printLog("**************************************************"); 
+		HazelcastManager.printLog("  - Start time  : " + new Timestamp(startTime)); 
+		HazelcastManager.printLog("  - Stop time   : " + new Timestamp(stopTime)); 
 
 		long millis = stopTime - startTime;
 		long days = TimeUnit.MILLISECONDS.toDays(millis);
@@ -137,39 +137,30 @@ public class WorkerPool {
 		millis -= TimeUnit.MINUTES.toMillis(minutes); 
 		long seconds = TimeUnit.MILLISECONDS.toSeconds(millis);
 
-		printLog("  - Elapsed time: " + (stopTime - startTime) + " ms - (" + hours + " hrs " + minutes + " min " + seconds + " secs)"); 
-		printLog("**************************************************"); 
-		printLog("  - Min elapsed execution time: " + executorPool.getMinExecutionTime() + " ms"); 
-		printLog("  - Max elapsed execution time: " + executorPool.getMaxExecutionTime() + " ms"); 
-		printLog("  - Avg elapsed execution time: " + (executorPool.getMaxExecutionTime() + executorPool.getMinExecutionTime())/2 + " ms");
-		printLog("**************************************************"); 
+		HazelcastManager.printLog("  - Elapsed time: " + (stopTime - startTime) + " ms - (" + hours + " hrs " + minutes + " min " + seconds + " secs)"); 
+		HazelcastManager.printLog("**************************************************"); 
+		HazelcastManager.printLog("  - Min elapsed execution time: " + executorPool.getMinExecutionTime() + " ms"); 
+		HazelcastManager.printLog("  - Max elapsed execution time: " + executorPool.getMaxExecutionTime() + " ms"); 
+		HazelcastManager.printLog("  - Avg elapsed execution time: " + (executorPool.getMaxExecutionTime() + executorPool.getMinExecutionTime())/2 + " ms");
+		HazelcastManager.printLog("**************************************************"); 
 		System.exit(0);	
 	}
 	
 	private static void printParameters (final String title) {
-		printLog("");
-		printLog("**************************************************"); 
-		printLog(title + " WorkerPool with the following parameters:"); 
-		printLog("**************************************************"); 
-		printLog("  - pool core size       : " + poolCoreSize); 
-		printLog("  - pool max size        : " + poolMaxSize); 
-		printLog("  - queue capacity       : " + queueCapacity); 
-		printLog("  - timeout (secs)       : " + timeoutSecs); 
-		printLog("  - number of tasks      : " + taskNumber); 
-		printLog("  - task process (ms)    : " + processTime); 
-		printLog("  - retry sleep (ms)     : " + retrySleepTime); 
-		printLog("  - retry max attempts   : " + retryMaxAttempts);
-		printLog("  - initial sleep (secs) : " + retryMaxAttempts); 
-		printLog("  - monitor sleep (secs) : " + monitorSleep); 
-		printLog("**************************************************");
-	}
-	
-	private static void printLog (final String textToPrint) {
-		printLog (textToPrint, false);
-	}
-
-	private static void printLog (final String textToPrint, final boolean includeTimeStamp) {
-		
-		System.out.println (includeTimeStamp?((new Timestamp((new java.util.Date()).getTime())) + " - " + textToPrint):textToPrint);
+		HazelcastManager.printLog("");
+		HazelcastManager.printLog("**************************************************"); 
+		HazelcastManager.printLog(title + " WorkerPool with the following parameters:"); 
+		HazelcastManager.printLog("**************************************************"); 
+		HazelcastManager.printLog("  - pool core size       : " + poolCoreSize); 
+		HazelcastManager.printLog("  - pool max size        : " + poolMaxSize); 
+		HazelcastManager.printLog("  - queue capacity       : " + queueCapacity); 
+		HazelcastManager.printLog("  - timeout (secs)       : " + timeoutSecs); 
+		HazelcastManager.printLog("  - number of tasks      : " + taskNumber); 
+		HazelcastManager.printLog("  - task process (ms)    : " + processTime); 
+		HazelcastManager.printLog("  - retry sleep (ms)     : " + retrySleepTime); 
+		HazelcastManager.printLog("  - retry max attempts   : " + retryMaxAttempts);
+		HazelcastManager.printLog("  - initial sleep (secs) : " + retryMaxAttempts); 
+		HazelcastManager.printLog("  - monitor sleep (secs) : " + monitorSleep); 
+		HazelcastManager.printLog("**************************************************");
 	}
 } 
