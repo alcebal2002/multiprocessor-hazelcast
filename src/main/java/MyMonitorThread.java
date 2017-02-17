@@ -5,7 +5,7 @@ public class MyMonitorThread implements Runnable {
     private int seconds;
     private boolean run=true;
 
-    private String inetAddress= "unknown";
+    private String inetAddress;
 
     public MyMonitorThread(MyThreadPoolExecutor executor, int delay, String inetAddress) {
         this.executor=executor;

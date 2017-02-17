@@ -17,7 +17,6 @@ public class WorkerThread implements Runnable {
 	private int retryMaxAttempts; 
 	private long elapsedTimeMillis;
 	private String nodeId;
-	private static final String monitorMapName = "monitorMap";
 
 	public WorkerThread(final int processTime, final String taskItem, final int retrySleepTime, final int retryMaxAttempts, final String nodeId) { 
 		this.taskItem=taskItem; 
@@ -36,7 +35,7 @@ public class WorkerThread implements Runnable {
 
 		long stopTime = System.currentTimeMillis(); 
 		elapsedTimeMillis = stopTime - startTime; 
-		IMap<String, NodeDetails> monitorMap = HazelcastManager.getInstance().getMap(monitorMapName);
+		IMap<String, NodeDetails> monitorMap = HazelcastManager.getInstance().getMap(HazelcastManager.getMonitorMapName());
 		
 		monitorMap.lock(nodeId);
 		NodeDetails nodeDetails = monitorMap.get(nodeId);

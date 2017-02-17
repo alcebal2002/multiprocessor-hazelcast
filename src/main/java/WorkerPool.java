@@ -4,7 +4,6 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 
-import com.hazelcast.core.IMap;
 import com.hazelcast.core.IQueue;
 
 public class WorkerPool {
