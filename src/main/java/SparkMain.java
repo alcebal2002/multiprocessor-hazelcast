@@ -3,6 +3,7 @@ import static spark.Spark.halt;
 
 import java.io.StringWriter;
 import java.sql.Timestamp;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -20,7 +21,9 @@ public class SparkMain {
 
 	public static void main(String[] args) {
 
-		freemarkerConfig.setClassForTemplateLoading(SparkMain.class,"/freemarker_templates/");
+		freemarkerConfig.setClassForTemplateLoading(SparkMain.class,"/templates/");
+
+		Spark.staticFileLocation("/public");
 		
 		get("/", (req, res) -> "Welcome to Spark !");
         get("/stop", (req, res) -> halt(401, "Go away!"));
@@ -39,7 +42,7 @@ public class SparkMain {
             return writer;
         });
         
-        Spark.post("/sait", (request, response) -> {
+        Spark.post("/test_freemarker_result", (request, response) -> {
             StringWriter writer = new StringWriter();
  
             try {
@@ -61,7 +64,7 @@ public class SparkMain {
         });
         
         get("/monitor", (req, res) -> {
-        	
+        	StringWriter writer = new StringWriter();
     		List<Long> elapsedArrayList;
     		long avgElapsedTime;
     		String result = "No " + HazelcastManager.getMonitorMapName() + " found<br/>";
@@ -69,10 +72,10 @@ public class SparkMain {
 			IMap<String,NodeDetails> monitorMap = HazelcastManager.getInstance().getMap(HazelcastManager.getMonitorMapName());
 			if (monitorMap != null && monitorMap.size() > 0) {
 				result = "Node;Start Time;Stop Time;# Tasks processed;Avg time<br/>";
+/*
 				for (Map.Entry<String,NodeDetails> nodeEntry : monitorMap.entrySet()) {
 
 					elapsedArrayList = nodeEntry.getValue().getElapsedArray();
-					
 					avgElapsedTime = 0L;
 					if (elapsedArrayList.size() > 0) {
 						for (int i=0; i < elapsedArrayList.size(); i++) {
@@ -87,8 +90,15 @@ public class SparkMain {
 							elapsedArrayList.size() + ";" + 
 							avgElapsedTime+"<br/>";
 				}
+*/
+				
+				Map<String, Object> root = new HashMap<String, Object>();
+				root.put( "monitorMap", monitorMap );
+				Template resultTemplate = freemarkerConfig.getTemplate("result.ftl");
+				HazelcastManager.printLog(monitorMap.toString());
+				resultTemplate.process(root, writer);
 			}
-        	return (result);
+			return writer;
         });
     }
 }

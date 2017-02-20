@@ -1,4 +1,5 @@
 import java.io.Serializable;
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -6,7 +7,7 @@ import java.util.List;
 public class NodeDetails implements Serializable {
 	
 	private static final long serialVersionUID = 1L;
-	private String nodeId;
+	public String nodeId;
 	private String inetAddres;
 	private int inetPort;
 
@@ -160,5 +161,13 @@ public class NodeDetails implements Serializable {
 	}
 	protected final void addElapsedTime(long elapsedTime) {
 		this.elapsedArray.add(elapsedTime);
-	} 
+	}
+	
+	protected final String toCSV () {
+		return  this.getNodeId() + ";" +
+				this.getInetAddres() + ";" +
+				this.getInetPort() + ";" +
+				((this.getStopTime()>0L)?(new Timestamp(this.getStopTime())):" - ") + ";" +
+				this.getElapsedArray().size() + ";"; 
+	}
 } 
