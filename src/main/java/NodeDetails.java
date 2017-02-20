@@ -7,7 +7,7 @@ import java.util.List;
 public class NodeDetails implements Serializable {
 	
 	private static final long serialVersionUID = 1L;
-	public String nodeId;
+	private String nodeId;
 	private String inetAddres;
 	private int inetPort;
 
