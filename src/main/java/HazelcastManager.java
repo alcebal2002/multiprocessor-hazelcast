@@ -12,6 +12,7 @@ public class HazelcastManager {
 	private static final String taskQueueName = "taskQueue";
 	private static final String monitorMapName = "monitorMap";
 	private static final String historicalListName = "historicalList";
+/*
 	private static final String[] historicalListHeader = {"Date","USD","JPY","BGN","CYP",
 														  "CZK","DKK","EEK","GBP","HUF",
 														  "LTL","LVL","MTL","PLN","ROL",
@@ -21,12 +22,14 @@ public class HazelcastManager {
 														  "HKD","IDR","INR","KRW","MXN",
 														  "MYR","NZD","PHP","SGD","THB",
 														  "ZAR","ILS"};
+*/
+	private static final String[] inscopeCurrencyList = {"GBP", "USD", "JPY"};
 
 	private static final String stopProcessingSignal = "STOP_PROCESSING_SIGNAL";
 
 	protected HazelcastManager() {}
 	
-	public static HazelcastInstance getInstance () {
+	public static synchronized HazelcastInstance getInstance () {
 		if (hazelcastInstance == null) {
 			hazelcastInstance = Hazelcast.newHazelcastInstance(); 
 		}
