@@ -95,7 +95,6 @@ public class SparkMain {
 				Map<String, Object> root = new HashMap<String, Object>();
 				root.put( "monitorMap", monitorMap );
 				Template resultTemplate = freemarkerConfig.getTemplate("result.ftl");
-				HazelcastManager.printLog(monitorMap.toString());
 				resultTemplate.process(root, writer);
 			}
 			return writer;

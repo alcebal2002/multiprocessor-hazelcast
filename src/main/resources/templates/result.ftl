@@ -1,5 +1,6 @@
 <html>
     <head>
+    	<meta http-equiv="refresh" content="10" />
         <title>Monitor</title>
         <link href="/bootstrap-3.3.7-dist/css/bootstrap.css" rel="stylesheet" />
     </head>
