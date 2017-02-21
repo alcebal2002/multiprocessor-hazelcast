@@ -119,6 +119,20 @@ public class WorkerPool {
 		currentNodeDetails = (NodeDetails)HazelcastManager.getFromMap(HazelcastManager.getMonitorMapName(),HazelcastManager.getNodeId());
 		currentNodeDetails.setStopTime(stopTime);
 		currentNodeDetails.setActiveStatus(false);
+		
+		List<Long> elapsedArrayList = currentNodeDetails.getElapsedArray();
+		long totalProcessed = 0L;
+		long avgElapsedTime = 0L;
+
+		if (elapsedArrayList.size() > 0) {
+			totalProcessed = totalProcessed + elapsedArrayList.size();
+			for (int i=0; i < elapsedArrayList.size(); i++) {
+				avgElapsedTime += elapsedArrayList.get(i);
+			}
+			avgElapsedTime = avgElapsedTime / elapsedArrayList.size();
+		}
+		currentNodeDetails.setAvgElapsedTime(avgElapsedTime);		
+		
 		HazelcastManager.putIntoMap(HazelcastManager.getMonitorMapName(), HazelcastManager.getNodeId(), currentNodeDetails);
 		
 		HazelcastManager.printLog("Shutting down hazelcast client...",true);

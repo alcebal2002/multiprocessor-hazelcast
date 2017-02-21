@@ -53,7 +53,8 @@ public class SparkMain {
                 map.put("email", email);
  
                 resultTemplate.process(map, writer);
-            } catch (Exception e) {
+            } catch (Exception ex) {
+            	HazelcastManager.printLog("Exception: " + ex.getClass() + " - " + ex.getMessage());
                 Spark.halt(500);
             }
  
@@ -62,14 +63,17 @@ public class SparkMain {
         
         get("/monitor", (req, res) -> {
         	StringWriter writer = new StringWriter();
-    		
-			IMap<String,NodeDetails> monitorMap = HazelcastManager.getInstance().getMap(HazelcastManager.getMonitorMapName());
-			if (monitorMap != null && monitorMap.size() > 0) {
+        	try {
+				IMap<String,NodeDetails> monitorMap = HazelcastManager.getInstance().getMap(HazelcastManager.getMonitorMapName());
+//				if (monitorMap != null && monitorMap.size() > 0) {
 				Map<String, Object> root = new HashMap<String, Object>();
 				root.put( "monitorMap", monitorMap );
 				Template resultTemplate = freemarkerConfig.getTemplate("result.ftl");
 				resultTemplate.process(root, writer);
-			}
+//				} else
+        	} catch (Exception ex) {
+        		HazelcastManager.printLog("Exception: " + ex.getClass() + " - " + ex.getMessage());
+        	}
 			return writer;
         });
     }
