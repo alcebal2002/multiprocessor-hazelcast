@@ -25,7 +25,9 @@ public class NodeDetails implements Serializable {
 	private int taskNumber = 0; 
 	private long startTime = 0L; 
 	private long stopTime = 0L; 
+	private String stopTimeString;
 	private List<Long> elapsedArray;
+	private int elapsedArraySize;
 	private String csvFormat;
 
 	
@@ -154,11 +156,18 @@ public class NodeDetails implements Serializable {
 	public final long getStopTime() {
 		return stopTime;
 	}
+	public final String getStopTimeString() {
+		return (new Timestamp(this.stopTime)).toString();
+	}
 	public final void setStopTime(long stopTime) {
 		this.stopTime = stopTime;
 	}
 	public final List<Long> getElapsedArray() {
 		return elapsedArray;
+	}
+	public final int getElapsedArraySize() {
+		this.elapsedArraySize = this.getElapsedArray().size();
+		return elapsedArraySize;
 	}
 	public final void addElapsedTime(long elapsedTime) {
 		this.elapsedArray.add(elapsedTime);
