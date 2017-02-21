@@ -2,8 +2,6 @@ import static spark.Spark.get;
 import static spark.Spark.halt;
 
 import java.io.StringWriter;
-import java.sql.Timestamp;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -65,33 +63,9 @@ public class SparkMain {
         
         get("/monitor", (req, res) -> {
         	StringWriter writer = new StringWriter();
-    		List<Long> elapsedArrayList;
-    		long avgElapsedTime;
-    		String result = "No " + HazelcastManager.getMonitorMapName() + " found<br/>";
     		
 			IMap<String,NodeDetails> monitorMap = HazelcastManager.getInstance().getMap(HazelcastManager.getMonitorMapName());
 			if (monitorMap != null && monitorMap.size() > 0) {
-				result = "Node;Start Time;Stop Time;# Tasks processed;Avg time<br/>";
-/*
-				for (Map.Entry<String,NodeDetails> nodeEntry : monitorMap.entrySet()) {
-
-					elapsedArrayList = nodeEntry.getValue().getElapsedArray();
-					avgElapsedTime = 0L;
-					if (elapsedArrayList.size() > 0) {
-						for (int i=0; i < elapsedArrayList.size(); i++) {
-							avgElapsedTime += elapsedArrayList.get(i);
-						}
-						avgElapsedTime = avgElapsedTime / elapsedArrayList.size();
-					}
-					
-					result += nodeEntry.getValue().getInetAddres() + ":" +  nodeEntry.getValue().getInetPort() + ";" +
-							new Timestamp(nodeEntry.getValue().getStartTime()) + ";" +
-							((nodeEntry.getValue().getStopTime()>0L)?(new Timestamp(nodeEntry.getValue().getStopTime())):" - ") + ";" +
-							elapsedArrayList.size() + ";" + 
-							avgElapsedTime+"<br/>";
-				}
-*/
-				
 				Map<String, Object> root = new HashMap<String, Object>();
 				root.put( "monitorMap", monitorMap );
 				Template resultTemplate = freemarkerConfig.getTemplate("result.ftl");
