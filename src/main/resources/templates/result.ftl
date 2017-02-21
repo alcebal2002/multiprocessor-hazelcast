@@ -7,21 +7,25 @@
   <table class="table table-condensed">
     <thead>
       <tr>
-        <th>NodeId</th>
+      	<th>Status</th>
         <th>Address</th>
         <th>Port</th>
+        <th>Start Time</th>
         <th>End Time</th>
         <th># Processed</th>
+        <th>Avg process time</th>
       </tr>
     </thead>
     <tbody>
 <#list monitorMap?values as nodeDetail>
       <tr>
-        <td>${nodeDetail.nodeId}</td>
+      	<td>${nodeDetail.activeStatus?c}</td>
         <td>${nodeDetail.inetAddres}</td>
         <td>${nodeDetail.inetPort}</td>
+        <td>${nodeDetail.startTimeString}</td>
         <td>${nodeDetail.stopTimeString}</td>
         <td>${nodeDetail.elapsedArraySize}</td>
+        <td>${nodeDetail.avgElapsedTime}</td>
       </tr>
 </#list> 
     </tbody>

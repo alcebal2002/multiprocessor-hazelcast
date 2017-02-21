@@ -10,7 +10,8 @@ public class NodeDetails implements Serializable {
 	private String nodeId;
 	private String inetAddres;
 	private int inetPort;
-
+	private boolean activeStatus = true;
+	
 	// Start up parameters
 	private int poolCoreSize;
 	private int poolMaxSize; 
@@ -25,7 +26,8 @@ public class NodeDetails implements Serializable {
 	private int taskNumber = 0; 
 	private long startTime = 0L; 
 	private long stopTime = 0L; 
-	private String stopTimeString;
+	private long avgElapsedTime = 0L;
+
 	private List<Long> elapsedArray;
 	private int elapsedArraySize;
 	private String csvFormat;
@@ -74,6 +76,12 @@ public class NodeDetails implements Serializable {
 	}
 	public final void setNodeId(String nodeId) {
 		this.nodeId = nodeId;
+	}
+	public final boolean getActiveStatus() {
+		return activeStatus;
+	}
+	public final void setActiveStatus(boolean status) {
+		this.activeStatus = status;
 	}
 	public final String getInetAddres() {
 		return inetAddres;
@@ -150,6 +158,9 @@ public class NodeDetails implements Serializable {
 	public final long getStartTime() {
 		return startTime;
 	}
+	public final String getStartTimeString() {
+		return ((this.getStartTime()>0L)?(new Timestamp(this.getStartTime()).toString()):" - ");
+	}
 	public final void setStartTime(long startTime) {
 		this.startTime = startTime;
 	}
@@ -157,7 +168,7 @@ public class NodeDetails implements Serializable {
 		return stopTime;
 	}
 	public final String getStopTimeString() {
-		return (new Timestamp(this.stopTime)).toString();
+		return ((this.getStopTime()>0L)?(new Timestamp(this.getStopTime()).toString()):" - ");
 	}
 	public final void setStopTime(long stopTime) {
 		this.stopTime = stopTime;
@@ -172,6 +183,15 @@ public class NodeDetails implements Serializable {
 	public final void addElapsedTime(long elapsedTime) {
 		this.elapsedArray.add(elapsedTime);
 	}
+	
+	public final long getAvgElapsedTime() {
+		return avgElapsedTime;
+	}
+
+	public final void setAvgElapsedTime(long avgElapsedTime) {
+		this.avgElapsedTime = avgElapsedTime;
+	}
+	
 	public final String getCsvFormat() {
 		setCsvFormat(toCsvFormat ());
 		return this.csvFormat;

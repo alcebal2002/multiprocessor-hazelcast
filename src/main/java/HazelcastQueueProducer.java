@@ -63,7 +63,7 @@ public class HazelcastQueueProducer {
 				HazelcastManager.printLog("Node | Start Time | Stop Time | # Tasks processed | Avg time");
 				result = result + "Node;Start Time;Stop Time;# Tasks processed;Avg time\n";
 				for (Map.Entry<String,NodeDetails> nodeEntry : monitorMap.entrySet()) {
-
+/*
 					elapsedArrayList = nodeEntry.getValue().getElapsedArray();
 					
 					avgElapsedTime = 0L;
@@ -74,18 +74,18 @@ public class HazelcastQueueProducer {
 						}
 						avgElapsedTime = avgElapsedTime / elapsedArrayList.size();
 					}
-					
+*/					
 					HazelcastManager.printLog(nodeEntry.getValue().getInetAddres() + ":" +  nodeEntry.getValue().getInetPort() + " | " +
 							new Timestamp(nodeEntry.getValue().getStartTime()) + " | " +
 							((nodeEntry.getValue().getStopTime()>0L)?(new Timestamp(nodeEntry.getValue().getStopTime())):" - ") + " | " +
-							elapsedArrayList.size() + " | " + 
-							avgElapsedTime);
+							nodeEntry.getValue().getElapsedArray().size() + " | " + 
+							nodeEntry.getValue().getAvgElapsedTime());
 					
 					result = result + nodeEntry.getValue().getInetAddres() + ":" +  nodeEntry.getValue().getInetPort() + ";" +
 							new Timestamp(nodeEntry.getValue().getStartTime()) + ";" +
 							((nodeEntry.getValue().getStopTime()>0L)?(new Timestamp(nodeEntry.getValue().getStopTime())):" - ") + ";" +
-							elapsedArrayList.size() + ";" + 
-							avgElapsedTime+"\n";
+							nodeEntry.getValue().getElapsedArray().size() + ";" + 
+							nodeEntry.getValue().getAvgElapsedTime()+"\n";
 				}
 			} else {
 				HazelcastManager.printLog("No " + HazelcastManager.getMonitorMapName() + " found",true);

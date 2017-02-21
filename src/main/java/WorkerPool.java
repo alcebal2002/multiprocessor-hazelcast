@@ -1,4 +1,5 @@
 import java.sql.Timestamp;
+import java.util.List;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
@@ -117,6 +118,7 @@ public class WorkerPool {
 
 		currentNodeDetails = (NodeDetails)HazelcastManager.getFromMap(HazelcastManager.getMonitorMapName(),HazelcastManager.getNodeId());
 		currentNodeDetails.setStopTime(stopTime);
+		currentNodeDetails.setActiveStatus(false);
 		HazelcastManager.putIntoMap(HazelcastManager.getMonitorMapName(), HazelcastManager.getNodeId(), currentNodeDetails);
 		
 		HazelcastManager.printLog("Shutting down hazelcast client...",true);
@@ -141,6 +143,7 @@ public class WorkerPool {
 		HazelcastManager.printLog("**************************************************"); 
 		HazelcastManager.printLog("  - Min elapsed execution time: " + executorPool.getMinExecutionTime() + " ms"); 
 		HazelcastManager.printLog("  - Max elapsed execution time: " + executorPool.getMaxExecutionTime() + " ms"); 
+		HazelcastManager.printLog("  - Avg elapsed execution time: " + currentNodeDetails.getAvgElapsedTime() + " ms");
 		HazelcastManager.printLog("**************************************************"); 
 		System.exit(0);	
 	}

@@ -1,5 +1,5 @@
 
-import java.sql.Timestamp;
+import java.util.List;
 
 import com.hazelcast.core.IMap;
 
@@ -40,6 +40,20 @@ public class WorkerThread implements Runnable {
 		monitorMap.lock(nodeId);
 		NodeDetails nodeDetails = monitorMap.get(nodeId);
 		nodeDetails.getElapsedArray().add(elapsedTimeMillis);
+		
+		List<Long> elapsedArrayList = nodeDetails.getElapsedArray();
+		long totalProcessed = 0L;
+		long avgElapsedTime = 0L;
+
+		if (elapsedArrayList.size() > 0) {
+			totalProcessed = totalProcessed + elapsedArrayList.size();
+			for (int i=0; i < elapsedArrayList.size(); i++) {
+				avgElapsedTime += elapsedArrayList.get(i);
+			}
+			avgElapsedTime = avgElapsedTime / elapsedArrayList.size();
+		}
+		nodeDetails.setAvgElapsedTime(avgElapsedTime);		
+		
 		monitorMap.put(nodeId,nodeDetails);
 		monitorMap.unlock(nodeId);
 		
