@@ -26,6 +26,7 @@ public class NodeDetails implements Serializable {
 	private long startTime = 0L; 
 	private long stopTime = 0L; 
 	private List<Long> elapsedArray;
+	private String csvFormat;
 
 	
 	/**
@@ -66,104 +67,111 @@ public class NodeDetails implements Serializable {
 		this.elapsedArray = Collections.synchronizedList(new ArrayList<Long>());
 	}
 
-	protected final String getNodeId() {
+	public final String getNodeId() {
 		return this.nodeId;
 	}
-	protected final void setNodeId(String nodeId) {
+	public final void setNodeId(String nodeId) {
 		this.nodeId = nodeId;
 	}
-	protected final String getInetAddres() {
+	public final String getInetAddres() {
 		return inetAddres;
 	}
-	protected final void setInetAddres(String inetAddres) {
+	public final void setInetAddres(String inetAddres) {
 		this.inetAddres = inetAddres;
 	}
-	protected final int getInetPort() {
+	public final int getInetPort() {
 		return inetPort;
 	}
-	protected final void setInetPort(int inetPort) {
+	public final void setInetPort(int inetPort) {
 		this.inetPort = inetPort;
 	}
-	protected final int getPoolCoreSize() {
+	public final int getPoolCoreSize() {
 		return poolCoreSize;
 	}
-	protected final void setPoolCoreSize(int poolCoreSize) {
+	public final void setPoolCoreSize(int poolCoreSize) {
 		this.poolCoreSize = poolCoreSize;
 	}
-	protected final int getPoolMaxSize() {
+	public final int getPoolMaxSize() {
 		return poolMaxSize;
 	}
-	protected final void setPoolMaxSize(int poolMaxSize) {
+	public final void setPoolMaxSize(int poolMaxSize) {
 		this.poolMaxSize = poolMaxSize;
 	}
-	protected final int getQueueCapacity() {
+	public final int getQueueCapacity() {
 		return queueCapacity;
 	}
-	protected final void setQueueCapacity(int queueCapacity) {
+	public final void setQueueCapacity(int queueCapacity) {
 		this.queueCapacity = queueCapacity;
 	}
-	protected final int getTimeoutSecs() {
+	public final int getTimeoutSecs() {
 		return timeoutSecs;
 	}
-	protected final void setTimeoutSecs(int timeoutSecs) {
+	public final void setTimeoutSecs(int timeoutSecs) {
 		this.timeoutSecs = timeoutSecs;
 	}
-	protected final int getProcessTime() {
+	public final int getProcessTime() {
 		return processTime;
 	}
-	protected final void setProcessTime(int processTime) {
+	public final void setProcessTime(int processTime) {
 		this.processTime = processTime;
 	}
-	protected final int getRetrySleepTime() {
+	public final int getRetrySleepTime() {
 		return retrySleepTime;
 	}
-	protected final void setRetrySleepTime(int retrySleepTime) {
+	public final void setRetrySleepTime(int retrySleepTime) {
 		this.retrySleepTime = retrySleepTime;
 	}
-	protected final int getRetryMaxAttempts() {
+	public final int getRetryMaxAttempts() {
 		return retryMaxAttempts;
 	}
-	protected final void setRetryMaxAttempts(int retryMaxAttempts) {
+	public final void setRetryMaxAttempts(int retryMaxAttempts) {
 		this.retryMaxAttempts = retryMaxAttempts;
 	}
-	protected final int getInitialSleep() {
+	public final int getInitialSleep() {
 		return initialSleep;
 	}
-	protected final void setInitialSleep(int initialSleep) {
+	public final void setInitialSleep(int initialSleep) {
 		this.initialSleep = initialSleep;
 	}
-	protected final int getMonitorSleep() {
+	public final int getMonitorSleep() {
 		return monitorSleep;
 	}
-	protected final void setMonitorSleep(int monitorSleep) {
+	public final void setMonitorSleep(int monitorSleep) {
 		this.monitorSleep = monitorSleep;
 	}
-	protected final int getTaskNumber() {
+	public final int getTaskNumber() {
 		return taskNumber;
 	}
-	protected final void setTaskNumber(int taskNumber) {
+	public final void setTaskNumber(int taskNumber) {
 		this.taskNumber = taskNumber;
 	}
-	protected final long getStartTime() {
+	public final long getStartTime() {
 		return startTime;
 	}
-	protected final void setStartTime(long startTime) {
+	public final void setStartTime(long startTime) {
 		this.startTime = startTime;
 	}
-	protected final long getStopTime() {
+	public final long getStopTime() {
 		return stopTime;
 	}
-	protected final void setStopTime(long stopTime) {
+	public final void setStopTime(long stopTime) {
 		this.stopTime = stopTime;
 	}
-	protected final List<Long> getElapsedArray() {
+	public final List<Long> getElapsedArray() {
 		return elapsedArray;
 	}
-	protected final void addElapsedTime(long elapsedTime) {
+	public final void addElapsedTime(long elapsedTime) {
 		this.elapsedArray.add(elapsedTime);
 	}
+	public final String getCsvFormat() {
+		setCsvFormat(toCsvFormat ());
+		return this.csvFormat;
+	}
+	public final void setCsvFormat(String csvFormat) {
+		this.csvFormat = csvFormat;
+	}
 	
-	protected final String toCSV () {
+	public final String toCsvFormat () {
 		return  this.getNodeId() + ";" +
 				this.getInetAddres() + ";" +
 				this.getInetPort() + ";" +

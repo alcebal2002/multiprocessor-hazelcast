@@ -5,7 +5,7 @@
     </head>
     <body>
   <#list monitorMap?values as nodeDetail>
-    ${nodeDetail.nodeId}
+    ${nodeDetail.csvFormat}
   </#list> 
 </body>
 </html>
