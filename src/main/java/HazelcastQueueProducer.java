@@ -6,7 +6,6 @@ import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
 
 import com.hazelcast.core.IMap;
@@ -49,8 +48,6 @@ public class HazelcastQueueProducer {
 		}
 		HazelcastManager.printLog ("Producer Finished!",true);
 
-		List<Long> elapsedArrayList;
-		long avgElapsedTime;
 		int totalProcessed = 0;
 		int totalProcessedPrev = 0;
 		String result;
@@ -63,18 +60,6 @@ public class HazelcastQueueProducer {
 				HazelcastManager.printLog("Node | Start Time | Stop Time | # Tasks processed | Avg time");
 				result = result + "Node;Start Time;Stop Time;# Tasks processed;Avg time\n";
 				for (Map.Entry<String,NodeDetails> nodeEntry : monitorMap.entrySet()) {
-/*
-					elapsedArrayList = nodeEntry.getValue().getElapsedArray();
-					
-					avgElapsedTime = 0L;
-					if (elapsedArrayList.size() > 0) {
-						totalProcessed = totalProcessed + elapsedArrayList.size();
-						for (int i=0; i < elapsedArrayList.size(); i++) {
-							avgElapsedTime += elapsedArrayList.get(i);
-						}
-						avgElapsedTime = avgElapsedTime / elapsedArrayList.size();
-					}
-*/					
 					HazelcastManager.printLog(nodeEntry.getValue().getInetAddres() + ":" +  nodeEntry.getValue().getInetPort() + " | " +
 							new Timestamp(nodeEntry.getValue().getStartTime()) + " | " +
 							((nodeEntry.getValue().getStopTime()>0L)?(new Timestamp(nodeEntry.getValue().getStopTime())):" - ") + " | " +
@@ -86,6 +71,8 @@ public class HazelcastQueueProducer {
 							((nodeEntry.getValue().getStopTime()>0L)?(new Timestamp(nodeEntry.getValue().getStopTime())):" - ") + ";" +
 							nodeEntry.getValue().getElapsedArray().size() + ";" + 
 							nodeEntry.getValue().getAvgElapsedTime()+"\n";
+					
+					totalProcessed = totalProcessed + nodeEntry.getValue().getElapsedArray().size();
 				}
 			} else {
 				HazelcastManager.printLog("No " + HazelcastManager.getMonitorMapName() + " found",true);

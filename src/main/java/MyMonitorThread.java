@@ -1,5 +1,3 @@
-import java.sql.Timestamp;
-
 public class MyMonitorThread implements Runnable {
     private MyThreadPoolExecutor executor;
     private int seconds;

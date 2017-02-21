@@ -3,7 +3,6 @@ import static spark.Spark.halt;
 
 import java.io.StringWriter;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import com.hazelcast.core.IMap;
