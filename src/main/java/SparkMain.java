@@ -70,7 +70,7 @@ public class SparkMain {
 				root.put( "monitorMap", monitorMap );
 				Template resultTemplate = freemarkerConfig.getTemplate("result.ftl");
 				resultTemplate.process(root, writer);
-//				} else
+//				}
         	} catch (Exception ex) {
         		HazelcastManager.printLog("Exception: " + ex.getClass() + " - " + ex.getMessage());
         	}
