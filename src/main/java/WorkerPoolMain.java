@@ -7,11 +7,12 @@ import java.util.concurrent.TimeUnit;
 
 import com.hazelcast.core.IQueue;
 
+import datamodel.ExecutionTask;
 import datamodel.NodeDetails;
-import executionservices.SystemMonitorThread;
-import executionservices.SystemThreadPoolExecutor;
 import executionservices.RejectedExecutionHandlerImpl;
 import executionservices.RunnableWorkerThread;
+import executionservices.SystemMonitorThread;
+import executionservices.SystemThreadPoolExecutor;
 import utils.HazelcastManager;
 
 public class WorkerPoolMain {
@@ -92,16 +93,16 @@ public class WorkerPoolMain {
 		HazelcastManager.putIntoMap(HazelcastManager.getMonitorMapName(), HazelcastManager.getNodeId(), currentNodeDetails);
 		
 		// Listen to tasks (taskQueue) and submit work to the thread pool 
-		IQueue<String> hazelcastTaskQueue = HazelcastManager.getInstance().getQueue( HazelcastManager.getTaskQueueName() );
+		IQueue<ExecutionTask> hazelcastTaskQueue = HazelcastManager.getInstance().getQueue( HazelcastManager.getTaskQueueName() );
 		while ( true ) {
-			String item = hazelcastTaskQueue.take();
-			HazelcastManager.printLog("Consumed: " + item + " from Hazelcast Task Queue",true);
-			if ( (HazelcastManager.getStopProcessingSignal()).equals(item) ) {
+			ExecutionTask executionTaskItem = hazelcastTaskQueue.take();
+			HazelcastManager.printLog("Consumed: " + executionTaskItem.getTaskId() + " from Hazelcast Task Queue",true);
+			if ( (HazelcastManager.getStopProcessingSignal()).equals(executionTaskItem.getTaskType()) ) {
 				HazelcastManager.printLog("Detected " + HazelcastManager.getStopProcessingSignal(), true);
-				hazelcastTaskQueue.put( HazelcastManager.getStopProcessingSignal() );
+				HazelcastManager.putStopSignalIntoQueue(HazelcastManager.getTaskQueueName());
 				break;
 			}
-			executorPool.execute(new RunnableWorkerThread(processTime,item,retrySleepTime,retryMaxAttempts, HazelcastManager.getNodeId()));
+			executorPool.execute(new RunnableWorkerThread(processTime,executionTaskItem,retrySleepTime,retryMaxAttempts, HazelcastManager.getNodeId()));
 			taskNumber++;
 		}
 		HazelcastManager.printLog("Hazelcast consumer Finished",true);

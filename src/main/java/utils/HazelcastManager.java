@@ -7,6 +7,8 @@ import com.hazelcast.core.Hazelcast;
 import com.hazelcast.core.HazelcastInstance;
 import com.opencsv.CSVReader;
 
+import datamodel.ExecutionTask;
+
 public class HazelcastManager {
 
 	private static HazelcastInstance hazelcastInstance;
@@ -24,7 +26,7 @@ public class HazelcastManager {
 														  "MYR","NZD","PHP","SGD","THB",
 														  "ZAR","ILS"};
 */
-	private static final String[] inscopeCurrencyList = {"GBP", "USD", "JPY"};
+	private static final String[] inscopeCurrencyList = {"USD","JPY","GBP"};
 
 	private static final String stopProcessingSignal = "STOP_PROCESSING_SIGNAL";
 
@@ -55,11 +57,11 @@ public class HazelcastManager {
 	}
 
 	public static void putStopSignalIntoQueue (final String queueName) {
-		printLog ("Sending " + getStopProcessingSignal(),true);
-		putIntoQueue(queueName,getStopProcessingSignal());
+		printLog ("Sending " + getStopProcessingSignal() + " to " + queueName,true);
+		putIntoQueue(queueName,(new ExecutionTask(getStopProcessingSignal())));
 	}
 
-	public static void putIntoQueue (final String queueName, final String value) {
+	public static void putIntoQueue (final String queueName, final Object value) {
 		try {
 			getInstance().getQueue(queueName).put(value);
 		} catch (InterruptedException e) {
@@ -112,7 +114,7 @@ public class HazelcastManager {
 	        while ((nextLine = reader.readNext()) != null) {
 	        	counter++;
 	        	putIntoList (getHistoricalListName(), Arrays.toString(nextLine));
-	        	//printLog (nextLine[0] + nextLine[1] + "etc...");
+	        	printLog (nextLine[1] + nextLine[2] + nextLine[8]);
 	        }
 	        reader.close();
 	    	printLog ("Populating historical data done",true);

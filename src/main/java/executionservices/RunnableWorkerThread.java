@@ -2,6 +2,7 @@ package executionservices;
 
 import com.hazelcast.core.IMap;
 
+import datamodel.ExecutionTask;
 import datamodel.NodeDetails;
 import utils.HazelcastManager;
 
@@ -13,14 +14,14 @@ import org.jsoup.select.Elements;
 
 public class RunnableWorkerThread implements Runnable { 
 
-	private String taskItem; 
+	private ExecutionTask taskItem; 
 	private int processTime; 
 	private int retrySleepTime; 
 	private int retryMaxAttempts; 
 	private long elapsedTimeMillis;
 	private String nodeId;
 
-	public RunnableWorkerThread(final int processTime, final String taskItem, final int retrySleepTime, final int retryMaxAttempts, final String nodeId) { 
+	public RunnableWorkerThread(final int processTime, final ExecutionTask taskItem, final int retrySleepTime, final int retryMaxAttempts, final String nodeId) { 
 		this.taskItem=taskItem; 
 		this.processTime=processTime; 
 		this.retrySleepTime=retrySleepTime; 
@@ -93,6 +94,6 @@ public class RunnableWorkerThread implements Runnable {
 
 	@Override 
 	public String toString(){ 
-		return this.taskItem; 
+		return this.taskItem.getTaskId(); 
 	} 
 }

@@ -10,6 +10,7 @@ import java.util.Map;
 
 import com.hazelcast.core.IMap;
 
+import datamodel.ExecutionTask;
 import datamodel.NodeDetails;
 import utils.HazelcastManager;
 
@@ -41,7 +42,15 @@ public class QueueProducerMain {
 		HazelcastManager.populateHistoricalData();
 		
 		for ( int k = 1; k <= numberOfTaks; k++ ) {
-			HazelcastManager.putIntoQueue(HazelcastManager.getTaskQueueName(), ("Task-"+k) );
+			ExecutionTask executionTask = new ExecutionTask (("Task-"+k),"Calculation",
+			"{"+
+			    "\"field1\": "+k+","+
+			    "\"field2\": \"value2\","+
+			    "\"field3\": 12.50,"+
+			    "\"field4\": [\"item4_1\", \"item4_2\"]"+
+			"}",System.currentTimeMillis());				
+
+			HazelcastManager.putIntoQueue(HazelcastManager.getTaskQueueName(), executionTask );
 			HazelcastManager.printLog ("Producing: " + k);
 			Thread.sleep(sleepTime);
 		}
