@@ -1,14 +1,14 @@
 package executionservices;
 import utils.HazelcastManager;
 
-public class MyMonitorThread implements Runnable {
-    private MyThreadPoolExecutor executor;
+public class SystemMonitorThread implements Runnable {
+    private SystemThreadPoolExecutor executor;
     private int seconds;
     private boolean run=true;
 
     private String inetAddress;
 
-    public MyMonitorThread(MyThreadPoolExecutor executor, int delay, String inetAddress) {
+    public SystemMonitorThread(SystemThreadPoolExecutor executor, int delay, String inetAddress) {
         this.executor=executor;
         this.seconds=delay;
         this.inetAddress = inetAddress;

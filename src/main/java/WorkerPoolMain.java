@@ -8,10 +8,10 @@ import java.util.concurrent.TimeUnit;
 import com.hazelcast.core.IQueue;
 
 import datamodel.NodeDetails;
-import executionservices.MyMonitorThread;
-import executionservices.MyThreadPoolExecutor;
+import executionservices.SystemMonitorThread;
+import executionservices.SystemThreadPoolExecutor;
 import executionservices.RejectedExecutionHandlerImpl;
-import executionservices.WorkerThread;
+import executionservices.RunnableWorkerThread;
 import utils.HazelcastManager;
 
 public class WorkerPoolMain {
@@ -61,7 +61,7 @@ public class WorkerPoolMain {
 		// Get the ThreadFactory implementation to use 
 		ThreadFactory threadFactory = Executors.defaultThreadFactory(); 
 		// Creating the ThreadPoolExecutor 
-		MyThreadPoolExecutor executorPool = new MyThreadPoolExecutor(poolCoreSize, poolMaxSize, timeoutSecs, TimeUnit.SECONDS, new ArrayBlockingQueue<Runnable>(queueCapacity), threadFactory, rejectionHandler); 
+		SystemThreadPoolExecutor executorPool = new SystemThreadPoolExecutor(poolCoreSize, poolMaxSize, timeoutSecs, TimeUnit.SECONDS, new ArrayBlockingQueue<Runnable>(queueCapacity), threadFactory, rejectionHandler); 
 		
 		//Initialize hazelcast and get inetAddressAndPort
 
@@ -84,7 +84,7 @@ public class WorkerPoolMain {
 				startTime);
 		
 		// Start the monitoring thread 
-		MyMonitorThread monitor = new MyMonitorThread(executorPool, monitorSleep, HazelcastManager.getInetAddress()+":"+HazelcastManager.getInetPort()); 
+		SystemMonitorThread monitor = new SystemMonitorThread(executorPool, monitorSleep, HazelcastManager.getInetAddress()+":"+HazelcastManager.getInetPort()); 
 		Thread monitorThread = new Thread(monitor); 
 		monitorThread.start(); 
 
@@ -101,7 +101,7 @@ public class WorkerPoolMain {
 				hazelcastTaskQueue.put( HazelcastManager.getStopProcessingSignal() );
 				break;
 			}
-			executorPool.execute(new WorkerThread(processTime,item,retrySleepTime,retryMaxAttempts, HazelcastManager.getNodeId()));
+			executorPool.execute(new RunnableWorkerThread(processTime,item,retrySleepTime,retryMaxAttempts, HazelcastManager.getNodeId()));
 			taskNumber++;
 		}
 		HazelcastManager.printLog("Hazelcast consumer Finished",true);

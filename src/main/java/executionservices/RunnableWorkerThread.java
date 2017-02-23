@@ -11,7 +11,7 @@ import org.jsoup.nodes.Document;
 import org.jsoup.select.Elements; 
 */
 
-public class WorkerThread implements Runnable { 
+public class RunnableWorkerThread implements Runnable { 
 
 	private String taskItem; 
 	private int processTime; 
@@ -20,7 +20,7 @@ public class WorkerThread implements Runnable {
 	private long elapsedTimeMillis;
 	private String nodeId;
 
-	public WorkerThread(final int processTime, final String taskItem, final int retrySleepTime, final int retryMaxAttempts, final String nodeId) { 
+	public RunnableWorkerThread(final int processTime, final String taskItem, final int retrySleepTime, final int retryMaxAttempts, final String nodeId) { 
 		this.taskItem=taskItem; 
 		this.processTime=processTime; 
 		this.retrySleepTime=retrySleepTime; 

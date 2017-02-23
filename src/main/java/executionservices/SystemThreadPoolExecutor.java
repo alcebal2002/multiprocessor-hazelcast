@@ -5,12 +5,12 @@ import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit; 
   
-public class MyThreadPoolExecutor extends ThreadPoolExecutor { 
+public class SystemThreadPoolExecutor extends ThreadPoolExecutor { 
         
     private long minExecutionTime = Long.MAX_VALUE; 
     private long maxExecutionTime = 0; 
 
-    public MyThreadPoolExecutor(int corePoolSize, int maximumPoolSize, long keepAliveTime, TimeUnit unit, 
+    public SystemThreadPoolExecutor(int corePoolSize, int maximumPoolSize, long keepAliveTime, TimeUnit unit, 
     							BlockingQueue<Runnable> workQueue, ThreadFactory threadFactory, RejectedExecutionHandler handler) { 
     	super(corePoolSize, maximumPoolSize, keepAliveTime, unit, workQueue, threadFactory, handler);
     } 
@@ -19,7 +19,7 @@ public class MyThreadPoolExecutor extends ThreadPoolExecutor {
             
 	    try { 
 	            
-		    long elapsedTimeMillis = ((WorkerThread)r).getElapsedTimeMillis(); 
+		    long elapsedTimeMillis = ((RunnableWorkerThread)r).getElapsedTimeMillis(); 
 		                    
 		    if (elapsedTimeMillis < minExecutionTime) minExecutionTime = elapsedTimeMillis; 
 		    if (elapsedTimeMillis > maxExecutionTime) maxExecutionTime = elapsedTimeMillis; 
