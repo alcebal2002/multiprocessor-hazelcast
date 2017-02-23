@@ -15,6 +15,8 @@ public class HazelcastManager {
 	private static final String taskQueueName = "taskQueue";
 	private static final String monitorMapName = "monitorMap";
 	private static final String historicalListName = "historicalList";
+	private static final String resourcePath = "src/main/resources/";
+	private static final String historicalDataSourceFile = "eurofxref-hist.csv";
 /*
 	private static final String[] historicalListHeader = {"Date","USD","JPY","BGN","CYP",
 														  "CZK","DKK","EEK","GBP","HUF",
@@ -25,8 +27,8 @@ public class HazelcastManager {
 														  "HKD","IDR","INR","KRW","MXN",
 														  "MYR","NZD","PHP","SGD","THB",
 														  "ZAR","ILS"};
-*/
 	private static final String[] inscopeCurrencyList = {"USD","JPY","GBP"};
+*/
 
 	private static final String stopProcessingSignal = "STOP_PROCESSING_SIGNAL";
 
@@ -109,7 +111,7 @@ public class HazelcastManager {
     	int counter=0;
     	printLog ("Populating historical data...",true);
     	try {
-	    	CSVReader reader = new CSVReader(new FileReader("src/main/resources/eurofxref-hist.csv"));
+	    	CSVReader reader = new CSVReader(new FileReader(resourcePath + historicalDataSourceFile));
 	        String [] nextLine;
 	        while ((nextLine = reader.readNext()) != null) {
 	        	counter++;

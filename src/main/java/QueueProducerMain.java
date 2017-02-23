@@ -100,14 +100,14 @@ public class QueueProducerMain {
 			totalProcessedPrev = totalProcessed;
 			totalProcessed = 0;
 		}
-		
+/*		
 		Iterator<Object> iterator = HazelcastManager.getInstance().getList(HazelcastManager.getHistoricalListName()).iterator();
 		int numHistoricalRecords=0;
 		while ( iterator.hasNext() ) {
 			numHistoricalRecords++;
 			HazelcastManager.printLog ("Historical Value["+numHistoricalRecords+"]: " + iterator.next());
 		}
-		
+*/		
 		HazelcastManager.printLog("Shutting down hazelcast client...",true);
 		HazelcastManager.getInstance().getLifecycleService().shutdown();
 		
