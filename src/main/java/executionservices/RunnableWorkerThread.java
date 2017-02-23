@@ -31,7 +31,7 @@ public class RunnableWorkerThread implements Runnable {
 
 	@Override 
 	public void run() { 
-		HazelcastManager.printLog(Thread.currentThread().getName()+" Start. Command = "+taskItem,true); 
+		HazelcastManager.printLog(Thread.currentThread().getName()+" Start. Command = "+taskItem.getTaskId(),true); 
 		long startTime = System.currentTimeMillis(); 
 
 		processCommand(); 
@@ -46,7 +46,7 @@ public class RunnableWorkerThread implements Runnable {
 		monitorMap.put(nodeId,nodeDetails);
 		monitorMap.unlock(nodeId);
 		
-		HazelcastManager.printLog(Thread.currentThread().getName()+" End. Command = "+taskItem+" ["+elapsedTimeMillis+"ms]",true); 
+		HazelcastManager.printLog(Thread.currentThread().getName()+" End. Command = "+taskItem.getTaskId()+" ["+elapsedTimeMillis+"ms]",true); 
 	} 
 
 	private void processCommand() { 
