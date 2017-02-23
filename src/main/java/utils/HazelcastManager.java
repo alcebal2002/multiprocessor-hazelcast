@@ -1,3 +1,4 @@
+package utils;
 import java.io.FileReader;
 import java.sql.Timestamp;
 import java.util.Arrays;
@@ -121,7 +122,6 @@ public class HazelcastManager {
     	}
     	return counter;
     }
-    
     
 	public static void printLog (final String textToPrint) {
 		printLog (textToPrint, false);

@@ -7,7 +7,14 @@ import java.util.concurrent.TimeUnit;
 
 import com.hazelcast.core.IQueue;
 
-public class WorkerPool {
+import datamodel.NodeDetails;
+import executionservices.MyMonitorThread;
+import executionservices.MyThreadPoolExecutor;
+import executionservices.RejectedExecutionHandlerImpl;
+import executionservices.WorkerThread;
+import utils.HazelcastManager;
+
+public class WorkerPoolMain {
 
 	// Default parameter values 
 	private static int poolCoreSize = 5;

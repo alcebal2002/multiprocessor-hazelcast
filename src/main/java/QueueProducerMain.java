@@ -10,7 +10,10 @@ import java.util.Map;
 
 import com.hazelcast.core.IMap;
 
-public class HazelcastQueueProducer {
+import datamodel.NodeDetails;
+import utils.HazelcastManager;
+
+public class QueueProducerMain {
 	
 	private static int numberOfTaks = 0;
 	private static int sleepTime = 0;
