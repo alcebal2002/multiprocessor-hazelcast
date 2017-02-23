@@ -26,43 +26,6 @@ public class SparkMain {
 		
 		get("/", (req, res) -> "Welcome to Spark !");
         get("/stop", (req, res) -> halt(401, "Go away!"));
-        get("/test_freemarker", (req, res) -> {
-    		 
-            StringWriter writer = new StringWriter();
- 
-            try {
-                Template formTemplate = freemarkerConfig.getTemplate("form.ftl");
- 
-                formTemplate.process(null, writer);
-            } catch (Exception e) {
-                Spark.halt(500);
-            }
- 
-            return writer;
-        });
-        
-        Spark.post("/test_freemarker_result", (request, response) -> {
-            StringWriter writer = new StringWriter();
- 
-            try {
-                String name = request.queryParams("name") != null ? request.queryParams("name") : "anonymous";
-                String email = request.queryParams("email") != null ? request.queryParams("email") : "unknown";
- 
-                Template resultTemplate = freemarkerConfig.getTemplate("result.ftl");
- 
-                Map<String, Object> map = new HashMap<>();
-                map.put("name", name);
-                map.put("email", email);
- 
-                resultTemplate.process(map, writer);
-            } catch (Exception ex) {
-            	HazelcastManager.printLog("Exception: " + ex.getClass() + " - " + ex.getMessage());
-                Spark.halt(500);
-            }
- 
-            return writer;
-        });
-        
         get("/monitor", (req, res) -> {
         	StringWriter writer = new StringWriter();
         	try {
