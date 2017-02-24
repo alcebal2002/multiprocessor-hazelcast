@@ -20,9 +20,9 @@ public class SparkMain {
 
 	public static void main(String[] args) {
 
-		freemarkerConfig.setClassForTemplateLoading(SparkMain.class,"/templates/");
+		freemarkerConfig.setClassForTemplateLoading(SparkMain.class,"templates/");
 
-		Spark.staticFileLocation("/public");
+		Spark.staticFileLocation("public");
 		
 		get("/", (req, res) -> "Welcome to Spark !");
         get("/stop", (req, res) -> halt(401, "Go away!"));

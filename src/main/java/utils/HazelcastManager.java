@@ -1,5 +1,5 @@
 package utils;
-import java.io.FileReader;
+import java.io.InputStreamReader;
 import java.sql.Timestamp;
 import java.util.Arrays;
 
@@ -15,7 +15,7 @@ public class HazelcastManager {
 	private static final String taskQueueName = "taskQueue";
 	private static final String monitorMapName = "monitorMap";
 	private static final String historicalListName = "historicalList";
-	private static final String resourcePath = "src/main/resources/";
+	private static final String resourcePath = "/";
 	private static final String historicalDataSourceFile = "eurofxref-hist.csv";
 /*
 	private static final String[] historicalListHeader = {"Date","USD","JPY","BGN","CYP",
@@ -111,7 +111,7 @@ public class HazelcastManager {
     	int counter=0;
     	printLog ("Populating historical data...",true);
     	try {
-	    	CSVReader reader = new CSVReader(new FileReader(resourcePath + historicalDataSourceFile));
+    		CSVReader reader = new CSVReader(new InputStreamReader(HazelcastManager.class.getClass().getResourceAsStream(resourcePath + historicalDataSourceFile)));
 	        String [] nextLine;
 	        while ((nextLine = reader.readNext()) != null) {
 	        	counter++;
