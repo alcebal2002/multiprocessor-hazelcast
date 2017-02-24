@@ -1,6 +1,8 @@
+SparkMain
+java -Dhazelcast.config=myhazelcast.xml -cp .;.\multiprocessor.jar;.\lib\* SparkMain
 
-Multithread Consumer
-java -Dhazelcast.config=myhazelcast.xml -cp .;..\lib\hazelcast-3.7.4.jar WorkerPool 20 20 100 25 0 5000 5000 5 5 3
+QueueProducerMain
+java -Dhazelcast.config=myhazelcast.xml -cp .;.\multiprocessor.jar;.\lib\* QueueProducerMain 100 2 true
 
-Hazelcast queue producer
-java -Dhazelcast.config=myhazelcast.xml -cp .;..\lib\hazelcast-3.7.4.jar HazelcastQueueProducer 1000 5
+WorkerPoolMain
+java -Dhazelcast.config=myhazelcast.xml -cp .;.\multiprocessor.jar;.\lib\* WorkerPoolMain 20 20 100 25 0 5000 5000 5 5 3

@@ -20,9 +20,9 @@ public class SparkMain {
 
 	public static void main(String[] args) {
 
-		freemarkerConfig.setClassForTemplateLoading(SparkMain.class,"templates/");
+		freemarkerConfig.setClassForTemplateLoading(SparkMain.class, HazelcastManager.getTemplatesPath());
 
-		Spark.staticFileLocation("public");
+		Spark.staticFileLocation(HazelcastManager.getPublicPath());
 		
 		get("/", (req, res) -> "Welcome to Spark !");
         get("/stop", (req, res) -> halt(401, "Go away!"));
@@ -32,8 +32,8 @@ public class SparkMain {
 				IMap<String,NodeDetails> monitorMap = HazelcastManager.getInstance().getMap(HazelcastManager.getMonitorMapName());
 //				if (monitorMap != null && monitorMap.size() > 0) {
 				Map<String, Object> root = new HashMap<String, Object>();
-				root.put( "monitorMap", monitorMap );
-				Template resultTemplate = freemarkerConfig.getTemplate("result.ftl");
+				root.put( HazelcastManager.getMonitorMapName (), monitorMap );
+				Template resultTemplate = freemarkerConfig.getTemplate(HazelcastManager.getResultTemplateName());
 				resultTemplate.process(root, writer);
 //				}
         	} catch (Exception ex) {

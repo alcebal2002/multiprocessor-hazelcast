@@ -15,7 +15,11 @@ public class HazelcastManager {
 	private static final String taskQueueName = "taskQueue";
 	private static final String monitorMapName = "monitorMap";
 	private static final String historicalListName = "historicalList";
-	private static final String resourcePath = "/";
+	private static final String resourcePath = "";
+	private static final String historicalDataPath = "/historical_data/";
+	private static final String templatesPath = "/templates/";
+	private static final String resultTemplateName = "result.ftl";
+	private static final String publicPath = "/public/";
 	private static final String historicalDataSourceFile = "eurofxref-hist.csv";
 /*
 	private static final String[] historicalListHeader = {"Date","USD","JPY","BGN","CYP",
@@ -56,6 +60,30 @@ public class HazelcastManager {
 
 	public static String getHistoricalListName () {
 		return historicalListName;
+	}
+
+	public static String getHistoricalDataSourceFile () {
+		return historicalDataSourceFile;
+	}
+
+	public static String getResourcePath () {
+		return resourcePath;
+	}
+
+	public static String getHistoricalDataPath () {
+		return historicalDataPath;
+	}
+
+	public static String getTemplatesPath () {
+		return templatesPath;
+	}
+
+	public static String getPublicPath () {
+		return publicPath;
+	}
+
+	public static String getResultTemplateName () {
+		return resultTemplateName;
 	}
 
 	public static void putStopSignalIntoQueue (final String queueName) {
@@ -109,9 +137,9 @@ public class HazelcastManager {
 
     public static int populateHistoricalData () {
     	int counter=0;
-    	printLog ("Populating historical data...",true);
+    	printLog ("Populating historical data from " + getHistoricalDataPath() + getHistoricalDataSourceFile() + "...",true);
     	try {
-    		CSVReader reader = new CSVReader(new InputStreamReader(HazelcastManager.class.getClass().getResourceAsStream(resourcePath + historicalDataSourceFile)));
+    		CSVReader reader = new CSVReader(new InputStreamReader(HazelcastManager.class.getClass().getResourceAsStream(getHistoricalDataPath() + getHistoricalDataSourceFile())));
 	        String [] nextLine;
 	        while ((nextLine = reader.readNext()) != null) {
 	        	counter++;
