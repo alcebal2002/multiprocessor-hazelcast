@@ -5,7 +5,6 @@ import java.nio.file.Paths;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.Iterator;
 import java.util.Map;
 
 import com.hazelcast.core.IMap;
@@ -118,7 +117,7 @@ public class QueueProducerMain {
 
 	private static void writeLogFile (final String result) {
 		
-		Path path = Paths.get("target/"+LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HHmmss"))+".csv");
+		Path path = Paths.get(LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HHmmss"))+".csv");
 		HazelcastManager.printLog("Writing result file " + path);
 		try (BufferedWriter writer = Files.newBufferedWriter(path)) {
 		    writer.write(result);
