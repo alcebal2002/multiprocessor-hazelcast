@@ -12,16 +12,28 @@ import datamodel.ExecutionTask;
 public class HazelcastManager {
 
 	private static HazelcastInstance hazelcastInstance;
+
+	// Queue instance names
 	private static final String taskQueueName = "taskQueue";
+	
+	// List instance names
+	private static final String historicalDataListName = "historicalList";
+	
+	// Map instance names
 	private static final String monitorMapName = "monitorMap";
-	private static final String historicalListName = "historicalList";
-	private static final String resourcePath = "";
+	private static final String resultMapName = "resultMap";
+	
+	// Resources names
+	private static final String mainResourcePath = "";
 	private static final String historicalDataPath = "/historical_data/";
 	private static final String templatesPath = "/templates/";
-	private static final String resultTemplateName = "result.ftl";
 	private static final String publicPath = "/public/";
-	private static final String historicalDataSourceFile = "eurofxref-hist.csv";
+
+	// File names
+	private static final String resultTemplateFileName = "result.ftl";
+	private static final String historicalDataFileName = "eurofxref-hist.csv";
 /*
+	// Historical data headers
 	private static final String[] historicalListHeader = {"Date","USD","JPY","BGN","CYP",
 														  "CZK","DKK","EEK","GBP","HUF",
 														  "LTL","LVL","MTL","PLN","ROL",
@@ -34,10 +46,9 @@ public class HazelcastManager {
 	private static final String[] inscopeCurrencyList = {"USD","JPY","GBP"};
 */
 
+	// Stop process signal
 	private static final String stopProcessingSignal = "STOP_PROCESSING_SIGNAL";
 
-	protected HazelcastManager() {}
-	
 	public static synchronized HazelcastInstance getInstance () {
 		if (hazelcastInstance == null) {
 			hazelcastInstance = Hazelcast.newHazelcastInstance(); 
@@ -59,15 +70,15 @@ public class HazelcastManager {
 	}
 
 	public static String getHistoricalListName () {
-		return historicalListName;
+		return historicalDataListName;
 	}
 
-	public static String getHistoricalDataSourceFile () {
-		return historicalDataSourceFile;
+	public static String getHistoricalDataFileName () {
+		return historicalDataFileName;
 	}
 
-	public static String getResourcePath () {
-		return resourcePath;
+	public static String getMainResourcePath () {
+		return mainResourcePath;
 	}
 
 	public static String getHistoricalDataPath () {
@@ -82,8 +93,8 @@ public class HazelcastManager {
 		return publicPath;
 	}
 
-	public static String getResultTemplateName () {
-		return resultTemplateName;
+	public static String getResultTemplateFileName () {
+		return resultTemplateFileName;
 	}
 
 	public static void putStopSignalIntoQueue (final String queueName) {
@@ -137,14 +148,14 @@ public class HazelcastManager {
 
     public static int populateHistoricalData () {
     	int counter=0;
-    	printLog ("Populating historical data from " + getHistoricalDataPath() + getHistoricalDataSourceFile() + "...",true);
+    	printLog ("Populating historical data from " + getHistoricalDataPath() + getHistoricalDataFileName() + "...",true);
     	try {
-    		CSVReader reader = new CSVReader(new InputStreamReader(HazelcastManager.class.getClass().getResourceAsStream(getHistoricalDataPath() + getHistoricalDataSourceFile())));
+    		CSVReader reader = new CSVReader(new InputStreamReader(HazelcastManager.class.getClass().getResourceAsStream(getHistoricalDataPath() + getHistoricalDataFileName())));
 	        String [] nextLine;
 	        while ((nextLine = reader.readNext()) != null) {
 	        	counter++;
 	        	putIntoList (getHistoricalListName(), Arrays.toString(nextLine));
-	        	printLog (nextLine[1] + nextLine[2] + nextLine[8]);
+	        	//printLog (nextLine[1] + nextLine[2] + nextLine[8]);
 	        }
 	        reader.close();
 	    	printLog ("Populating historical data done",true);

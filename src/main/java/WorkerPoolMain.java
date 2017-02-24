@@ -27,7 +27,6 @@ public class WorkerPoolMain {
 	private static int retryMaxAttempts = 5; 
 	private static int initialSleep = 5; 
 	private static int monitorSleep = 3; 
-
 	private static int taskNumber = 0; 
 	
 	public static void main(String args[]) throws InterruptedException { 
@@ -64,8 +63,7 @@ public class WorkerPoolMain {
 		// Creating the ThreadPoolExecutor 
 		SystemThreadPoolExecutor executorPool = new SystemThreadPoolExecutor(poolCoreSize, poolMaxSize, timeoutSecs, TimeUnit.SECONDS, new ArrayBlockingQueue<Runnable>(queueCapacity), threadFactory, rejectionHandler); 
 		
-		//Initialize hazelcast and get inetAddressAndPort
-
+		// Create cluster node object
 		long startTime = System.currentTimeMillis();
 		
 		NodeDetails currentNodeDetails = new NodeDetails(
@@ -92,7 +90,7 @@ public class WorkerPoolMain {
 		//Initialize and define the hazelcast cache maps and queues
 		HazelcastManager.putIntoMap(HazelcastManager.getMonitorMapName(), HazelcastManager.getNodeId(), currentNodeDetails);
 		
-		// Listen to tasks (taskQueue) and submit work to the thread pool 
+		// Listen to Hazelcast tasks queue and submit work to the thread pool for each task 
 		IQueue<ExecutionTask> hazelcastTaskQueue = HazelcastManager.getInstance().getQueue( HazelcastManager.getTaskQueueName() );
 		while ( true ) {
 			ExecutionTask executionTaskItem = hazelcastTaskQueue.take();
@@ -124,6 +122,7 @@ public class WorkerPoolMain {
 		HazelcastManager.printLog("Shutting down monitor thread... done",true); 
 		long stopTime = System.currentTimeMillis();
 
+		// Update currrent cluster node status and statistics
 		currentNodeDetails = (NodeDetails)HazelcastManager.getFromMap(HazelcastManager.getMonitorMapName(),HazelcastManager.getNodeId());
 		currentNodeDetails.setStopTime(stopTime);
 		currentNodeDetails.setActiveStatus(false);
@@ -143,9 +142,11 @@ public class WorkerPoolMain {
 		
 		HazelcastManager.putIntoMap(HazelcastManager.getMonitorMapName(), HazelcastManager.getNodeId(), currentNodeDetails);
 		
+		// Shutdown Hazelcast cluster node instance		
 		HazelcastManager.printLog("Shutting down hazelcast client...",true);
 		HazelcastManager.getInstance().getLifecycleService().shutdown();
 		
+		// Print statistics
 		printParameters ("Finished");
 		HazelcastManager.printLog("Results:"); 
 		HazelcastManager.printLog("**************************************************"); 
@@ -167,9 +168,12 @@ public class WorkerPoolMain {
 		HazelcastManager.printLog("  - Max elapsed execution time: " + executorPool.getMaxExecutionTime() + " ms"); 
 		HazelcastManager.printLog("  - Avg elapsed execution time: " + currentNodeDetails.getAvgElapsedTime() + " ms");
 		HazelcastManager.printLog("**************************************************"); 
+		
+		// Exit application
 		System.exit(0);	
 	}
 	
+	// Print worker pool execution parameters 
 	private static void printParameters (final String title) {
 		HazelcastManager.printLog("");
 		HazelcastManager.printLog("**************************************************"); 

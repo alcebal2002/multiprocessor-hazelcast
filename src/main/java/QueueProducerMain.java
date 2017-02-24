@@ -18,16 +18,21 @@ public class QueueProducerMain {
 	private static int numberOfTaks = 0;
 	private static int sleepTime = 0;
 	private static boolean sendStopProcessingSignal = false;
-//	private static final String hitoricalTicksMapName = "historicalTicksMap";
+	private static boolean writeResultsToFile = false;
 	private static final int monitorDelay = 10;
 	
 	public static void main( String[] args ) throws Exception {
 	  
+		// Check arguments
 		if (args != null && args.length >= 2) { 
 			numberOfTaks = Integer.parseInt(args[0]);
 			sleepTime = Integer.parseInt(args[1]);
+
 			if (args.length == 3 && ("true".equalsIgnoreCase(args[2]))) {
 				sendStopProcessingSignal = true;
+			}
+			if (args.length == 4 && ("true".equalsIgnoreCase(args[3]))) {
+				writeResultsToFile = true;
 			}
 		} else { 
 			HazelcastManager.printLog ("Not all parameters informed",true); 
@@ -40,6 +45,7 @@ public class QueueProducerMain {
 		// Populate historical data
 		HazelcastManager.populateHistoricalData();
 		
+		// Put execution tasks into the Hazelcast queue
 		for ( int k = 1; k <= numberOfTaks; k++ ) {
 			ExecutionTask executionTask = new ExecutionTask (("Task-"+k),"Calculation",
 			"{"+
@@ -54,11 +60,14 @@ public class QueueProducerMain {
 			Thread.sleep(sleepTime);
 		}
 		
+		// Put Stop Signal into the Hazelcast queue if required
 		if (sendStopProcessingSignal) {
 			HazelcastManager.putStopSignalIntoQueue(HazelcastManager.getTaskQueueName());
 		}
 		HazelcastManager.printLog ("Producer Finished!",true);
 
+		
+		// Iterate to print processing results per cluster node until there is no additional process running 	
 		int totalProcessed = 0;
 		int totalProcessedPrev = 0;
 		String result;
@@ -99,6 +108,7 @@ public class QueueProducerMain {
 			totalProcessedPrev = totalProcessed;
 			totalProcessed = 0;
 		}
+
 /*		
 		Iterator<Object> iterator = HazelcastManager.getInstance().getList(HazelcastManager.getHistoricalListName()).iterator();
 		int numHistoricalRecords=0;
@@ -107,11 +117,17 @@ public class QueueProducerMain {
 			HazelcastManager.printLog ("Historical Value["+numHistoricalRecords+"]: " + iterator.next());
 		}
 */		
+
+		// Shutdown Hazelcast cluster node instance
 		HazelcastManager.printLog("Shutting down hazelcast client...",true);
 		HazelcastManager.getInstance().getLifecycleService().shutdown();
 		
-		writeLogFile (result);
+		// Write cluster nodes execution summary into a file if required
+		if (writeResultsToFile) {
+			writeLogFile (result);
+		}
 		
+		// Exit application
 		System.exit(0);
 	}
 

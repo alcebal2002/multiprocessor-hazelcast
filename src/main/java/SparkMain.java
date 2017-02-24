@@ -33,7 +33,7 @@ public class SparkMain {
 //				if (monitorMap != null && monitorMap.size() > 0) {
 				Map<String, Object> root = new HashMap<String, Object>();
 				root.put( HazelcastManager.getMonitorMapName (), monitorMap );
-				Template resultTemplate = freemarkerConfig.getTemplate(HazelcastManager.getResultTemplateName());
+				Template resultTemplate = freemarkerConfig.getTemplate(HazelcastManager.getResultTemplateFileName());
 				resultTemplate.process(root, writer);
 //				}
         	} catch (Exception ex) {
