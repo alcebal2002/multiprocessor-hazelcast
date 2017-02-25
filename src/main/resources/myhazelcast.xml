@@ -6,8 +6,12 @@
     <join>
       <multicast enabled="false"></multicast>
       <tcp-ip enabled="true">
-        <member>172.20.11.90</member> <!-- server A -->
-        <member>172.20.11.91</member> <!-- server B, on separate subnet -->
+		<member>192.168.1.12</member>
+		<member>192.168.1.</member>
+        <!--
+		<member>172.20.11.90</member>
+        <member>172.20.11.91</member>
+		-->
       </tcp-ip>
     </join>
   </network>
