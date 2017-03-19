@@ -20,18 +20,20 @@ public class RunnableWorkerThread implements Runnable {
 	private int retryMaxAttempts; 
 	private long elapsedTimeMillis;
 	private String nodeId;
+	private boolean printDetails;
 
-	public RunnableWorkerThread(final int processTime, final ExecutionTask taskItem, final int retrySleepTime, final int retryMaxAttempts, final String nodeId) { 
+	public RunnableWorkerThread(final int processTime, final ExecutionTask taskItem, final int retrySleepTime, final int retryMaxAttempts, final String nodeId, final boolean printDetails) { 
 		this.taskItem=taskItem; 
 		this.processTime=processTime; 
 		this.retrySleepTime=retrySleepTime; 
 		this.retryMaxAttempts=retryMaxAttempts;
 		this.nodeId = nodeId;
+		this.printDetails = printDetails;
 	} 
 
 	@Override 
-	public void run() { 
-		HazelcastManager.printLog(Thread.currentThread().getName()+" Start. Command = "+taskItem.getTaskId(),true); 
+	public void run() {
+		if (printDetails) HazelcastManager.printLog(Thread.currentThread().getName()+" Start. Command = "+taskItem.getTaskId(),true); 
 		long startTime = System.currentTimeMillis(); 
 
 		processCommand(); 
@@ -46,7 +48,7 @@ public class RunnableWorkerThread implements Runnable {
 		monitorMap.put(nodeId,nodeDetails);
 		monitorMap.unlock(nodeId);
 		
-		HazelcastManager.printLog(Thread.currentThread().getName()+" End. Command = "+taskItem.getTaskId()+" ["+elapsedTimeMillis+"ms]",true); 
+		if (printDetails) HazelcastManager.printLog(Thread.currentThread().getName()+" End. Command = "+taskItem.getTaskId()+" ["+elapsedTimeMillis+"ms]",true); 
 	} 
 
 	private void processCommand() { 

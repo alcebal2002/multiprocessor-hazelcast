@@ -28,17 +28,17 @@ public class QueueProducerMain {
 			numberOfTaks = Integer.parseInt(args[0]);
 			sleepTime = Integer.parseInt(args[1]);
 
-			if (args.length == 3 && ("true".equalsIgnoreCase(args[2]))) {
+			if (args.length >= 3 && ("true".equalsIgnoreCase(args[2]))) {
 				sendStopProcessingSignal = true;
 			}
-			if (args.length == 4 && ("true".equalsIgnoreCase(args[3]))) {
+			if (args.length >= 4 && ("true".equalsIgnoreCase(args[3]))) {
 				writeResultsToFile = true;
 			}
 		} else { 
 			HazelcastManager.printLog ("Not all parameters informed",true); 
 			HazelcastManager.printLog (""); 
-			HazelcastManager.printLog ("Usage: java HazelcastQueueProducer <number of tasks> <sleep (ms)> <send stop processing signal"); 
-			HazelcastManager.printLog ("  Example: java HazelcastQueueProducer 1000 5 false");
+			HazelcastManager.printLog ("Usage: java HazelcastQueueProducer <number of tasks> <sleep (ms)> <send stop processing signal> <write results to file>"); 
+			HazelcastManager.printLog ("  Example: java HazelcastQueueProducer 1000 5 false true");
 			HazelcastManager.printLog (""); 
 		} 
 		  

@@ -7,7 +7,7 @@
       <multicast enabled="false"></multicast>
       <tcp-ip enabled="true">
 		<member>192.168.1.12</member>
-		<member>192.168.1.</member>
+		<member>192.168.1.9</member>
         <!--
 		<member>172.20.11.90</member>
         <member>172.20.11.91</member>

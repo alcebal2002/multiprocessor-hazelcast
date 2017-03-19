@@ -1,10 +1,20 @@
 package executionservices;
-import java.sql.Timestamp;
 import java.util.concurrent.RejectedExecutionHandler;
 import java.util.concurrent.ThreadPoolExecutor;
 
-public class RejectedExecutionHandlerImpl implements RejectedExecutionHandler {
+import utils.HazelcastManager;
 
+public class RejectedExecutionHandlerImpl implements RejectedExecutionHandler {
+	
+	private boolean printDetails = true;
+	
+	public RejectedExecutionHandlerImpl () {
+	}
+	
+	public RejectedExecutionHandlerImpl (boolean printDetails) {
+		this.printDetails = printDetails;
+	}
+	
     @Override
     public void rejectedExecution(Runnable r, ThreadPoolExecutor executor) {
 		
@@ -12,7 +22,7 @@ public class RejectedExecutionHandlerImpl implements RejectedExecutionHandler {
 		int retrySleepTime=((RunnableWorkerThread)r).getRetrySleepTime();
 		
 		if (numAttempts > 0) {
-			System.out.println (new Timestamp((new java.util.Date()).getTime()) + " - " + r.toString() + " Rejected. Retry in " + retrySleepTime + " secs. Seeting retries to " + (numAttempts-1));
+			if (printDetails) HazelcastManager.printLog(r.toString() + " Rejected. Retry in " + retrySleepTime + " ms. Updating retries to " + (numAttempts-1),true);
 			((RunnableWorkerThread)r).setRetryMaxAttempts(numAttempts-1);
 			try {
 				Thread.sleep(retrySleepTime);
@@ -21,7 +31,7 @@ public class RejectedExecutionHandlerImpl implements RejectedExecutionHandler {
 			}
 			executor.execute (r);
 		} else {
-			System.out.println (new Timestamp((new java.util.Date()).getTime()) + " - " + r.toString() + " Discarded. No more retries");
+			if (printDetails) HazelcastManager.printLog(r.toString() + " Discarded. No more retries",true);
 		}
     }
 }

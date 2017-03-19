@@ -18,7 +18,14 @@
       </tr>
     </thead>
     <tbody>
+    	<tr>
+    		<td colspan="7"><b>Active</b></td>
+    	</tr>
+<#assign totalActive = 0>
+<#assign totalInactive = 0>
 <#list monitorMap?values as nodeDetail>
+	<#if nodeDetail.activeStatus>
+	<#assign totalActive = totalActive + nodeDetail.elapsedArraySize>
       <tr>
       	<td>${nodeDetail.activeStatus?c}</td>
         <td>${nodeDetail.inetAddres}</td>
@@ -28,7 +35,31 @@
         <td>${nodeDetail.elapsedArraySize}</td>
         <td>${nodeDetail.avgElapsedTime}</td>
       </tr>
+	</#if>
+</#list>
+		<tr>
+    		<td colspan="7">${totalActive}</td>
+    	</tr>
+    	<tr>
+    		<td colspan="7"><b>Inactive</b></td>
+    	</tr>
+<#list monitorMap?values as nodeDetail>
+	<#if !nodeDetail.activeStatus>
+	<#assign totalInactive = totalInactive + nodeDetail.elapsedArraySize>
+      <tr>
+      	<td>${nodeDetail.activeStatus?c}</td>
+        <td>${nodeDetail.inetAddres}</td>
+        <td>${nodeDetail.inetPort}</td>
+        <td>${nodeDetail.startTimeString}</td>
+        <td>${nodeDetail.stopTimeString}</td>
+        <td>${nodeDetail.elapsedArraySize}</td>
+        <td>${nodeDetail.avgElapsedTime}</td>
+      </tr>
+	</#if>
 </#list> 
+		<tr>
+    		<td colspan="7">${totalInactive}</td>
+    	</tr>
     </tbody>
   </table>
 </body>

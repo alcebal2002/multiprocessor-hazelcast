@@ -1,11 +1,8 @@
 package utils;
-import java.io.InputStreamReader;
 import java.sql.Timestamp;
-import java.util.Arrays;
 
 import com.hazelcast.core.Hazelcast;
 import com.hazelcast.core.HazelcastInstance;
-import com.opencsv.CSVReader;
 
 import datamodel.ExecutionTask;
 
@@ -21,7 +18,7 @@ public class HazelcastManager {
 	
 	// Map instance names
 	private static final String monitorMapName = "monitorMap";
-	private static final String resultMapName = "resultMap";
+	//private static final String resultMapName = "resultMap";
 	
 	// Resources names
 	private static final String mainResourcePath = "";
@@ -147,7 +144,9 @@ public class HazelcastManager {
     }
 
     public static int populateHistoricalData () {
+    	
     	int counter=0;
+    	/*
     	printLog ("Populating historical data from " + getHistoricalDataPath() + getHistoricalDataFileName() + "...",true);
     	try {
     		CSVReader reader = new CSVReader(new InputStreamReader(HazelcastManager.class.getClass().getResourceAsStream(getHistoricalDataPath() + getHistoricalDataFileName())));
@@ -163,6 +162,7 @@ public class HazelcastManager {
     	} catch (Exception ex) {
     		printLog ("Exception: " + ex.getClass() + " - " + ex.getMessage());
     	}
+    	*/
     	return counter;
     }
     
