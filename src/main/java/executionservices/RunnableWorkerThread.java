@@ -94,8 +94,17 @@ public class RunnableWorkerThread implements Runnable {
 		this.retryMaxAttempts=data; 
 	} 
 
+	public final ExecutionTask getTaskItem() {
+		return taskItem;
+	}
+
+	public final void setTaskItem(ExecutionTask taskItem) {
+		this.taskItem = taskItem;
+	}
+
 	@Override 
 	public String toString(){ 
 		return this.taskItem.getTaskId(); 
-	} 
+	}
+	
 }

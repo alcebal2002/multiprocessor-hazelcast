@@ -1,7 +1,5 @@
 import java.sql.Timestamp;
 import java.util.List;
-import java.util.concurrent.ArrayBlockingQueue;
-import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
@@ -12,6 +10,7 @@ import datamodel.ExecutionTask;
 import datamodel.NodeDetails;
 import executionservices.RejectedExecutionHandlerImpl;
 import executionservices.RunnableWorkerThread;
+import executionservices.SystemLinkedBlockingQueue;
 import executionservices.SystemMonitorThread;
 import executionservices.SystemThreadPoolExecutor;
 import utils.HazelcastManager;
@@ -66,8 +65,8 @@ public class WorkerPoolMain {
 		// Get the ThreadFactory implementation to use 
 		ThreadFactory threadFactory = Executors.defaultThreadFactory();
 		// Define the BlockingQueue
-		BlockingQueue<Runnable> blockingQueue = new ArrayBlockingQueue<Runnable>(queueCapacity);
-		
+//		BlockingQueue<Runnable> blockingQueue = new ArrayBlockingQueue<Runnable>(queueCapacity);
+		SystemLinkedBlockingQueue blockingQueue = new SystemLinkedBlockingQueue();		
 		// Creating the ThreadPoolExecutor 
 		SystemThreadPoolExecutor executorPool = new SystemThreadPoolExecutor(poolCoreSize, poolMaxSize, timeoutSecs, TimeUnit.SECONDS, blockingQueue, threadFactory, rejectionHandler); 
 		
@@ -101,8 +100,10 @@ public class WorkerPoolMain {
 		// Listen to Hazelcast tasks queue and submit work to the thread pool for each task 
 		IQueue<ExecutionTask> hazelcastTaskQueue = HazelcastManager.getInstance().getQueue( HazelcastManager.getTaskQueueName() );
 		while ( true ) {
+			/*
 			if ((executorPool.getActiveCount() < executorPool.getMaximumPoolSize()) ||
 				(blockingQueue.remainingCapacity() > 0)) {
+	*/
 				ExecutionTask executionTaskItem = hazelcastTaskQueue.take();
 				if (printDetails) HazelcastManager.printLog("Consumed: " + executionTaskItem.getTaskId() + " from Hazelcast Task Queue",true);
 				if ( (HazelcastManager.getStopProcessingSignal()).equals(executionTaskItem.getTaskType()) ) {
@@ -112,14 +113,14 @@ public class WorkerPoolMain {
 				}
 				executorPool.execute(new RunnableWorkerThread(processTime,executionTaskItem,retrySleepTime,retryMaxAttempts, HazelcastManager.getNodeId(), printDetails));
 				taskNumber++;
-			}
+//			}
 		}
 		HazelcastManager.printLog("Hazelcast consumer Finished",true);
 
 		// Shut down the pool 
 		HazelcastManager.printLog("Shutting down executor pool...",true); 
 		executorPool.shutdown(); 
-		HazelcastManager.printLog(executorPool.getTaskCount() + " tasks. No additional tasks will be accepted",true); 
+		HazelcastManager.printLog(taskNumber/*executorPool.getTaskCount()*/ + " tasks. No additional tasks will be accepted",true); 
 
 		// Shut down the monitor thread 
 		while (!executorPool.isTerminated()) { 
