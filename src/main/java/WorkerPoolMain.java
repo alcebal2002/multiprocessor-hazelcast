@@ -62,11 +62,17 @@ public class WorkerPoolMain {
 
 		// RejectedExecutionHandler implementation 
 		RejectedExecutionHandlerImpl rejectionHandler = new RejectedExecutionHandlerImpl(); 
+		
 		// Get the ThreadFactory implementation to use 
 		ThreadFactory threadFactory = Executors.defaultThreadFactory();
-		// Define the BlockingQueue
-//		BlockingQueue<Runnable> blockingQueue = new ArrayBlockingQueue<Runnable>(queueCapacity);
+		
+		/* Define the BlockingQueue. 
+		 * ArrayBlockingQueue to set a fixed capacity queue
+		 * LinkedBlockingQueue to set an unbound capacity queue
+		*/
+		// BlockingQueue<Runnable> blockingQueue = new ArrayBlockingQueue<Runnable>(queueCapacity);
 		SystemLinkedBlockingQueue blockingQueue = new SystemLinkedBlockingQueue();		
+		
 		// Creating the ThreadPoolExecutor 
 		SystemThreadPoolExecutor executorPool = new SystemThreadPoolExecutor(poolCoreSize, poolMaxSize, timeoutSecs, TimeUnit.SECONDS, blockingQueue, threadFactory, rejectionHandler); 
 		
@@ -101,18 +107,19 @@ public class WorkerPoolMain {
 		IQueue<ExecutionTask> hazelcastTaskQueue = HazelcastManager.getInstance().getQueue( HazelcastManager.getTaskQueueName() );
 		while ( true ) {
 			/*
+			 * Option to avoid getting additional tasks from Hazelcast distributed queue if there is no processing capacity available in the ThreadPool 
 			if ((executorPool.getActiveCount() < executorPool.getMaximumPoolSize()) ||
 				(blockingQueue.remainingCapacity() > 0)) {
-	*/
-				ExecutionTask executionTaskItem = hazelcastTaskQueue.take();
-				if (printDetails) HazelcastManager.printLog("Consumed: " + executionTaskItem.getTaskId() + " from Hazelcast Task Queue",true);
-				if ( (HazelcastManager.getStopProcessingSignal()).equals(executionTaskItem.getTaskType()) ) {
-					HazelcastManager.printLog("Detected " + HazelcastManager.getStopProcessingSignal(), true);
-					HazelcastManager.putStopSignalIntoQueue(HazelcastManager.getTaskQueueName());
-					break;
-				}
-				executorPool.execute(new RunnableWorkerThread(processTime,executionTaskItem,retrySleepTime,retryMaxAttempts, HazelcastManager.getNodeId(), printDetails));
-				taskNumber++;
+			 */
+			ExecutionTask executionTaskItem = hazelcastTaskQueue.take();
+			if (printDetails) HazelcastManager.printLog("Consumed: " + executionTaskItem.getTaskId() + " from Hazelcast Task Queue",true);
+			if ( (HazelcastManager.getStopProcessingSignal()).equals(executionTaskItem.getTaskType()) ) {
+				HazelcastManager.printLog("Detected " + HazelcastManager.getStopProcessingSignal(), true);
+				HazelcastManager.putStopSignalIntoQueue(HazelcastManager.getTaskQueueName());
+				break;
+			}
+			executorPool.execute(new RunnableWorkerThread(processTime,executionTaskItem,retrySleepTime,retryMaxAttempts, HazelcastManager.getNodeId(), printDetails));
+			taskNumber++;
 //			}
 		}
 		HazelcastManager.printLog("Hazelcast consumer Finished",true);

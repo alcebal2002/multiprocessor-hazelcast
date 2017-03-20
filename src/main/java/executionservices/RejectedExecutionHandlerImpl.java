@@ -24,11 +24,15 @@ public class RejectedExecutionHandlerImpl implements RejectedExecutionHandler {
     		 //if (printDetails) HazelcastManager.printLog(r.toString() + " Rejected. Adding to the queue",true);
     		 executor.getQueue().put(r);
          } catch (InterruptedException e) {
-        	 if (printDetails) HazelcastManager.printLog(r.toString() + " Rejected and Discarded due to InterruptedException",true);
+        	 HazelcastManager.printLog(r.toString() + " Rejected and Discarded due to InterruptedException",true);
          }
     	
+		 /*
+		  * Option to send the task back to the Hazelcast distributed queue
+		 */
+
 /*        
-        if (printDetails) HazelcastManager.printLog(r.toString() + " Rejected. Sending " + r.toString() + " back to the queue",true);
+        if (printDetails) HazelcastManager.printLog(r.toString() + " Rejected. Sending " + r.toString() + " back to Hazelcast " + HazelcastManager.getTaskQueueName() + " queue",true);
 		
 		try {
 			HazelcastManager.getInstance().getQueue( HazelcastManager.getTaskQueueName()).put(((RunnableWorkerThread)r).getTaskItem());
@@ -36,6 +40,10 @@ public class RejectedExecutionHandlerImpl implements RejectedExecutionHandler {
 			if (printDetails) HazelcastManager.printLog(r.toString() + " Exception. Unable to send " + r.toString() + " back to the queue",true);
 		}
 */		
+
+		 /*
+		  * Option to set numAttempts per RunnableWorkerThread
+		 */
 /*
     	int numAttempts=((RunnableWorkerThread)r).getRetryMaxAttempts();
 		int retrySleepTime=((RunnableWorkerThread)r).getRetrySleepTime();
