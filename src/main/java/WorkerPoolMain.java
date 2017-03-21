@@ -71,7 +71,7 @@ public class WorkerPoolMain {
 		 * LinkedBlockingQueue to set an unbound capacity queue
 		*/
 		// BlockingQueue<Runnable> blockingQueue = new ArrayBlockingQueue<Runnable>(queueCapacity);
-		SystemLinkedBlockingQueue blockingQueue = new SystemLinkedBlockingQueue();		
+		SystemLinkedBlockingQueue<Runnable> blockingQueue = new SystemLinkedBlockingQueue<Runnable>();		
 		
 		// Creating the ThreadPoolExecutor 
 		SystemThreadPoolExecutor executorPool = new SystemThreadPoolExecutor(poolCoreSize, poolMaxSize, timeoutSecs, TimeUnit.SECONDS, blockingQueue, threadFactory, rejectionHandler); 
