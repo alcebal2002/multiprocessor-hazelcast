@@ -108,19 +108,20 @@ public class WorkerPoolMain {
 		while ( true ) {
 			/*
 			 * Option to avoid getting additional tasks from Hazelcast distributed queue if there is no processing capacity available in the ThreadPool 
-			if ((executorPool.getActiveCount() < executorPool.getMaximumPoolSize()) ||
-				(blockingQueue.remainingCapacity() > 0)) {
 			 */
-			ExecutionTask executionTaskItem = hazelcastTaskQueue.take();
-			if (printDetails) HazelcastManager.printLog("Consumed: " + executionTaskItem.getTaskId() + " from Hazelcast Task Queue",true);
-			if ( (HazelcastManager.getStopProcessingSignal()).equals(executionTaskItem.getTaskType()) ) {
-				HazelcastManager.printLog("Detected " + HazelcastManager.getStopProcessingSignal(), true);
-				HazelcastManager.putStopSignalIntoQueue(HazelcastManager.getTaskQueueName());
-				break;
+			if ((executorPool.getActiveCount() < executorPool.getMaximumPoolSize()) ||
+//				(blockingQueue.remainingCapacity() > 0)) { // For ArrayBlockingQueue
+				(blockingQueue.size() < queueCapacity)) { // For LinkedBlockingQueue 
+				ExecutionTask executionTaskItem = hazelcastTaskQueue.take();
+				if (printDetails) HazelcastManager.printLog("Consumed: " + executionTaskItem.getTaskId() + " from Hazelcast Task Queue",true);
+				if ( (HazelcastManager.getStopProcessingSignal()).equals(executionTaskItem.getTaskType()) ) {
+					HazelcastManager.printLog("Detected " + HazelcastManager.getStopProcessingSignal(), true);
+					HazelcastManager.putStopSignalIntoQueue(HazelcastManager.getTaskQueueName());
+					break;
+				}
+				executorPool.execute(new RunnableWorkerThread(processTime,executionTaskItem,retrySleepTime,retryMaxAttempts, HazelcastManager.getNodeId(), printDetails));
+				taskNumber++;
 			}
-			executorPool.execute(new RunnableWorkerThread(processTime,executionTaskItem,retrySleepTime,retryMaxAttempts, HazelcastManager.getNodeId(), printDetails));
-			taskNumber++;
-//			}
 		}
 		HazelcastManager.printLog("Hazelcast consumer Finished",true);
 

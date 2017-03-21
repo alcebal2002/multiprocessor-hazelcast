@@ -23,12 +23,13 @@ public class SystemMonitorThread implements Runnable {
         while(run) {
 					
 			try {
-				HazelcastManager.printLog (String.format("["+inetAddress+"][monitor] [%d/%d] Active: %d, Completed: %d, Task: %d, isShutdown: %s, isTerminated: %s",
+				HazelcastManager.printLog (String.format("["+inetAddress+"][monitor] [%d/%d] Active: %d, Completed: %d, Task: %d, Queued: %d, isShutdown: %s, isTerminated: %s",
 					this.executor.getPoolSize(),
 					this.executor.getCorePoolSize(),
 					this.executor.getActiveCount(),
 					this.executor.getCompletedTaskCount(),
 					this.executor.getTaskCount(),
+					this.executor.getQueue().size(),
 					this.executor.isShutdown(),
 					this.executor.isTerminated()),true);
 				Thread.sleep(seconds*1000);
