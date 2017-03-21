@@ -39,15 +39,18 @@ public class RunnableWorkerThread implements Runnable {
 		processCommand(); 
 
 		long stopTime = System.currentTimeMillis(); 
-		elapsedTimeMillis = stopTime - startTime; 
-		IMap<String, NodeDetails> monitorMap = HazelcastManager.getInstance().getMap(HazelcastManager.getMonitorMapName());
+		elapsedTimeMillis = stopTime - startTime;
+
+/*		
+		HazelcastManager.putIntoQueue (HazelcastManager.getResultQueueName(),nodeId+"|"+elapsedTimeMillis);
+		IMap<String, NodeDetails> monitorMap = HazelcastManager.getMap(HazelcastManager.getMonitorMapName());
 		
 		monitorMap.lock(nodeId);
 		NodeDetails nodeDetails = monitorMap.get(nodeId);
 		nodeDetails.getElapsedArray().add(elapsedTimeMillis);
 		monitorMap.put(nodeId,nodeDetails);
 		monitorMap.unlock(nodeId);
-		
+*/		
 		if (printDetails) HazelcastManager.printLog(Thread.currentThread().getName()+" End. Command = "+taskItem.getTaskId()+" ["+elapsedTimeMillis+"ms]",true); 
 	} 
 

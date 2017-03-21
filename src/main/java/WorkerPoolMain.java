@@ -104,7 +104,7 @@ public class WorkerPoolMain {
 		HazelcastManager.putIntoMap(HazelcastManager.getMonitorMapName(), HazelcastManager.getNodeId(), currentNodeDetails);
 		
 		// Listen to Hazelcast tasks queue and submit work to the thread pool for each task 
-		IQueue<ExecutionTask> hazelcastTaskQueue = HazelcastManager.getInstance().getQueue( HazelcastManager.getTaskQueueName() );
+		IQueue<ExecutionTask> hazelcastTaskQueue = HazelcastManager.getQueue( HazelcastManager.getTaskQueueName() );
 		while ( true ) {
 			/*
 			 * Option to avoid getting additional tasks from Hazelcast distributed queue if there is no processing capacity available in the ThreadPool 
@@ -143,6 +143,7 @@ public class WorkerPoolMain {
 		long stopTime = System.currentTimeMillis();
 
 		// Update currrent cluster node status and statistics
+/*
 		currentNodeDetails = (NodeDetails)HazelcastManager.getFromMap(HazelcastManager.getMonitorMapName(),HazelcastManager.getNodeId());
 		currentNodeDetails.setStopTime(stopTime);
 		currentNodeDetails.setActiveStatus(false);
@@ -161,6 +162,10 @@ public class WorkerPoolMain {
 		currentNodeDetails.setAvgElapsedTime(avgElapsedTime);		
 		
 		HazelcastManager.putIntoMap(HazelcastManager.getMonitorMapName(), HazelcastManager.getNodeId(), currentNodeDetails);
+*/
+
+		//Remove NodeDetails from the monitorMap
+		HazelcastManager.removeFromMap(HazelcastManager.getMonitorMapName(), HazelcastManager.getNodeId());
 		
 		// Shutdown Hazelcast cluster node instance		
 		HazelcastManager.printLog("Shutting down hazelcast client...",true);
@@ -186,7 +191,7 @@ public class WorkerPoolMain {
 		HazelcastManager.printLog("**************************************************"); 
 		HazelcastManager.printLog("  - Min elapsed execution time: " + executorPool.getMinExecutionTime() + " ms"); 
 		HazelcastManager.printLog("  - Max elapsed execution time: " + executorPool.getMaxExecutionTime() + " ms"); 
-		HazelcastManager.printLog("  - Avg elapsed execution time: " + currentNodeDetails.getAvgElapsedTime() + " ms");
+		HazelcastManager.printLog("  - Avg elapsed execution time: " + executorPool.getAvgExecutionTime() + " ms");
 		HazelcastManager.printLog("**************************************************"); 
 		
 		// Exit application

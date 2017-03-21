@@ -35,7 +35,7 @@ public class RejectedExecutionHandlerImpl implements RejectedExecutionHandler {
         if (printDetails) HazelcastManager.printLog(r.toString() + " Rejected. Sending " + r.toString() + " back to Hazelcast " + HazelcastManager.getTaskQueueName() + " queue",true);
 		
 		try {
-			HazelcastManager.getInstance().getQueue( HazelcastManager.getTaskQueueName()).put(((RunnableWorkerThread)r).getTaskItem());
+			HazelcastManager.getQueue( HazelcastManager.getTaskQueueName()).put(((RunnableWorkerThread)r).getTaskItem());
 		} catch (InterruptedException e) {
 			if (printDetails) HazelcastManager.printLog(r.toString() + " Exception. Unable to send " + r.toString() + " back to the queue",true);
 		}

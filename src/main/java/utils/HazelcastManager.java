@@ -3,8 +3,11 @@ import java.sql.Timestamp;
 
 import com.hazelcast.core.Hazelcast;
 import com.hazelcast.core.HazelcastInstance;
+import com.hazelcast.core.IMap;
+import com.hazelcast.core.IQueue;
 
 import datamodel.ExecutionTask;
+import datamodel.NodeDetails;
 
 public class HazelcastManager {
 
@@ -18,7 +21,6 @@ public class HazelcastManager {
 	
 	// Map instance names
 	private static final String monitorMapName = "monitorMap";
-	//private static final String resultMapName = "resultMap";
 	
 	// Resources names
 	private static final String mainResourcePath = "";
@@ -107,6 +109,14 @@ public class HazelcastManager {
 		}
 	}
 
+	public static IQueue<ExecutionTask> getQueue  (final String queueName) {
+		return getInstance().getQueue(queueName);
+	}
+
+	public static IMap<String,NodeDetails> getMap  (final String mapName) {
+		return getInstance().getMap(mapName);
+	}
+
 	public static Object getFromMap  (final String mapName, final String key) {
 		return getInstance().getMap(mapName).get(key);
 	}
@@ -115,6 +125,10 @@ public class HazelcastManager {
 		getInstance().getMap(mapName).put(key,value);
 	}
 	
+	public static void removeFromMap (final String mapName, final String key) {
+		getInstance().getMap(mapName).remove(key);
+	}
+
 	public static void putIntoList (final String listName, final Object value) {
 		getInstance().getList(listName).add(value);
 	}

@@ -65,8 +65,16 @@ public class QueueProducerMain {
 			HazelcastManager.putStopSignalIntoQueue(HazelcastManager.getTaskQueueName());
 		}
 		HazelcastManager.printLog ("Producer Finished!",true);
+		Thread.sleep(monitorDelay*1000);
+		HazelcastManager.printLog ("Checking " + HazelcastManager.getMonitorMapName() + " every "+monitorDelay+" secs",true);
+		Thread.sleep(monitorDelay*1000);
 
+		while ( HazelcastManager.getMap(HazelcastManager.getMonitorMapName()).size() > 0 ) {
+			Thread.sleep(monitorDelay*1000);
+		}
+		Thread.sleep(monitorDelay*1000);
 		
+		/*
 		// Iterate to print processing results per cluster node until there is no additional process running 	
 		int totalProcessed = 0;
 		int totalProcessedPrev = 0;
@@ -74,7 +82,7 @@ public class QueueProducerMain {
 		
 		while ( true ) {
 			result = "";
-			IMap<String,NodeDetails> monitorMap = HazelcastManager.getInstance().getMap(HazelcastManager.getMonitorMapName());
+			IMap<String,NodeDetails> monitorMap = HazelcastManager.getMap(HazelcastManager.getMonitorMapName());
 			if (monitorMap != null && monitorMap.size() > 0) {
 				HazelcastManager.printLog("******************************************");
 				HazelcastManager.printLog("Node | Start Time | Stop Time | # Tasks processed | Avg time");
@@ -108,7 +116,7 @@ public class QueueProducerMain {
 			totalProcessedPrev = totalProcessed;
 			totalProcessed = 0;
 		}
-
+*/
 /*		
 		Iterator<Object> iterator = HazelcastManager.getInstance().getList(HazelcastManager.getHistoricalListName()).iterator();
 		int numHistoricalRecords=0;
@@ -117,16 +125,18 @@ public class QueueProducerMain {
 			HazelcastManager.printLog ("Historical Value["+numHistoricalRecords+"]: " + iterator.next());
 		}
 */		
+		HazelcastManager.printLog(HazelcastManager.getMonitorMapName() + " empty",true);
 
 		// Shutdown Hazelcast cluster node instance
 		HazelcastManager.printLog("Shutting down hazelcast client...",true);
 		HazelcastManager.getInstance().getLifecycleService().shutdown();
 		
 		// Write cluster nodes execution summary into a file if required
+/*
 		if (writeResultsToFile) {
 			writeLogFile (result);
 		}
-		
+*/		
 		// Exit application
 		System.exit(0);
 	}

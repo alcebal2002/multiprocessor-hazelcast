@@ -29,7 +29,7 @@ public class SparkMain {
         get("/monitor", (req, res) -> {
         	StringWriter writer = new StringWriter();
         	try {
-				IMap<String,NodeDetails> monitorMap = HazelcastManager.getInstance().getMap(HazelcastManager.getMonitorMapName());
+				IMap<String,NodeDetails> monitorMap = HazelcastManager.getMap(HazelcastManager.getMonitorMapName());
 //				if (monitorMap != null && monitorMap.size() > 0) {
 				Map<String, Object> root = new HashMap<String, Object>();
 				root.put( HazelcastManager.getMonitorMapName (), monitorMap );
