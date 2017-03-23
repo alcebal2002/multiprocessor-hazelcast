@@ -69,17 +69,14 @@ public class QueueProducerMain {
 		logger.info  ("Producer Finished!");
 		Thread.sleep(monitorDelay*1000);
 		logger.info  ("Checking " + HazelcastInstanceUtils.getMonitorMapName() + " every "+monitorDelay+" secs");
-		Thread.sleep(monitorDelay*1000);
 
-		while ( HazelcastInstanceUtils.getMap(HazelcastInstanceUtils.getMonitorMapName()).size() > 0 ) {
+		logger.info ("Keeping the Hazelcast instance running...");
+		while ( HazelcastInstanceUtils.getMap(HazelcastInstanceUtils.getMonitorMapName()).size() >= 0 ) {
 			Thread.sleep(monitorDelay*1000);
 		}
-		Thread.sleep(monitorDelay*1000);
-		
-		logger.info (HazelcastInstanceUtils.getMonitorMapName() + " empty");
 
 		// Shutdown Hazelcast cluster node instance
-		logger.info ("Shutting down hazelcast client...");
+		logger.info ("Shutting down hazelcast instace...");
 		HazelcastInstanceUtils.shutdown();
 		
 		// Write cluster nodes execution summary into a file if required
@@ -89,7 +86,7 @@ public class QueueProducerMain {
 		}
 */		
 		// Exit application
-		System.exit(0);
+		//System.exit(0);
 	}
 
 	private static void writeLogFile (final String result) {

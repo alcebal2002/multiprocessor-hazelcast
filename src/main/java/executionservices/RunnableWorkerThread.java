@@ -40,8 +40,8 @@ public class RunnableWorkerThread implements Runnable {
 
 		long stopTime = System.currentTimeMillis(); 
 		elapsedTimeMillis = stopTime - startTime;
-
-		logger.debug (Thread.currentThread().getName()+" End. Command = "+taskItem.getTaskId()+" ["+elapsedTimeMillis+"ms]"); 
+		taskItem.setElapsedExecutionTime(elapsedTimeMillis);
+		logger.debug (Thread.currentThread().getName()+" End. Command = "+taskItem.getTaskId()+" ["+elapsedTimeMillis+"ms]");
 	} 
 
 	private void processCommand() { 

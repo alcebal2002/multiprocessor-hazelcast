@@ -4,16 +4,14 @@ import java.io.Serializable;
 public class ExecutionTask implements Serializable {
 	
 	private static final long serialVersionUID = 1L;
-	private String taskId;
-	private String taskType;
-	private String content;
-	private long creationTimestamp;
+	private String taskId = null;
+	private String taskType = null;
+	private String content = null;
+	private long creationTimestamp = 0L;
+	private long elapsedExecutionTime = 0L;
 
 	public ExecutionTask(String taskType) {
-		this.taskId = null;
 		this.taskType = taskType;
-		this.content = null;
-		this.creationTimestamp = 0L;
 	}
 
 	public ExecutionTask(String taskId, String taskType, String content, long creationTimestamp) {
@@ -49,5 +47,11 @@ public class ExecutionTask implements Serializable {
 	}
 	public final void setCreationTimestamp (long creationTimestamp) {
 		this.creationTimestamp = creationTimestamp;
+	}
+	public final long getElapsedExecutionTime() {
+		return elapsedExecutionTime;
+	}
+	public final void setElapsedExecutionTime (long elapsedTime) {
+		this.elapsedExecutionTime = elapsedTime;
 	}
 } 

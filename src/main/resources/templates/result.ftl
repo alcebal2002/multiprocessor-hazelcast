@@ -23,17 +23,17 @@
     	</tr>
 <#assign totalActive = 0>
 <#assign totalInactive = 0>
-<#list monitorMap?values as nodeDetail>
-	<#if nodeDetail.activeStatus>
-	<#assign totalActive = totalActive + nodeDetail.elapsedArraySize>
+<#list monitorMap?values as clientDetail>
+	<#if clientDetail.activeStatus>
+	<#assign totalActive = totalActive + clientDetail.elapsedArraySize>
       <tr>
-      	<td>${nodeDetail.activeStatus?c}</td>
-        <td>${nodeDetail.inetAddres}</td>
-        <td>${nodeDetail.inetPort}</td>
-        <td>${nodeDetail.startTimeString}</td>
-        <td>${nodeDetail.stopTimeString}</td>
-        <td>${nodeDetail.elapsedArraySize}</td>
-        <td>${nodeDetail.avgElapsedTime}</td>
+      	<td>${clientDetail.activeStatus?c}</td>
+        <td>${clientDetail.inetAddres}</td>
+        <td>${clientDetail.inetPort}</td>
+        <td>${clientDetail.startTimeString}</td>
+        <td>${clientDetail.stopTimeString}</td>
+        <td>${clientDetail.elapsedArraySize}</td>
+        <td>${clientDetail.avgElapsedTime}</td>
       </tr>
 	</#if>
 </#list>
@@ -43,17 +43,17 @@
     	<tr>
     		<td colspan="7"><b>Inactive</b></td>
     	</tr>
-<#list monitorMap?values as nodeDetail>
-	<#if !nodeDetail.activeStatus>
-	<#assign totalInactive = totalInactive + nodeDetail.elapsedArraySize>
+<#list monitorMap?values as clientDetail>
+	<#if !clientDetail.activeStatus>
+	<#assign totalInactive = totalInactive + clientDetail.elapsedArraySize>
       <tr>
-      	<td>${nodeDetail.activeStatus?c}</td>
-        <td>${nodeDetail.inetAddres}</td>
-        <td>${nodeDetail.inetPort}</td>
-        <td>${nodeDetail.startTimeString}</td>
-        <td>${nodeDetail.stopTimeString}</td>
-        <td>${nodeDetail.elapsedArraySize}</td>
-        <td>${nodeDetail.avgElapsedTime}</td>
+      	<td>${clientDetail.activeStatus?c}</td>
+        <td>${clientDetail.inetAddres}</td>
+        <td>${clientDetail.inetPort}</td>
+        <td>${clientDetail.startTimeString}</td>
+        <td>${clientDetail.stopTimeString}</td>
+        <td>${clientDetail.elapsedArraySize}</td>
+        <td>${clientDetail.avgElapsedTime}</td>
       </tr>
 	</#if>
 </#list> 

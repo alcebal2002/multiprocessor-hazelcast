@@ -35,7 +35,8 @@ public class WorkerPoolMain {
 	private static int retryMaxAttempts = 5; 
 	private static int initialSleep = 5; 
 	private static int monitorSleep = 3; 
-	private static int taskNumber = 0; 
+	private static int taskNumber = 0;
+	private static String nodeId;
 	
 	public static void main(String args[]) throws InterruptedException {
 		
@@ -84,8 +85,10 @@ public class WorkerPoolMain {
 
 		HazelcastInstance hzClient = HazelcastClient.newHazelcastClient();
 		
+		nodeId = ""+System.currentTimeMillis();
+		
 		ClientDetails clientDetails = new ClientDetails(
-				""+System.currentTimeMillis(),
+				nodeId,
 				SystemUtils.getHostName(),
 				"PORT",
 				poolCoreSize,
@@ -101,7 +104,7 @@ public class WorkerPoolMain {
 				startTime);
 
 		// Start the monitoring thread 
-		SystemMonitorThread monitor = new SystemMonitorThread(executorPool, monitorSleep, "LOCAL"/*HazelcastManager.getInetAddress()+":"+HazelcastManager.getInetPort()*/); 
+		SystemMonitorThread monitor = new SystemMonitorThread(executorPool, monitorSleep, nodeId); 
 		Thread monitorThread = new Thread(monitor); 
 		monitorThread.start(); 
 
@@ -123,7 +126,7 @@ public class WorkerPoolMain {
 					hzClient.getQueue(HazelcastInstanceUtils.getTaskQueueName()).put(new ExecutionTask(HazelcastInstanceUtils.getStopProcessingSignal()));
 					break;
 				}
-				executorPool.execute(new RunnableWorkerThread(processTime,executionTaskItem,retrySleepTime,retryMaxAttempts, "LOCAL"/*HazelcastManager.getNodeId()*/));
+				executorPool.execute(new RunnableWorkerThread(processTime,executionTaskItem,retrySleepTime,retryMaxAttempts,nodeId));
 				taskNumber++;
 			}
 		}
@@ -146,8 +149,8 @@ public class WorkerPoolMain {
 		logger.info ("Shutting down monitor thread... done"); 
 		long stopTime = System.currentTimeMillis();
 
-		//Remove NodeDetails from the monitorMap
-		hzClient.getMap(HazelcastInstanceUtils.getMonitorMapName()).remove(clientDetails.getUuid());
+		//Remove ClientDetails from the monitorMap
+		//hzClient.getMap(HazelcastInstanceUtils.getMonitorMapName()).remove(clientDetails.getUuid());
 		
 		// Shutdown Hazelcast cluster node instance		
 		logger.info ("Shutting down hazelcast client...");
