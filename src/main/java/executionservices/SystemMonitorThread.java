@@ -1,8 +1,15 @@
 package executionservices;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import utils.SystemUtils;
 
 public class SystemMonitorThread implements Runnable {
-    private SystemThreadPoolExecutor executor;
+
+	// Logger
+	private static Logger logger = LoggerFactory.getLogger(SystemMonitorThread.class);
+	
+	private SystemThreadPoolExecutor executor;
     private int seconds;
     private boolean run=true;
 
@@ -23,7 +30,7 @@ public class SystemMonitorThread implements Runnable {
         while(run) {
 					
 			try {
-				SystemUtils.printLog (String.format("["+inetAddress+"][monitor] [%d/%d] Active: %d, Completed: %d, Task: %d, Queued: %d, isShutdown: %s, isTerminated: %s",
+				logger.info (String.format("["+inetAddress+"][monitor] [%d/%d] Active: %d, Completed: %d, Task: %d, Queued: %d, isShutdown: %s, isTerminated: %s",
 					this.executor.getPoolSize(),
 					this.executor.getCorePoolSize(),
 					this.executor.getActiveCount(),
@@ -31,7 +38,7 @@ public class SystemMonitorThread implements Runnable {
 					this.executor.getTaskCount(),
 					this.executor.getQueue().size(),
 					this.executor.isShutdown(),
-					this.executor.isTerminated()),true);
+					this.executor.isTerminated()));
 				Thread.sleep(seconds*1000);
 			} catch (InterruptedException e) {
 				e.printStackTrace();

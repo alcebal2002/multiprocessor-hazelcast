@@ -1,13 +1,20 @@
 package utils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.hazelcast.core.Hazelcast;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.IMap;
 import com.hazelcast.core.IQueue;
 
 import datamodel.ExecutionTask;
+import executionservices.SystemThreadPoolExecutor;
 import datamodel.ClientDetails;
 
 public class HazelcastInstanceUtils {
+
+	// Logger
+	private static Logger logger = LoggerFactory.getLogger(HazelcastInstanceUtils.class);
 
 	private static HazelcastInstance hazelcastInstance;
 
@@ -48,7 +55,7 @@ public class HazelcastInstanceUtils {
 	}
 
 	public static void putStopSignalIntoQueue (final String queueName) {
-		SystemUtils.printLog ("Sending " + getStopProcessingSignal() + " to " + queueName,true);
+		logger.info ("Sending " + getStopProcessingSignal() + " to " + queueName);
 		putIntoQueue(queueName,(new ExecutionTask(getStopProcessingSignal())));
 	}
 
@@ -56,7 +63,7 @@ public class HazelcastInstanceUtils {
 		try {
 			getInstance().getQueue(queueName).put(value);
 		} catch (InterruptedException e) {
-			SystemUtils.printLog ("Exception: " + e.getClass() + " - " + e.getMessage());
+			logger.error ("Exception: " + e.getClass() + " - " + e.getMessage());
 		}
 	}
 

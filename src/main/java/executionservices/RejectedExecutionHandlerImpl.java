@@ -2,17 +2,15 @@ package executionservices;
 import java.util.concurrent.RejectedExecutionHandler;
 import java.util.concurrent.ThreadPoolExecutor;
 
-import utils.SystemUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class RejectedExecutionHandlerImpl implements RejectedExecutionHandler {
 	
-	private boolean printDetails = true;
+	// Logger
+	private static Logger logger = LoggerFactory.getLogger(RejectedExecutionHandlerImpl.class);
 	
 	public RejectedExecutionHandlerImpl () {
-	}
-	
-	public RejectedExecutionHandlerImpl (boolean printDetails) {
-		this.printDetails = printDetails;
 	}
 	
     @Override
@@ -23,7 +21,7 @@ public class RejectedExecutionHandlerImpl implements RejectedExecutionHandler {
               */
     		 executor.getQueue().put(r);
          } catch (InterruptedException e) {
-        	 SystemUtils.printLog(r.toString() + " Rejected and Discarded due to InterruptedException",true);
+        	 logger.error (r.toString() + " Rejected and Discarded due to InterruptedException");
          }
     	
 		 /*

@@ -2,8 +2,14 @@ package utils;
 import java.net.InetAddress;
 import java.sql.Timestamp;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 public class SystemUtils {
 
+	// Logger
+	private static Logger logger = LoggerFactory.getLogger(SystemUtils.class);
+	
 	// Resources names
 	private static final String mainResourcePath = "";
 	private static final String historicalDataPath = "/historical_data/";
@@ -70,24 +76,15 @@ public class SystemUtils {
 	        while ((nextLine = reader.readNext()) != null) {
 	        	counter++;
 	        	putIntoList (getHistoricalListName(), Arrays.toString(nextLine));
-	        	//printLog (nextLine[1] + nextLine[2] + nextLine[8]);
+	        	//logger.info (nextLine[1] + nextLine[2] + nextLine[8]);
 	        }
 	        reader.close();
 	    	printLog ("Populating historical data done",true);
 	    	
     	} catch (Exception ex) {
-    		printLog ("Exception: " + ex.getClass() + " - " + ex.getMessage());
+    		logger.error ("Exception: " + ex.getClass() + " - " + ex.getMessage());
     	}
     	*/
     	return counter;
     }
-    
-	public static void printLog (final String textToPrint) {
-		printLog (textToPrint, false);
-	}
-
-	public static void printLog (final String textToPrint, final boolean includeTimeStamp) {
-		
-		System.out.println (includeTimeStamp?((new Timestamp((new java.util.Date()).getTime())) + " - " + textToPrint):textToPrint);
-	}
 }

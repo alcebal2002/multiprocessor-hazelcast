@@ -1,7 +1,9 @@
 package executionservices;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import datamodel.ExecutionTask;
-import utils.SystemUtils;
 
 /*
 import org.jsoup.Jsoup;
@@ -11,26 +13,27 @@ import org.jsoup.select.Elements;
 
 public class RunnableWorkerThread implements Runnable { 
 
+	// Logger
+	private static Logger logger = LoggerFactory.getLogger(RunnableWorkerThread.class);
+
 	private ExecutionTask taskItem; 
 	private int processTime; 
 	private int retrySleepTime; 
 	private int retryMaxAttempts; 
 	private long elapsedTimeMillis;
 	private String nodeId;
-	private boolean printDetails;
 
-	public RunnableWorkerThread(final int processTime, final ExecutionTask taskItem, final int retrySleepTime, final int retryMaxAttempts, final String nodeId, final boolean printDetails) { 
+	public RunnableWorkerThread(final int processTime, final ExecutionTask taskItem, final int retrySleepTime, final int retryMaxAttempts, final String nodeId) { 
 		this.taskItem=taskItem; 
 		this.processTime=processTime; 
 		this.retrySleepTime=retrySleepTime; 
 		this.retryMaxAttempts=retryMaxAttempts;
 		this.nodeId = nodeId;
-		this.printDetails = printDetails;
 	} 
 
 	@Override 
 	public void run() {
-		if (printDetails) SystemUtils.printLog(Thread.currentThread().getName()+" Start. Command = "+taskItem.getTaskId(),true); 
+		logger.debug (Thread.currentThread().getName()+" Start. Command = "+taskItem.getTaskId()); 
 		long startTime = System.currentTimeMillis(); 
 
 		processCommand(); 
@@ -38,7 +41,7 @@ public class RunnableWorkerThread implements Runnable {
 		long stopTime = System.currentTimeMillis(); 
 		elapsedTimeMillis = stopTime - startTime;
 
-		if (printDetails) SystemUtils.printLog(Thread.currentThread().getName()+" End. Command = "+taskItem.getTaskId()+" ["+elapsedTimeMillis+"ms]",true); 
+		logger.debug (Thread.currentThread().getName()+" End. Command = "+taskItem.getTaskId()+" ["+elapsedTimeMillis+"ms]"); 
 	} 
 
 	private void processCommand() { 
