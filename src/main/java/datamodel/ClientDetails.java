@@ -5,12 +5,12 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-public class NodeDetails implements Serializable {
+public class ClientDetails implements Serializable {
 	
 	private static final long serialVersionUID = 1L;
-	private String nodeId;
+	private String uuid;
 	private String inetAddres;
-	private int inetPort;
+	private String inetPort;
 	private boolean activeStatus = true;
 	
 	// Start up parameters
@@ -35,7 +35,7 @@ public class NodeDetails implements Serializable {
 
 	
 	/**
-	 * @param nodeId
+	 * @param uuid
 	 * @param inetAddres
 	 * @param inetPort
 	 * @param poolCoreSize
@@ -52,10 +52,10 @@ public class NodeDetails implements Serializable {
 	 * @param stopTime
 	 * @param elapsedArray
 	 */
-	public NodeDetails(String nodeId, String inetAddres, int inetPort, int poolCoreSize, int poolMaxSize,
+	public ClientDetails(String uuid, String inetAddres, String inetPort, int poolCoreSize, int poolMaxSize,
 			int queueCapacity, int timeoutSecs, int processTime, int retrySleepTime, int retryMaxAttempts,
 			int initialSleep, int monitorSleep, int taskNumber, long startTime) {
-		this.nodeId = nodeId;
+		this.uuid = uuid;
 		this.inetAddres = inetAddres;
 		this.inetPort = inetPort;
 		this.poolCoreSize = poolCoreSize;
@@ -72,11 +72,11 @@ public class NodeDetails implements Serializable {
 		this.elapsedArray = Collections.synchronizedList(new ArrayList<Long>());
 	}
 
-	public final String getNodeId() {
-		return this.nodeId;
+	public final String getUuid() {
+		return this.uuid;
 	}
-	public final void setNodeId(String nodeId) {
-		this.nodeId = nodeId;
+	public final void setNodeId(String uuid) {
+		this.uuid = uuid;
 	}
 	public final boolean getActiveStatus() {
 		return activeStatus;
@@ -90,10 +90,10 @@ public class NodeDetails implements Serializable {
 	public final void setInetAddres(String inetAddres) {
 		this.inetAddres = inetAddres;
 	}
-	public final int getInetPort() {
+	public final String getInetPort() {
 		return inetPort;
 	}
-	public final void setInetPort(int inetPort) {
+	public final void setInetPort(String inetPort) {
 		this.inetPort = inetPort;
 	}
 	public final int getPoolCoreSize() {
@@ -202,7 +202,7 @@ public class NodeDetails implements Serializable {
 	}
 	
 	public final String toCsvFormat () {
-		return  this.getNodeId() + ";" +
+		return  this.getUuid() + ";" +
 				this.getInetAddres() + ";" +
 				this.getInetPort() + ";" +
 				((this.getStopTime()>0L)?(new Timestamp(this.getStopTime())):" - ") + ";" +

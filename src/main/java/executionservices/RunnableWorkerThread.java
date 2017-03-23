@@ -1,10 +1,7 @@
 package executionservices;
 
-import com.hazelcast.core.IMap;
-
 import datamodel.ExecutionTask;
-import datamodel.NodeDetails;
-import utils.HazelcastManager;
+import utils.SystemUtils;
 
 /*
 import org.jsoup.Jsoup;
@@ -33,7 +30,7 @@ public class RunnableWorkerThread implements Runnable {
 
 	@Override 
 	public void run() {
-		if (printDetails) HazelcastManager.printLog(Thread.currentThread().getName()+" Start. Command = "+taskItem.getTaskId(),true); 
+		if (printDetails) SystemUtils.printLog(Thread.currentThread().getName()+" Start. Command = "+taskItem.getTaskId(),true); 
 		long startTime = System.currentTimeMillis(); 
 
 		processCommand(); 
@@ -41,17 +38,7 @@ public class RunnableWorkerThread implements Runnable {
 		long stopTime = System.currentTimeMillis(); 
 		elapsedTimeMillis = stopTime - startTime;
 
-/*		
-		HazelcastManager.putIntoQueue (HazelcastManager.getResultQueueName(),nodeId+"|"+elapsedTimeMillis);
-		IMap<String, NodeDetails> monitorMap = HazelcastManager.getMap(HazelcastManager.getMonitorMapName());
-		
-		monitorMap.lock(nodeId);
-		NodeDetails nodeDetails = monitorMap.get(nodeId);
-		nodeDetails.getElapsedArray().add(elapsedTimeMillis);
-		monitorMap.put(nodeId,nodeDetails);
-		monitorMap.unlock(nodeId);
-*/		
-		if (printDetails) HazelcastManager.printLog(Thread.currentThread().getName()+" End. Command = "+taskItem.getTaskId()+" ["+elapsedTimeMillis+"ms]",true); 
+		if (printDetails) SystemUtils.printLog(Thread.currentThread().getName()+" End. Command = "+taskItem.getTaskId()+" ["+elapsedTimeMillis+"ms]",true); 
 	} 
 
 	private void processCommand() { 

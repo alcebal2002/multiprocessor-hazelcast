@@ -2,16 +2,12 @@ import java.io.BufferedWriter;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.Map;
-
-import com.hazelcast.core.IMap;
 
 import datamodel.ExecutionTask;
-import datamodel.NodeDetails;
-import utils.HazelcastManager;
+import utils.HazelcastInstanceUtils;
+import utils.SystemUtils;
 
 public class QueueProducerMain {
 	
@@ -35,15 +31,15 @@ public class QueueProducerMain {
 				writeResultsToFile = true;
 			}
 		} else { 
-			HazelcastManager.printLog ("Not all parameters informed",true); 
-			HazelcastManager.printLog (""); 
-			HazelcastManager.printLog ("Usage: java HazelcastQueueProducer <number of tasks> <sleep (ms)> <send stop processing signal> <write results to file>"); 
-			HazelcastManager.printLog ("  Example: java HazelcastQueueProducer 1000 5 false true");
-			HazelcastManager.printLog (""); 
+			SystemUtils.printLog ("Not all parameters informed",true); 
+			SystemUtils.printLog (""); 
+			SystemUtils.printLog ("Usage: java HazelcastQueueProducer <number of tasks> <sleep (ms)> <send stop processing signal> <write results to file>"); 
+			SystemUtils.printLog ("  Example: java HazelcastQueueProducer 1000 5 false true");
+			SystemUtils.printLog (""); 
 		} 
 		  
 		// Populate historical data
-		HazelcastManager.populateHistoricalData();
+		SystemUtils.populateHistoricalData();
 		
 		// Put execution tasks into the Hazelcast queue
 		for ( int k = 1; k <= numberOfTaks; k++ ) {
@@ -55,81 +51,30 @@ public class QueueProducerMain {
 			    "\"field4\": [\"item4_1\", \"item4_2\"]"+
 			"}",System.currentTimeMillis());				
 
-			HazelcastManager.putIntoQueue(HazelcastManager.getTaskQueueName(), executionTask );
-			HazelcastManager.printLog ("Producing: " + k);
+			HazelcastInstanceUtils.putIntoQueue(HazelcastInstanceUtils.getTaskQueueName(), executionTask );
+			SystemUtils.printLog ("Producing: " + k);
 			Thread.sleep(sleepTime);
 		}
 		
 		// Put Stop Signal into the Hazelcast queue if required
 		if (sendStopProcessingSignal) {
-			HazelcastManager.putStopSignalIntoQueue(HazelcastManager.getTaskQueueName());
+			HazelcastInstanceUtils.putStopSignalIntoQueue(HazelcastInstanceUtils.getTaskQueueName());
 		}
-		HazelcastManager.printLog ("Producer Finished!",true);
+		SystemUtils.printLog ("Producer Finished!",true);
 		Thread.sleep(monitorDelay*1000);
-		HazelcastManager.printLog ("Checking " + HazelcastManager.getMonitorMapName() + " every "+monitorDelay+" secs",true);
+		SystemUtils.printLog ("Checking " + HazelcastInstanceUtils.getMonitorMapName() + " every "+monitorDelay+" secs",true);
 		Thread.sleep(monitorDelay*1000);
 
-		while ( HazelcastManager.getMap(HazelcastManager.getMonitorMapName()).size() > 0 ) {
+		while ( HazelcastInstanceUtils.getMap(HazelcastInstanceUtils.getMonitorMapName()).size() > 0 ) {
 			Thread.sleep(monitorDelay*1000);
 		}
 		Thread.sleep(monitorDelay*1000);
 		
-		/*
-		// Iterate to print processing results per cluster node until there is no additional process running 	
-		int totalProcessed = 0;
-		int totalProcessedPrev = 0;
-		String result;
-		
-		while ( true ) {
-			result = "";
-			IMap<String,NodeDetails> monitorMap = HazelcastManager.getMap(HazelcastManager.getMonitorMapName());
-			if (monitorMap != null && monitorMap.size() > 0) {
-				HazelcastManager.printLog("******************************************");
-				HazelcastManager.printLog("Node | Start Time | Stop Time | # Tasks processed | Avg time");
-				result = result + "Node;Start Time;Stop Time;# Tasks processed;Avg time\n";
-				for (Map.Entry<String,NodeDetails> nodeEntry : monitorMap.entrySet()) {
-					HazelcastManager.printLog(nodeEntry.getValue().getInetAddres() + ":" +  nodeEntry.getValue().getInetPort() + " | " +
-							new Timestamp(nodeEntry.getValue().getStartTime()) + " | " +
-							((nodeEntry.getValue().getStopTime()>0L)?(new Timestamp(nodeEntry.getValue().getStopTime())):" - ") + " | " +
-							nodeEntry.getValue().getElapsedArray().size() + " | " + 
-							nodeEntry.getValue().getAvgElapsedTime());
-					
-					result = result + nodeEntry.getValue().getInetAddres() + ":" +  nodeEntry.getValue().getInetPort() + ";" +
-							new Timestamp(nodeEntry.getValue().getStartTime()) + ";" +
-							((nodeEntry.getValue().getStopTime()>0L)?(new Timestamp(nodeEntry.getValue().getStopTime())):" - ") + ";" +
-							nodeEntry.getValue().getElapsedArray().size() + ";" + 
-							nodeEntry.getValue().getAvgElapsedTime()+"\n";
-					
-					totalProcessed = totalProcessed + nodeEntry.getValue().getElapsedArray().size();
-				}
-			} else {
-				HazelcastManager.printLog("No " + HazelcastManager.getMonitorMapName() + " found",true);
-			}
-			HazelcastManager.printLog("Waiting " + monitorDelay + " secs to check " + HazelcastManager.getMonitorMapName(),true);
-			Thread.sleep(monitorDelay*1000);
-			
-			if (totalProcessed > 0 && totalProcessedPrev == totalProcessed) {
-				HazelcastManager.printLog("No activity detected in the last " +  monitorDelay + " secs ["+totalProcessedPrev+" vs "+totalProcessed+"]. Shutting down",true);
-				break;
-			}
-
-			totalProcessedPrev = totalProcessed;
-			totalProcessed = 0;
-		}
-*/
-/*		
-		Iterator<Object> iterator = HazelcastManager.getInstance().getList(HazelcastManager.getHistoricalListName()).iterator();
-		int numHistoricalRecords=0;
-		while ( iterator.hasNext() ) {
-			numHistoricalRecords++;
-			HazelcastManager.printLog ("Historical Value["+numHistoricalRecords+"]: " + iterator.next());
-		}
-*/		
-		HazelcastManager.printLog(HazelcastManager.getMonitorMapName() + " empty",true);
+		SystemUtils.printLog(HazelcastInstanceUtils.getMonitorMapName() + " empty",true);
 
 		// Shutdown Hazelcast cluster node instance
-		HazelcastManager.printLog("Shutting down hazelcast client...",true);
-		HazelcastManager.getInstance().getLifecycleService().shutdown();
+		SystemUtils.printLog("Shutting down hazelcast client...",true);
+		HazelcastInstanceUtils.shutdown();
 		
 		// Write cluster nodes execution summary into a file if required
 /*
@@ -144,11 +89,11 @@ public class QueueProducerMain {
 	private static void writeLogFile (final String result) {
 		
 		Path path = Paths.get(LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HHmmss"))+".csv");
-		HazelcastManager.printLog("Writing result file " + path);
+		SystemUtils.printLog("Writing result file " + path);
 		try (BufferedWriter writer = Files.newBufferedWriter(path)) {
 		    writer.write(result);
 		} catch (Exception ex) {
-			HazelcastManager.printLog("Exception: " + ex.getClass() + " - " + ex.getMessage());
+			SystemUtils.printLog("Exception: " + ex.getClass() + " - " + ex.getMessage());
 		}
 	}
 }

@@ -1,5 +1,5 @@
 package executionservices;
-import utils.HazelcastManager;
+import utils.SystemUtils;
 
 public class SystemMonitorThread implements Runnable {
     private SystemThreadPoolExecutor executor;
@@ -23,7 +23,7 @@ public class SystemMonitorThread implements Runnable {
         while(run) {
 					
 			try {
-				HazelcastManager.printLog (String.format("["+inetAddress+"][monitor] [%d/%d] Active: %d, Completed: %d, Task: %d, Queued: %d, isShutdown: %s, isTerminated: %s",
+				SystemUtils.printLog (String.format("["+inetAddress+"][monitor] [%d/%d] Active: %d, Completed: %d, Task: %d, Queued: %d, isShutdown: %s, isTerminated: %s",
 					this.executor.getPoolSize(),
 					this.executor.getCorePoolSize(),
 					this.executor.getActiveCount(),

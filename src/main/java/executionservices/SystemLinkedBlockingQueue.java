@@ -23,6 +23,8 @@ public class SystemLinkedBlockingQueue<Runnable> extends LinkedBlockingQueue<Run
          * threads were not keeping up with the load.  If you want to be more
          * aggressive about creating threads, then change this to: size() == 0
          */
+		//return super.offer(e);
+		
         if (size() <= 1) {
             return super.offer(e);
         } else {

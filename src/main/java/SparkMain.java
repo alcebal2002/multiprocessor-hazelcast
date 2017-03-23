@@ -7,11 +7,12 @@ import java.util.Map;
 
 import com.hazelcast.core.IMap;
 
-import datamodel.NodeDetails;
+import datamodel.ClientDetails;
 import freemarker.template.Configuration;
 import freemarker.template.Template;
 import spark.Spark;
-import utils.HazelcastManager;
+import utils.HazelcastInstanceUtils;
+import utils.SystemUtils;
 
 public class SparkMain {
 
@@ -20,24 +21,24 @@ public class SparkMain {
 
 	public static void main(String[] args) {
 
-		freemarkerConfig.setClassForTemplateLoading(SparkMain.class, HazelcastManager.getTemplatesPath());
+		freemarkerConfig.setClassForTemplateLoading(SparkMain.class, SystemUtils.getTemplatesPath());
 
-		Spark.staticFileLocation(HazelcastManager.getPublicPath());
+		Spark.staticFileLocation(SystemUtils.getPublicPath());
 		
 		get("/", (req, res) -> "Welcome to Spark !");
         get("/stop", (req, res) -> halt(401, "Go away!"));
         get("/monitor", (req, res) -> {
         	StringWriter writer = new StringWriter();
         	try {
-				IMap<String,NodeDetails> monitorMap = HazelcastManager.getMap(HazelcastManager.getMonitorMapName());
+				IMap<String,ClientDetails> monitorMap = HazelcastInstanceUtils.getMap(HazelcastInstanceUtils.getMonitorMapName());
 //				if (monitorMap != null && monitorMap.size() > 0) {
 				Map<String, Object> root = new HashMap<String, Object>();
-				root.put( HazelcastManager.getMonitorMapName (), monitorMap );
-				Template resultTemplate = freemarkerConfig.getTemplate(HazelcastManager.getResultTemplateFileName());
+				root.put( HazelcastInstanceUtils.getMonitorMapName (), monitorMap );
+				Template resultTemplate = freemarkerConfig.getTemplate(SystemUtils.getResultTemplateFileName());
 				resultTemplate.process(root, writer);
 //				}
         	} catch (Exception ex) {
-        		HazelcastManager.printLog("Exception: " + ex.getClass() + " - " + ex.getMessage());
+        		SystemUtils.printLog("Exception: " + ex.getClass() + " - " + ex.getMessage());
         	}
 			return writer;
         });
