@@ -4,10 +4,13 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Iterator;
+import java.util.Map.Entry;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import datamodel.ClientDetails;
 import datamodel.ExecutionTask;
 import utils.HazelcastInstanceUtils;
 import utils.SystemUtils;
@@ -67,12 +70,30 @@ public class QueueProducerMain {
 			HazelcastInstanceUtils.putStopSignalIntoQueue(HazelcastInstanceUtils.getTaskQueueName());
 		}
 		logger.info  ("Producer Finished!");
+		logger.info  ("Waiting " + monitorDelay + " secs to start monitoring");
 		Thread.sleep(monitorDelay*1000);
 		logger.info  ("Checking " + HazelcastInstanceUtils.getMonitorMapName() + " every "+monitorDelay+" secs");
+		Thread.sleep(monitorDelay*1000);
 
-		logger.info ("Keeping the Hazelcast instance running...");
-		while ( HazelcastInstanceUtils.getMap(HazelcastInstanceUtils.getMonitorMapName()).size() >= 0 ) {
-			Thread.sleep(monitorDelay*1000);
+		boolean stopMonitoring;
+
+		while ( true ) {
+			stopMonitoring = true;
+
+			Iterator<Entry<String, ClientDetails>> iter = HazelcastInstanceUtils.getMap(HazelcastInstanceUtils.getMonitorMapName()).entrySet().iterator();
+
+			while (iter.hasNext()) {
+	            Entry<String, ClientDetails> entry = iter.next();
+	            if (entry.getValue().getActiveStatus()) stopMonitoring = false;
+	        }
+			
+			if (stopMonitoring) {
+				logger.info ("All clients are inactive. Stopping monitoring...");
+				break;
+			} else {
+				logger.info ("Keeping the monitoring running every " + monitorDelay + " secs until all the clients are inactive...");
+				Thread.sleep(monitorDelay*1000);
+			}
 		}
 
 		// Shutdown Hazelcast cluster node instance

@@ -149,8 +149,9 @@ public class WorkerPoolMain {
 		logger.info ("Shutting down monitor thread... done"); 
 		long stopTime = System.currentTimeMillis();
 
-		//Remove ClientDetails from the monitorMap
-		//hzClient.getMap(HazelcastInstanceUtils.getMonitorMapName()).remove(clientDetails.getUuid());
+		// Update ClientDetails status to inactive
+		clientDetails.setActiveStatus(false);
+		hzClient.getMap(HazelcastInstanceUtils.getMonitorMapName()).put(clientDetails.getUuid(),clientDetails);
 		
 		// Shutdown Hazelcast cluster node instance		
 		logger.info ("Shutting down hazelcast client...");
