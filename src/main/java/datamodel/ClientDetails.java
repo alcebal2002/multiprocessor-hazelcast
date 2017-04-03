@@ -1,9 +1,6 @@
 package datamodel;
 import java.io.Serializable;
 import java.sql.Timestamp;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
 
 public class ClientDetails implements Serializable {
 	
@@ -27,10 +24,7 @@ public class ClientDetails implements Serializable {
 	private int taskNumber = 0; 
 	private long startTime = 0L; 
 	private long stopTime = 0L; 
-	private long avgElapsedTime = 0L;
 
-	private List<Long> elapsedArray;
-	private int elapsedArraySize;
 	private String csvFormat;
 
 	
@@ -69,7 +63,6 @@ public class ClientDetails implements Serializable {
 		this.monitorSleep = monitorSleep;
 		this.taskNumber = taskNumber;
 		this.startTime = startTime;
-		this.elapsedArray = Collections.synchronizedList(new ArrayList<Long>());
 	}
 
 	public final String getUuid() {
@@ -174,25 +167,6 @@ public class ClientDetails implements Serializable {
 	public final void setStopTime(long stopTime) {
 		this.stopTime = stopTime;
 	}
-	public final List<Long> getElapsedArray() {
-		return elapsedArray;
-	}
-	public final int getElapsedArraySize() {
-		this.elapsedArraySize = this.getElapsedArray().size();
-		return elapsedArraySize;
-	}
-	public final void addElapsedTime(long elapsedTime) {
-		this.elapsedArray.add(elapsedTime);
-	}
-	
-	public final long getAvgElapsedTime() {
-		return avgElapsedTime;
-	}
-
-	public final void setAvgElapsedTime(long avgElapsedTime) {
-		this.avgElapsedTime = avgElapsedTime;
-	}
-	
 	public final String getCsvFormat() {
 		setCsvFormat(toCsvFormat ());
 		return this.csvFormat;
@@ -205,7 +179,6 @@ public class ClientDetails implements Serializable {
 		return  this.getUuid() + ";" +
 				this.getInetAddres() + ";" +
 				this.getInetPort() + ";" +
-				((this.getStopTime()>0L)?(new Timestamp(this.getStopTime())):" - ") + ";" +
-				this.getElapsedArray().size() + ";"; 
+				((this.getStopTime()>0L)?(new Timestamp(this.getStopTime())):" - ") + ";"; 
 	}
 } 
