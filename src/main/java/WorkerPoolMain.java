@@ -144,10 +144,11 @@ public class WorkerPoolMain {
 		} 
 
 		logger.info ("Executor terminated"); 
+		long stopTime = System.currentTimeMillis();
+
 		logger.info ("Shutting down monitor thread..."); 
 		monitor.shutdown(); 
 		logger.info ("Shutting down monitor thread... done"); 
-		long stopTime = System.currentTimeMillis();
 
 		// Update ClientDetails status to inactive
 		clientDetails.setActiveStatus(false);
@@ -173,15 +174,16 @@ public class WorkerPoolMain {
 		millis -= TimeUnit.MINUTES.toMillis(minutes); 
 		long seconds = TimeUnit.MILLISECONDS.toSeconds(millis);
 
-		logger.info ("  - Elapsed time: " + (stopTime - startTime) + " ms - (" + hours + " hrs " + minutes + " min " + seconds + " secs)"); 
+		logger.info ("  - Elapsed time      : " + (stopTime - startTime) + " ms - (" + hours + " hrs " + minutes + " min " + seconds + " secs)"); 
 		logger.info ("**************************************************"); 
-		logger.info ("  - Min elapsed execution time: " + executorPool.getMinExecutionTime() + " ms"); 
-		logger.info ("  - Max elapsed execution time: " + executorPool.getMaxExecutionTime() + " ms"); 
-		logger.info ("  - Avg elapsed execution time: " + executorPool.getAvgExecutionTime() + " ms");
+		logger.info ("  - Min execution time: " + executorPool.getMinExecutionTime() + " ms"); 
+		logger.info ("  - Max execution time: " + executorPool.getMaxExecutionTime() + " ms"); 
+		logger.info ("  - Avg execution time: " + executorPool.getAvgExecutionTime() + " ms");
+		logger.info ("  - Executions/second : " + executorPool.getTotalExecutions() * 1000 / (stopTime - startTime));
 		logger.info ("**************************************************"); 
 		
 		// Exit application
-		System.exit(0);	
+		System.exit(0);
 	}
 	
 	// Print worker pool execution parameters 
