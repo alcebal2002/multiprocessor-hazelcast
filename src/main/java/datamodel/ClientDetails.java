@@ -23,7 +23,10 @@ public class ClientDetails implements Serializable {
 
 	private int taskNumber = 0; 
 	private long startTime = 0L; 
-	private long stopTime = 0L; 
+	private long stopTime = 0L;
+	private long totalElapsedTime = 0L; 
+	private int totalExecutions = 0;
+	private long avgExecutionTime = 0L;
 
 	private String csvFormat;
 
@@ -167,6 +170,31 @@ public class ClientDetails implements Serializable {
 	public final void setStopTime(long stopTime) {
 		this.stopTime = stopTime;
 	}
+
+	public final long getAvgExecutionTime() {
+		return avgExecutionTime;
+	}
+
+	public final void setAvgExecutionTime(long avgExecutionTime) {
+		this.avgExecutionTime = avgExecutionTime;
+	}
+
+	public final int getTotalExecutions() {
+		return totalExecutions;
+	}
+
+	public final void setTotalExecutions(int totalExecutions) {
+		this.totalExecutions = totalExecutions;
+	}
+
+	public final long getTotalElapsedTime() {
+		return totalElapsedTime;
+	}
+
+	public final void setTotalElapsedTime(long totalElapsedTime) {
+		this.totalElapsedTime = totalElapsedTime;
+	}
+	
 	public final String getCsvFormat() {
 		setCsvFormat(toCsvFormat ());
 		return this.csvFormat;

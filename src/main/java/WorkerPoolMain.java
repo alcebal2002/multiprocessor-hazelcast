@@ -152,6 +152,10 @@ public class WorkerPoolMain {
 
 		// Update ClientDetails status to inactive
 		clientDetails.setActiveStatus(false);
+		clientDetails.setStopTime(stopTime);
+		clientDetails.setTotalElapsedTime((stopTime - startTime));
+		clientDetails.setTotalExecutions(taskNumber);
+		clientDetails.setAvgExecutionTime(executorPool.getAvgExecutionTime());
 		hzClient.getMap(HazelcastInstanceUtils.getMonitorMapName()).put(clientDetails.getUuid(),clientDetails);
 		
 		// Shutdown Hazelcast cluster node instance		
