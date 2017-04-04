@@ -37,6 +37,8 @@ public class WorkerPoolMain {
 	private static int monitorSleep = 3; 
 	private static int taskNumber = 0;
 	private static String nodeId;
+	private static String localEndPointAddress;
+	private static String localEndPointPort;
 	
 	public static void main(String args[]) throws InterruptedException {
 		
@@ -86,11 +88,14 @@ public class WorkerPoolMain {
 		HazelcastInstance hzClient = HazelcastClient.newHazelcastClient();
 		
 		nodeId = ""+System.currentTimeMillis();
+		localEndPointAddress = hzClient.getLocalEndpoint().getSocketAddress().toString();
+		localEndPointPort = localEndPointAddress.substring(localEndPointAddress.indexOf(":")+1);
+		localEndPointAddress = localEndPointAddress.substring(1,localEndPointAddress.indexOf(":"));
 		
 		ClientDetails clientDetails = new ClientDetails(
 				nodeId,
 				SystemUtils.getHostName(),
-				"PORT",
+				localEndPointPort,
 				poolCoreSize,
 				poolMaxSize,
 				queueCapacity,
