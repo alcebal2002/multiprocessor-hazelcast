@@ -133,6 +133,15 @@ public class WorkerPoolMain {
 				}
 				executorPool.execute(new RunnableWorkerThread(processTime,executionTaskItem,retrySleepTime,retryMaxAttempts,nodeId));
 				taskNumber++;
+				
+				// Update ClientDetails every 1000 executions
+				if (taskNumber%1000 == 0) {
+					// Update ClientDetails status to inactive
+					clientDetails.setTotalExecutions(taskNumber);
+					clientDetails.setAvgExecutionTime(executorPool.getAvgExecutionTime());
+					hzClient.getMap(HazelcastInstanceUtils.getMonitorMapName()).put(clientDetails.getUuid(),clientDetails);
+				}
+				
 			}
 		}
 		logger.info ("Hazelcast consumer Finished");
@@ -188,7 +197,7 @@ public class WorkerPoolMain {
 		logger.info ("  - Min execution time: " + executorPool.getMinExecutionTime() + " ms"); 
 		logger.info ("  - Max execution time: " + executorPool.getMaxExecutionTime() + " ms"); 
 		logger.info ("  - Avg execution time: " + executorPool.getAvgExecutionTime() + " ms");
-		logger.info ("  - Executions/second : " + executorPool.getTotalExecutions() * 1000 / (stopTime - startTime));
+		logger.info ("  - Executions/second : " + (executorPool.getTotalExecutions() * 1000) / (stopTime - startTime));
 		logger.info ("**************************************************"); 
 		
 		// Exit application
