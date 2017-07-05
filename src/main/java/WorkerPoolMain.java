@@ -141,7 +141,6 @@ public class WorkerPoolMain {
 					clientDetails.setAvgExecutionTime(executorPool.getAvgExecutionTime());
 					hzClient.getMap(HazelcastInstanceUtils.getMonitorMapName()).put(clientDetails.getUuid(),clientDetails);
 				}
-				
 			}
 		}
 		logger.info ("Hazelcast consumer Finished");
