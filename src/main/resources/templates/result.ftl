@@ -26,8 +26,10 @@
     	</tr>
 <#assign totalActive = 0>
 <#assign totalInactive = 0>
+<#assign totalExecuted = 0>
 <#list monitorMap?values as clientDetail>
 	<#if clientDetail.activeStatus>
+	<#assign totalExecuted = totalExecuted + clientDetail.totalExecutions>
 	<#assign totalActive = totalActive + 1>
       <tr>
       	<td>${clientDetail.activeStatus?c}</td>
@@ -42,13 +44,17 @@
 	</#if>
 </#list>
 		<tr>
-    		<td colspan="8">${totalActive}</td>
+    		<td>${totalActive}</td>
+    		<td colspan="5">&nbsp;</td>
+    		<td colspan="2"><b>${totalExecuted}</b></td>
     	</tr>
     	<tr>
     		<td colspan="8"><b>Inactive</b></td>
     	</tr>
+<#assign totalExecuted = 0>
 <#list monitorMap?values as clientDetail>
 	<#if !clientDetail.activeStatus>
+	<#assign totalExecuted = totalExecuted + clientDetail.totalExecutions>
 	<#assign totalInactive = totalInactive + 1>
       <tr>
       	<td>${clientDetail.activeStatus?c}</td>
@@ -63,7 +69,9 @@
 	</#if>
 </#list> 
 		<tr>
-    		<td colspan="8">${totalInactive}</td>
+    		<td>${totalInactive}</td>
+    		<td colspan="5">&nbsp;</td>
+    		<td colspan="2"><b>${totalExecuted}</b></td>
     	</tr>
     </tbody>
   </table>

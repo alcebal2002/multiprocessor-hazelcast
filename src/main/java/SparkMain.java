@@ -12,7 +12,6 @@ import org.slf4j.LoggerFactory;
 
 import com.hazelcast.client.HazelcastClient;
 import com.hazelcast.core.HazelcastInstance;
-import com.hazelcast.core.IMap;
 
 import datamodel.ClientDetails;
 import freemarker.template.Configuration;
