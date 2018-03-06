@@ -87,4 +87,9 @@ public class SystemUtils {
     	*/
     	return counter;
     }
+    
+	public static int getIntParameterOrDefault (String args[], int argPosition, int defaultValue) {
+		return args[argPosition] != null?Integer.parseInt(args[argPosition]):defaultValue;
+	}
+
 }

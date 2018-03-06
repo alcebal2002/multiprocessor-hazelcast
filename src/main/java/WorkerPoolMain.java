@@ -34,7 +34,8 @@ public class WorkerPoolMain {
 	private static int retrySleepTime = 5000; 
 	private static int retryMaxAttempts = 5; 
 	private static int initialSleep = 5; 
-	private static int monitorSleep = 3; 
+	private static int monitorSleep = 3;
+	private static int refreshAfter = 1000;
 	private static int taskNumber = 0;
 	private static String nodeId;
 	private static String localEndPointAddress;
@@ -42,25 +43,25 @@ public class WorkerPoolMain {
 	
 	public static void main(String args[]) throws InterruptedException {
 		
-		if (args != null && args.length >= 9) { 
-			poolCoreSize = Integer.parseInt(args[0]); 
-			poolMaxSize = Integer.parseInt(args[1]); 
-			queueCapacity = Integer.parseInt(args[2]); 
-			timeoutSecs = Integer.parseInt(args[3]); 
-			processTime = Integer.parseInt(args[4]); 
-			retrySleepTime = Integer.parseInt(args[5]); 
-			retryMaxAttempts = Integer.parseInt(args[6]); 
-			initialSleep = Integer.parseInt(args[7]); 
-			monitorSleep = Integer.parseInt(args[8]);
-		} else { 
+		if (args != null && args.length < 10) { 
 			logger.info ("Not all parameters informed. Using default values"); 
 			logger.info (""); 
-			logger.info ("Usage: java WorkerPool <pool core size> <pool max size> <queue capacity> <timeout (secs)> <task process (ms)> <retry sleep (ms)> <retry max attempts> <initial sleep (secs)> <monitor sleep (secs)>"); 
-			logger.info ("  Example: java WorkerPool 10 15 20 50 5000 5000 5 5 3"); 
+			logger.info ("Usage: java WorkerPool <pool core size> <pool max size> <queue capacity> <timeout (secs)> <task process (ms)> <retry sleep (ms)> <retry max attempts> <initial sleep (secs)> <monitor sleep (secs)> <refresh after"); 
+			logger.info ("  Example: java WorkerPool 10 15 20 50 5000 5000 5 5 3 1000"); 
 			logger.info (""); 
 			logger.info ("System will continue processing until a task with " + HazelcastInstanceUtils.getStopProcessingSignal() + " content is received");
 			logger.info (""); 
 		} 
+		poolCoreSize = SystemUtils.getIntParameterOrDefault(args,0,poolCoreSize); 
+		poolMaxSize = SystemUtils.getIntParameterOrDefault(args,1,poolMaxSize); 
+		queueCapacity = SystemUtils.getIntParameterOrDefault(args,2,queueCapacity);
+		timeoutSecs = SystemUtils.getIntParameterOrDefault(args,3,timeoutSecs); 
+		processTime = SystemUtils.getIntParameterOrDefault(args,4,processTime);
+		retrySleepTime = SystemUtils.getIntParameterOrDefault(args,5,retrySleepTime);
+		retryMaxAttempts = SystemUtils.getIntParameterOrDefault(args,6,retryMaxAttempts);
+		initialSleep = SystemUtils.getIntParameterOrDefault(args,7,initialSleep);
+		monitorSleep = SystemUtils.getIntParameterOrDefault(args,8,monitorSleep);
+		refreshAfter = SystemUtils.getIntParameterOrDefault(args,9,refreshAfter);
 
 		logger.info ("Waiting " + initialSleep + " secs to start..."); 
 		Thread.sleep(initialSleep*1000); 
@@ -134,8 +135,8 @@ public class WorkerPoolMain {
 				executorPool.execute(new RunnableWorkerThread(processTime,executionTaskItem,retrySleepTime,retryMaxAttempts,nodeId));
 				taskNumber++;
 				
-				// Update ClientDetails every 1000 executions
-				if (taskNumber%1000 == 0) {
+				// Update ClientDetails every <refreshAfter> executions
+				if (taskNumber%refreshAfter == 0) {
 					// Update ClientDetails status to inactive
 					clientDetails.setTotalExecutions(taskNumber);
 					clientDetails.setAvgExecutionTime(executorPool.getAvgExecutionTime());
@@ -219,6 +220,7 @@ public class WorkerPoolMain {
 		logger.info ("  - retry max attempts   : " + retryMaxAttempts);
 		logger.info ("  - initial sleep (secs) : " + initialSleep); 
 		logger.info ("  - monitor sleep (secs) : " + monitorSleep); 
+		logger.info ("  - refresh after        : " + refreshAfter);
 		logger.info ("**************************************************");
 	}
 } 
