@@ -106,6 +106,7 @@ public class WorkerPoolMain {
 				retryMaxAttempts,
 				initialSleep,
 				monitorSleep,
+				refreshAfter,
 				taskNumber,
 				startTime);
 
@@ -192,7 +193,7 @@ public class WorkerPoolMain {
 		millis -= TimeUnit.MINUTES.toMillis(minutes); 
 		long seconds = TimeUnit.MILLISECONDS.toSeconds(millis);
 
-		logger.info ("  - Elapsed time      : " + (stopTime - startTime) + " ms - (" + hours + " hrs " + minutes + " min " + seconds + " secs)"); 
+		logger.info ("  - Elapsed time: " + (stopTime - startTime) + " ms - (" + hours + " hrs " + minutes + " min " + seconds + " secs)"); 
 		logger.info ("**************************************************"); 
 		logger.info ("  - Min execution time: " + executorPool.getMinExecutionTime() + " ms"); 
 		logger.info ("  - Max execution time: " + executorPool.getMaxExecutionTime() + " ms"); 
