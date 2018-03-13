@@ -80,7 +80,11 @@ public class RunnableWorkerThread implements Runnable {
 	
 	public long getElapsedTimeMillis () { 
 		return this.elapsedTimeMillis; 
-	} 
+	}
+	
+	public String getNodeId () {
+		return this.nodeId;
+	}
 
 
 	public void setRetryMaxAttempts (int data) { 
