@@ -1,14 +1,13 @@
 package utils;
 import java.net.InetAddress;
-import java.sql.Timestamp;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+//import org.slf4j.Logger;
+//import org.slf4j.LoggerFactory;
 
 public class SystemUtils {
 
 	// Logger
-	private static Logger logger = LoggerFactory.getLogger(SystemUtils.class);
+	//private static Logger logger = LoggerFactory.getLogger(SystemUtils.class);
 	
 	// Resources names
 	private static final String mainResourcePath = "";
@@ -89,7 +88,7 @@ public class SystemUtils {
     }
     
 	public static int getIntParameterOrDefault (String args[], int argPosition, int defaultValue) {
-		return args[argPosition] != null?Integer.parseInt(args[argPosition]):defaultValue;
+		return ((args != null) && (args.length >= argPosition+1))?Integer.parseInt(args[argPosition]):defaultValue;
 	}
 
 }
