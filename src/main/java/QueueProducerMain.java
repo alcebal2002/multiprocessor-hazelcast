@@ -55,10 +55,11 @@ public class QueueProducerMain {
 		HazelcastInstanceUtils.getInstance();
 		
 		// Populate historical data from file and put into Hazelcast
-		logger.info("Number of FX Rates loaded from file: " + populateHistoricalFxData());
+		int loadedFXRates =  populateHistoricalFxData();
+		logger.info("Number of FX Rates loaded from file: " + loadedFXRates);
 
 		// Check number of objects loaded into Hazelcast List
-		logger.info("Number of FX Rates in Hazelcast: " + HazelcastInstanceUtils.getList(HazelcastInstanceUtils.getHistoricalListName()).size());
+		logger.info("Number of FX Rates loaded into Hazelcast: " + HazelcastInstanceUtils.getList(HazelcastInstanceUtils.getHistoricalListName()).size());
 	
 		// Put execution tasks into the Hazelcast queue
 		logger.info ("Producer Started...");
