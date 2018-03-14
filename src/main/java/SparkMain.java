@@ -13,7 +13,7 @@ import org.slf4j.LoggerFactory;
 import com.hazelcast.client.HazelcastClient;
 import com.hazelcast.core.HazelcastInstance;
 
-import datamodel.ClientDetails;
+import datamodel.WorkerDetail;
 import freemarker.template.Configuration;
 import freemarker.template.Template;
 import spark.Spark;
@@ -47,10 +47,10 @@ public class SparkMain {
 
     			boolean refreshPage = false;
 
-    			Iterator<Entry<String, ClientDetails>> iter = HazelcastInstanceUtils.getMap(HazelcastInstanceUtils.getMonitorMapName()).entrySet().iterator();
+    			Iterator<Entry<String, WorkerDetail>> iter = HazelcastInstanceUtils.getMap(HazelcastInstanceUtils.getMonitorMapName()).entrySet().iterator();
 
     			while (iter.hasNext()) {
-    	            Entry<String, ClientDetails> entry = iter.next();
+    	            Entry<String, WorkerDetail> entry = iter.next();
     	            if (entry.getValue().getActiveStatus()) refreshPage = true;
     	        }
     			

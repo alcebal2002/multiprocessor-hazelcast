@@ -10,7 +10,7 @@ import com.hazelcast.client.HazelcastClient;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.IQueue;
 
-import datamodel.ClientDetails;
+import datamodel.WorkerDetail;
 import datamodel.ExecutionTask;
 import executionservices.RejectedExecutionHandlerImpl;
 import executionservices.RunnableWorkerThread;
@@ -93,7 +93,7 @@ public class WorkerPoolMain {
 		localEndPointPort = localEndPointAddress.substring(localEndPointAddress.indexOf(":")+1);
 		localEndPointAddress = localEndPointAddress.substring(1,localEndPointAddress.indexOf(":"));
 		
-		ClientDetails clientDetails = new ClientDetails(
+		WorkerDetail workerDetail = new WorkerDetail(
 				nodeId,
 				SystemUtils.getHostName(),
 				localEndPointPort,
@@ -115,7 +115,7 @@ public class WorkerPoolMain {
 		Thread monitorThread = new Thread(monitor); 
 		monitorThread.start(); 
 
-		hzClient.getMap(HazelcastInstanceUtils.getMonitorMapName()).put(clientDetails.getUuid(),clientDetails);
+		hzClient.getMap(HazelcastInstanceUtils.getMonitorMapName()).put(workerDetail.getUuid(),workerDetail);
 		
 		// Listen to Hazelcast tasks queue and submit work to the thread pool for each task 
 		IQueue<ExecutionTask> hazelcastTaskQueue = hzClient.getQueue( HazelcastInstanceUtils.getTaskQueueName() );
@@ -139,9 +139,9 @@ public class WorkerPoolMain {
 				// Update ClientDetails every <refreshAfter> executions
 				if (taskNumber%refreshAfter == 0) {
 					// Update ClientDetails status to inactive
-					clientDetails.setTotalExecutions(taskNumber);
-					clientDetails.setAvgExecutionTime(executorPool.getAvgExecutionTime());
-					hzClient.getMap(HazelcastInstanceUtils.getMonitorMapName()).put(clientDetails.getUuid(),clientDetails);
+					workerDetail.setTotalExecutions(taskNumber);
+					workerDetail.setAvgExecutionTime(executorPool.getAvgExecutionTime());
+					hzClient.getMap(HazelcastInstanceUtils.getMonitorMapName()).put(workerDetail.getUuid(),workerDetail);
 				}
 			}
 		}
@@ -166,12 +166,12 @@ public class WorkerPoolMain {
 		logger.info ("Shutting down monitor thread... done"); 
 
 		// Update ClientDetails status to inactive
-		clientDetails.setActiveStatus(false);
-		clientDetails.setStopTime(stopTime);
-		clientDetails.setTotalElapsedTime((stopTime - startTime));
-		clientDetails.setTotalExecutions(taskNumber);
-		clientDetails.setAvgExecutionTime(executorPool.getAvgExecutionTime());
-		hzClient.getMap(HazelcastInstanceUtils.getMonitorMapName()).put(clientDetails.getUuid(),clientDetails);
+		workerDetail.setActiveStatus(false);
+		workerDetail.setStopTime(stopTime);
+		workerDetail.setTotalElapsedTime((stopTime - startTime));
+		workerDetail.setTotalExecutions(taskNumber);
+		workerDetail.setAvgExecutionTime(executorPool.getAvgExecutionTime());
+		hzClient.getMap(HazelcastInstanceUtils.getMonitorMapName()).put(workerDetail.getUuid(),workerDetail);
 		
 		// Shutdown Hazelcast cluster node instance		
 		logger.info ("Shutting down hazelcast client...");

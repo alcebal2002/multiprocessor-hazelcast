@@ -2,7 +2,7 @@ package datamodel;
 import java.io.Serializable;
 import java.sql.Timestamp;
 
-public class ClientDetails implements Serializable {
+public class WorkerDetail implements Serializable {
 	
 	private static final long serialVersionUID = 1L;
 	private String uuid;
@@ -19,7 +19,8 @@ public class ClientDetails implements Serializable {
 	private int retrySleepTime; 
 	private int retryMaxAttempts; 
 	private int initialSleep; 
-	private int monitorSleep; 
+	private int monitorSleep;
+	private int refreshAfter;
 
 	private int taskNumber = 0; 
 	private long startTime = 0L; 
@@ -44,14 +45,15 @@ public class ClientDetails implements Serializable {
 	 * @param retryMaxAttempts
 	 * @param initialSleep
 	 * @param monitorSleep
+	 * @param refreshAfter
 	 * @param taskNumber
 	 * @param startTime
 	 * @param stopTime
 	 * @param elapsedArray
 	 */
-	public ClientDetails(String uuid, String inetAddres, String inetPort, int poolCoreSize, int poolMaxSize,
+	public WorkerDetail(String uuid, String inetAddres, String inetPort, int poolCoreSize, int poolMaxSize,
 			int queueCapacity, int timeoutSecs, int processTime, int retrySleepTime, int retryMaxAttempts,
-			int initialSleep, int monitorSleep, int taskNumber, long startTime) {
+			int initialSleep, int monitorSleep, int refreshAfter, int taskNumber, long startTime) {
 		this.uuid = uuid;
 		this.inetAddres = inetAddres;
 		this.inetPort = inetPort;
@@ -64,6 +66,7 @@ public class ClientDetails implements Serializable {
 		this.retryMaxAttempts = retryMaxAttempts;
 		this.initialSleep = initialSleep;
 		this.monitorSleep = monitorSleep;
+		this.refreshAfter = refreshAfter;
 		this.taskNumber = taskNumber;
 		this.startTime = startTime;
 	}
@@ -145,6 +148,12 @@ public class ClientDetails implements Serializable {
 	}
 	public final void setMonitorSleep(int monitorSleep) {
 		this.monitorSleep = monitorSleep;
+	}
+	public final int getRefreshAfter() {
+		return refreshAfter;
+	}
+	public final void setRefreshAter(int refreshAfter) {
+		this.refreshAfter = refreshAfter;
 	}
 	public final int getTaskNumber() {
 		return taskNumber;

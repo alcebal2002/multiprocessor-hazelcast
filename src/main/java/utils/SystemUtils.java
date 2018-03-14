@@ -1,13 +1,21 @@
 package utils;
+import java.io.InputStreamReader;
 import java.net.InetAddress;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
-//import org.slf4j.Logger;
-//import org.slf4j.LoggerFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.opencsv.CSVReader;
+
+import datamodel.FxRate;
 
 public class SystemUtils {
 
 	// Logger
-	//private static Logger logger = LoggerFactory.getLogger(SystemUtils.class);
+	private static Logger logger = LoggerFactory.getLogger(SystemUtils.class);
 	
 	// Resources names
 	private static final String mainResourcePath = "";
@@ -17,7 +25,7 @@ public class SystemUtils {
 
 	// File names
 	private static final String resultTemplateFileName = "result.ftl";
-	private static final String historicalDataFileName = "eurofxref-hist.csv";
+	private static final String historicalDataFileName = "fxhistoricaldata.csv";
 /*
 	// Historical data headers
 	private static final String[] historicalListHeader = {"Date","USD","JPY","BGN","CYP",
@@ -63,32 +71,19 @@ public class SystemUtils {
         } catch (Exception ex) {}
         return result;
     }
-
-    public static int populateHistoricalData () {
-    	
-    	int counter=0;
-    	/*
-    	printLog ("Populating historical data from " + getHistoricalDataPath() + getHistoricalDataFileName() + "...",true);
-    	try {
-    		CSVReader reader = new CSVReader(new InputStreamReader(HazelcastManager.class.getClass().getResourceAsStream(getHistoricalDataPath() + getHistoricalDataFileName())));
-	        String [] nextLine;
-	        while ((nextLine = reader.readNext()) != null) {
-	        	counter++;
-	        	putIntoList (getHistoricalListName(), Arrays.toString(nextLine));
-	        	//logger.info (nextLine[1] + nextLine[2] + nextLine[8]);
-	        }
-	        reader.close();
-	    	printLog ("Populating historical data done",true);
-	    	
-    	} catch (Exception ex) {
-    		logger.error ("Exception: " + ex.getClass() + " - " + ex.getMessage());
-    	}
-    	*/
-    	return counter;
-    }
     
 	public static int getIntParameterOrDefault (String args[], int argPosition, int defaultValue) {
 		return ((args != null) && (args.length >= argPosition+1))?Integer.parseInt(args[argPosition]):defaultValue;
 	}
 
+	public final Date getDateFromString(String date, String format) {
+		Date result = null;
+		try {
+			// format example: "dd-mm-yyyy"
+			result = new SimpleDateFormat(format).parse(date);
+		} catch (ParseException e) {
+			e.printStackTrace();
+		}
+		return result;
+	}
 }

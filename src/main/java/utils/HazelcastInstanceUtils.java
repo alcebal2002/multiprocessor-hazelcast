@@ -4,11 +4,12 @@ import org.slf4j.LoggerFactory;
 
 import com.hazelcast.core.Hazelcast;
 import com.hazelcast.core.HazelcastInstance;
+import com.hazelcast.core.IList;
 import com.hazelcast.core.IMap;
 import com.hazelcast.core.IQueue;
 
-import datamodel.ClientDetails;
 import datamodel.ExecutionTask;
+import datamodel.WorkerDetail;
 
 public class HazelcastInstanceUtils {
 
@@ -69,8 +70,12 @@ public class HazelcastInstanceUtils {
 	public static IQueue<ExecutionTask> getQueue  (final String queueName) {
 		return getInstance().getQueue(queueName);
 	}
+	
+	public static IList<Object> getList (final String listName) {
+		return getInstance().getList(listName);
+	}
 
-	public static IMap<String,ClientDetails> getMap  (final String mapName) {
+	public static IMap<String,WorkerDetail> getMap  (final String mapName) {
 		return getInstance().getMap(mapName);
 	}
 
