@@ -43,7 +43,7 @@ public class WorkerPoolMain {
 	
 	public static void main(String args[]) throws InterruptedException {
 		
-		if (args != null && args.length < 10) { 
+		if (args == null || args.length < 10) { 
 			logger.info ("Not all parameters informed. Using default values"); 
 			logger.info (""); 
 			logger.info ("Usage: java WorkerPool <pool core size> <pool max size> <queue capacity> <timeout (secs)> <task process (ms)> <retry sleep (ms)> <retry max attempts> <initial sleep (secs)> <monitor sleep (secs)> <refresh after"); 

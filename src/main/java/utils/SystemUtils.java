@@ -75,6 +75,12 @@ public class SystemUtils {
 	public static int getIntParameterOrDefault (String args[], int argPosition, int defaultValue) {
 		return ((args != null) && (args.length >= argPosition+1))?Integer.parseInt(args[argPosition]):defaultValue;
 	}
+	public static String getStringParameterOrDefault (String args[], int argPosition, String defaultValue) {
+		return ((args != null) && (args.length >= argPosition+1))?args[argPosition]:defaultValue;
+	}
+	public static boolean getBooleanParameterOrDefault (String args[], int argPosition, boolean defaultValue) {
+		return ((args != null) && (args.length >= argPosition+1))?Boolean.parseBoolean(args[argPosition]):defaultValue;
+	}
 
 	public final Date getDateFromString(String date, String format) {
 		Date result = null;

@@ -203,7 +203,7 @@ public class WorkerDetail implements Serializable {
 	public final void setTotalElapsedTime(long totalElapsedTime) {
 		this.totalElapsedTime = totalElapsedTime;
 	}
-	
+/*
 	public final String getCsvFormat() {
 		setCsvFormat(toCsvFormat ());
 		return this.csvFormat;
@@ -211,11 +211,15 @@ public class WorkerDetail implements Serializable {
 	public final void setCsvFormat(String csvFormat) {
 		this.csvFormat = csvFormat;
 	}
-	
+*/
 	public final String toCsvFormat () {
 		return  this.getUuid() + ";" +
 				this.getInetAddres() + ";" +
 				this.getInetPort() + ";" +
-				((this.getStopTime()>0L)?(new Timestamp(this.getStopTime())):" - ") + ";"; 
+				this.getStartTimeString() + ";" +
+				this.getStopTimeString() + ";" +
+				this.getTotalElapsedTime() + ";" +
+				this.getTotalExecutions();
+				//((this.getStopTime()>0L)?(new Timestamp(this.getStopTime())):" - ") + ";"; 
 	}
 } 

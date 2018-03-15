@@ -1,4 +1,5 @@
 import java.io.BufferedWriter;
+import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -24,33 +25,30 @@ public class QueueProducerMain {
 	// Logger
 	private static Logger logger = LoggerFactory.getLogger(QueueProducerMain.class);
 
-	private static int numberOfTaks = 0;
-	private static int sleepTime = 0;
-	private static boolean sendStopProcessingSignal = false;
-	private static boolean writeResultsToFile = false;
+	private static int numberOfTaks = 1000;
+	private static int sleepTime = 5;
+	private static boolean sendStopProcessingSignal = true;
+	private static boolean loadFXRateHistoricalData = true;
+	private static boolean writeResultsToFile = true;
 	private static final int monitorDelay = 10;
 	
 	public static void main( String[] args ) throws Exception {
 	  
 		// Check arguments
-		if (args != null && args.length >= 2) { 
-			numberOfTaks = Integer.parseInt(args[0]);
-			sleepTime = Integer.parseInt(args[1]);
-
-			if (args.length >= 3 && ("true".equalsIgnoreCase(args[2]))) {
-				sendStopProcessingSignal = true;
-			}
-			if (args.length >= 4 && ("true".equalsIgnoreCase(args[3]))) {
-				writeResultsToFile = true;
-			}
-		} else { 
-			logger.info  ("Not all parameters informed"); 
+		if (args == null || args.length < 5) { 
+			logger.info  ("Not all parameters informed. Using default values"); 
 			logger.info  (""); 
-			logger.info  ("Usage: java HazelcastQueueProducer <number of tasks> <sleep (ms)> <send stop processing signal> <write results to file>"); 
-			logger.info  ("  Example: java HazelcastQueueProducer 1000 5 false true");
+			logger.info  ("Usage: java HazelcastQueueProducer <number of tasks> <sleep (ms)> <send stop processing signal> <load FX Rates from file> <write results to file>"); 
+			logger.info  ("  Default values: java HazelcastQueueProducer 1000 5 true true true");
 			logger.info  (""); 
 		}
+		numberOfTaks = SystemUtils.getIntParameterOrDefault(args,0,numberOfTaks);
+		sleepTime = SystemUtils.getIntParameterOrDefault(args,1,sleepTime);
+		sendStopProcessingSignal = SystemUtils.getBooleanParameterOrDefault(args,2,sendStopProcessingSignal);
+		loadFXRateHistoricalData = SystemUtils.getBooleanParameterOrDefault(args,3,loadFXRateHistoricalData);
+		writeResultsToFile = SystemUtils.getBooleanParameterOrDefault(args,4,writeResultsToFile);
 		
+		printParameters ("Start");
 		// Initialize Hazelcast instance
 		HazelcastInstanceUtils.getInstance();
 		
@@ -108,16 +106,15 @@ public class QueueProducerMain {
 			}
 		}
 
+		if (writeResultsToFile) {
+			writeWorkersLog ();
+		}
 		// Shutdown Hazelcast cluster node instance
 		logger.info ("Shutting down hazelcast instace...");
 		HazelcastInstanceUtils.shutdown();
 		
+		printParameters ("Finished");
 		// Write cluster nodes execution summary into a file if required
-/*
-		if (writeResultsToFile) {
-			writeLogFile (result);
-		}
-*/		
 		// Exit application
 		//System.exit(0);
 	}
@@ -147,15 +144,48 @@ public class QueueProducerMain {
     	}
     	return counter;
     }
-
-    private static void writeLogFile (final String result) {
-		
+    
+	// Print execution parameters 
+	private static void printParameters (final String title) {
+		logger.info ("");
+		logger.info ("****************************************************"); 
+		logger.info (title + " QueueProducer with the following parameters:"); 
+		logger.info ("****************************************************"); 
+		logger.info ("  - number of tasks      : " + numberOfTaks); 
+		logger.info ("  - sleep time           : " + sleepTime); 
+		logger.info ("  - send stop signal     : " + sendStopProcessingSignal); 
+		logger.info ("  - load FX Rate data    : " + loadFXRateHistoricalData); 
+		logger.info ("  - write results to log : " + writeResultsToFile); 
+		logger.info ("****************************************************");
+	}
+    private static void writeWorkersLog () {
+		BufferedWriter bWriter = null;
 		Path path = Paths.get(LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HHmmss"))+".csv");
 		logger.info ("Writing result file " + path);
-		try (BufferedWriter writer = Files.newBufferedWriter(path)) {
-		    writer.write(result);
+		try {
+			bWriter = Files.newBufferedWriter(path);
+			
+			if (HazelcastInstanceUtils.getMap(HazelcastInstanceUtils.getMonitorMapName()) != null &&
+				HazelcastInstanceUtils.getMap(HazelcastInstanceUtils.getMonitorMapName()).size() > 0) {
+				Iterator<Entry<String, WorkerDetail>> iter = HazelcastInstanceUtils.getMap(HazelcastInstanceUtils.getMonitorMapName()).entrySet().iterator();
+	
+	
+				while (iter.hasNext()) {
+		            Entry<String, WorkerDetail> entry = iter.next();
+		            bWriter.write(entry.getValue().toCsvFormat());
+		        }
+			} else {
+				 bWriter.write("No workers found");
+			}
 		} catch (Exception ex) {
 			logger.error ("Exception: " + ex.getClass() + " - " + ex.getMessage());
+		} finally {
+			try {
+				if (bWriter != null)
+					bWriter.close();
+			} catch (IOException ex) {
+				ex.printStackTrace();
+			}
 		}
 	}
 }
