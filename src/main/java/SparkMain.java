@@ -17,6 +17,7 @@ import datamodel.WorkerDetail;
 import freemarker.template.Configuration;
 import freemarker.template.Template;
 import spark.Spark;
+import utils.ApplicationProperties;
 import utils.HazelcastInstanceUtils;
 import utils.SystemUtils;
 
@@ -28,16 +29,16 @@ public class SparkMain {
 	@SuppressWarnings("deprecation")
 	private static Configuration freemarkerConfig = new Configuration();
 
-	public static void main(String[] args) {
+	public static void main(String[] args) throws Exception {
 		
 		logger.info("Starting SPARK REST Framework");
 
-		freemarkerConfig.setClassForTemplateLoading(SparkMain.class, SystemUtils.getTemplatesPath());
+		freemarkerConfig.setClassForTemplateLoading(SparkMain.class, ApplicationProperties.getStringProperty(ApplicationProperties.SPARK_TEMPLATE_PATH));
 
-		Spark.staticFileLocation(SystemUtils.getPublicPath());
+		Spark.staticFileLocation(ApplicationProperties.getStringProperty(ApplicationProperties.SPARK_PUBLIC_PATH));
 		
-		get("/", (req, res) -> "Welcome to Spark !");
-        get("/stop", (req, res) -> halt(401, "Go away!"));
+		get("/", (req, res) -> ApplicationProperties.getStringProperty(ApplicationProperties.SPARK_WELCOME_MESSAGE));
+        get("/stop", (req, res) -> halt(401, ApplicationProperties.getStringProperty(ApplicationProperties.SPARK_BYE_MESSAGE)));
         get("/monitor", (req, res) -> {
         	StringWriter writer = new StringWriter();
         	try {
@@ -57,7 +58,7 @@ public class SparkMain {
         		Map<String, Object> root = new HashMap<String, Object>();
 				root.put( "refreshPage", refreshPage );
         		root.put( HazelcastInstanceUtils.getMonitorMapName (), hzClient.getMap(HazelcastInstanceUtils.getMonitorMapName()) );
-				Template resultTemplate = freemarkerConfig.getTemplate(SystemUtils.getResultTemplateFileName());
+				Template resultTemplate = freemarkerConfig.getTemplate(ApplicationProperties.getStringProperty(ApplicationProperties.SPARK_TEMPLATE_FILE_NAME));
 				resultTemplate.process(root, writer);
 //				}
         	} catch (Exception ex) {

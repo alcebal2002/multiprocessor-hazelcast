@@ -18,57 +18,50 @@ import datamodel.ExecutionTask;
 import datamodel.FxRate;
 import datamodel.WorkerDetail;
 import utils.HazelcastInstanceUtils;
+import utils.ApplicationProperties;
 import utils.SystemUtils;
 
-public class QueueProducerMain {
+public class Controller {
 	
 	// Logger
-	private static Logger logger = LoggerFactory.getLogger(QueueProducerMain.class);
+	private static Logger logger = LoggerFactory.getLogger(Controller.class);
 
-	private static int numberOfTaks = 1000;
-	private static int sleepTime = 5;
-	private static boolean sendStopProcessingSignal = true;
-	private static boolean loadFXRateHistoricalData = true;
-	private static boolean writeResultsToFile = true;
-	private static final int monitorDelay = 10;
+	private static int numberOfTasks;
+	private static int sleepTime;
+	private static boolean sendStopProcessingSignal;
+	private static boolean loadHistoricalData;
+	private static boolean writeResultsToFile;
+	private static int monitorDelay;
 	
 	public static void main( String[] args ) throws Exception {
 	  
-		// Check arguments
-		if (args == null || args.length < 5) { 
-			logger.info  ("Not all parameters informed. Using default values"); 
-			logger.info  (""); 
-			logger.info  ("Usage: java HazelcastQueueProducer <number of tasks> <sleep (ms)> <send stop processing signal> <load FX Rates from file> <write results to file>"); 
-			logger.info  ("  Default values: java HazelcastQueueProducer 1000 5 true true true");
-			logger.info  (""); 
-		}
-		numberOfTaks = SystemUtils.getIntParameterOrDefault(args,0,numberOfTaks);
-		sleepTime = SystemUtils.getIntParameterOrDefault(args,1,sleepTime);
-		sendStopProcessingSignal = SystemUtils.getBooleanParameterOrDefault(args,2,sendStopProcessingSignal);
-		loadFXRateHistoricalData = SystemUtils.getBooleanParameterOrDefault(args,3,loadFXRateHistoricalData);
-		writeResultsToFile = SystemUtils.getBooleanParameterOrDefault(args,4,writeResultsToFile);
+		logger.info("Application started");
+		logger.info("Loading application properties from " + ApplicationProperties.APPLICATION_PROPERTIES);
+
+		// Load application properties
+		numberOfTasks = ApplicationProperties.getIntProperty(ApplicationProperties.CONTROLLER_QUEUEPRODUCER_NUMBER_OF_TASKS);
+		sleepTime = ApplicationProperties.getIntProperty(ApplicationProperties.CONTROLLER_QUEUEPRODUCER_SLEEPTIME);
+		sendStopProcessingSignal = ApplicationProperties.getBooleanProperty(ApplicationProperties.CONTROLLER_QUEUEPRODUCER_SENDSTOPPROCESSINGSIGNAL);
+		loadHistoricalData = ApplicationProperties.getBooleanProperty(ApplicationProperties.CONTROLLER_LOAD_HISTORICAL_DATA);
+		writeResultsToFile = ApplicationProperties.getBooleanProperty(ApplicationProperties.CONTROLLER_WRITE_RESULTS_TO_FILE);
+		monitorDelay = ApplicationProperties.getIntProperty(ApplicationProperties.CONTROLLER_MONITOR_DELAY);
 		
+		// Print parameters used
 		printParameters ("Start");
+
 		// Initialize Hazelcast instance
 		HazelcastInstanceUtils.getInstance();
 		
 		// Populate historical data from file and put into Hazelcast
-		int loadedFXRates =  populateHistoricalFxData();
-		logger.info("Number of FX Rates loaded from file: " + loadedFXRates);
-
-		// Check number of objects loaded into Hazelcast List
-		logger.info("Number of FX Rates loaded into Hazelcast: " + HazelcastInstanceUtils.getList(HazelcastInstanceUtils.getHistoricalListName()).size());
+		if (loadHistoricalData) {
+			logger.info("[loaded from file / loaded into Hazelcast] : [" + populateHistoricalFxData() + " / " + HazelcastInstanceUtils.getList(HazelcastInstanceUtils.getHistoricalListName()).size() + "]");
+		}
 	
-		// Put execution tasks into the Hazelcast queue
+		// Start queueproducer (simulating incoming tasks) and put execution tasks into the Hazelcast queue
 		logger.info ("Producer Started...");
-		for ( int k = 1; k <= numberOfTaks; k++ ) {
+		for ( int k = 1; k <= numberOfTasks; k++ ) {
 			ExecutionTask executionTask = new ExecutionTask (("Task-"+k),"Calculation",
-			"{"+
-			    "\"field1\": "+k+","+
-			    "\"field2\": \"value2\","+
-			    "\"field3\": 12.50,"+
-			    "\"field4\": [\"item4_1\", \"item4_2\"]"+
-			"}",System.currentTimeMillis());				
+			ApplicationProperties.CONTROLLER_QUEUEPRODUCER_TASK_CONTENT.replaceAll("<counter>", ""+k),System.currentTimeMillis());				
 
 			HazelcastInstanceUtils.putIntoQueue(HazelcastInstanceUtils.getTaskQueueName(), executionTask );
 			logger.info ("Producing: " + k);
@@ -79,7 +72,7 @@ public class QueueProducerMain {
 		if (sendStopProcessingSignal) {
 			HazelcastInstanceUtils.putStopSignalIntoQueue(HazelcastInstanceUtils.getTaskQueueName());
 		}
-		logger.info ("Producer Finished!");
+		logger.info ("Producer Finished.");
 		logger.info ("Waiting " + monitorDelay + " secs to start monitoring");
 		Thread.sleep(monitorDelay*1000);
 		logger.info ("Checking " + HazelcastInstanceUtils.getMonitorMapName() + " every "+monitorDelay+" secs");
@@ -119,15 +112,15 @@ public class QueueProducerMain {
 		//System.exit(0);
 	}
 
-	// Populates historical FX data and puts the objects into Hazelcast List
+	// Populates historical data and puts the objects into Hazelcast List
     // FX Historical Data format: basecurrency;quotecurrency;date;value;
     public static int populateHistoricalFxData () 
     	throws Exception {
     	
     	int counter=0;
-    	logger.info ("Populating historical FX data from " + SystemUtils.getHistoricalDataPath() + SystemUtils.getHistoricalDataFileName() + "...",true);
+    	logger.info ("Populating historical data from " + ApplicationProperties.getStringProperty(ApplicationProperties.CONTROLLER_HISTORICAL_DATA_PATH) + ApplicationProperties.getStringProperty(ApplicationProperties.CONTROLLER_HISTORICAL_DATA_FILE_NAME) + "...",true);
     	try {
-    		CSVReader reader = new CSVReader(new InputStreamReader(QueueProducerMain.class.getClass().getResourceAsStream(SystemUtils.getHistoricalDataPath() + SystemUtils.getHistoricalDataFileName())),';');
+    		CSVReader reader = new CSVReader(new InputStreamReader(Controller.class.getClass().getResourceAsStream(ApplicationProperties.getStringProperty(ApplicationProperties.CONTROLLER_HISTORICAL_DATA_PATH) + ApplicationProperties.getStringProperty(ApplicationProperties.CONTROLLER_HISTORICAL_DATA_FILE_NAME))),';');
 	        String [] nextLine;
 	        while ((nextLine = reader.readNext()) != null) {
 	        	counter++;
@@ -136,7 +129,7 @@ public class QueueProducerMain {
 	    		HazelcastInstanceUtils.putIntoList(HazelcastInstanceUtils.getHistoricalListName(), fxRate );
 	        }
 	        reader.close();
-	    	logger.info ("Populating historical FX data done",true);
+	    	logger.info ("Populating historical data finished",true);
 	    	
     	} catch (Exception ex) {
     		logger.error ("Exception in line " + counter + " - " + ex.getClass() + " - " + ex.getMessage());
@@ -151,17 +144,21 @@ public class QueueProducerMain {
 		logger.info ("****************************************************"); 
 		logger.info (title + " QueueProducer with the following parameters:"); 
 		logger.info ("****************************************************"); 
-		logger.info ("  - number of tasks      : " + numberOfTaks); 
+		logger.info ("  - number of tasks      : " + numberOfTasks); 
 		logger.info ("  - sleep time           : " + sleepTime); 
 		logger.info ("  - send stop signal     : " + sendStopProcessingSignal); 
-		logger.info ("  - load FX Rate data    : " + loadFXRateHistoricalData); 
+		logger.info ("  - load historical data : " + loadHistoricalData); 
 		logger.info ("  - write results to log : " + writeResultsToFile); 
+		logger.info ("  - monitor delay (secs) : " + monitorDelay); 
 		logger.info ("****************************************************");
 	}
-    private static void writeWorkersLog () {
+	
+	// Write All the workers final log (summary) into a file
+    private static void writeWorkersLog () throws Exception {
 		BufferedWriter bWriter = null;
-		Path path = Paths.get(LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HHmmss"))+".csv");
-		logger.info ("Writing result file " + path);
+		Path path = Paths.get(LocalDateTime.now().format(DateTimeFormatter.ofPattern(ApplicationProperties.getStringProperty(ApplicationProperties.CONTROLLER_WORKER_LOG_FILE_PATTERN)))+ApplicationProperties.getStringProperty(ApplicationProperties.CONTROLLER_WORKER_LOG_FILE_EXTENSION));
+							
+		logger.info ("Writing worker result into file " + path);
 		try {
 			bWriter = Files.newBufferedWriter(path);
 			

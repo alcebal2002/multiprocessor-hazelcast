@@ -18,18 +18,6 @@ public class HazelcastInstanceUtils {
 
 	private static HazelcastInstance hazelcastInstance;
 
-	// Queue instance names
-	private static final String taskQueueName = "taskQueue";
-	
-	// List instance names
-	private static final String historicalDataListName = "historicalList";
-	
-	// Map instance names
-	private static final String monitorMapName = "monitorMap";
-	
-	// Stop process signal
-	private static final String stopProcessingSignal = "STOP_PROCESSING_SIGNAL";
-
 	public static synchronized HazelcastInstance getInstance () {
 		if (hazelcastInstance == null) {
 			hazelcastInstance = Hazelcast.newHazelcastInstance(); 
@@ -38,23 +26,23 @@ public class HazelcastInstanceUtils {
 		return hazelcastInstance;
 	}
 	
-	public static String getTaskQueueName () {
-		return taskQueueName;
+	public static String getTaskQueueName () throws Exception {
+		return ApplicationProperties.getStringProperty(ApplicationProperties.HZ_TASK_QUEUE_NAME);
 	}
 
-	public static String getMonitorMapName () {
-		return monitorMapName;
+	public static String getMonitorMapName () throws Exception {
+		return ApplicationProperties.getStringProperty(ApplicationProperties.HZ_MONITOR_MAP_NAME);
 	}
 
-	public static String getStopProcessingSignal () {
-		return stopProcessingSignal;
+	public static String getStopProcessingSignal () throws Exception {
+		return ApplicationProperties.getStringProperty(ApplicationProperties.HZ_STOP_PROCESSING_SIGNAL);
 	}
 
-	public static String getHistoricalListName () {
-		return historicalDataListName;
+	public static String getHistoricalListName () throws Exception {
+		return ApplicationProperties.getStringProperty(ApplicationProperties.HZ_HISTORICAL_DATA_LIST_NAME);
 	}
 
-	public static void putStopSignalIntoQueue (final String queueName) {
+	public static void putStopSignalIntoQueue (final String queueName) throws Exception {
 		logger.info ("Sending " + getStopProcessingSignal() + " to " + queueName);
 		putIntoQueue(queueName,(new ExecutionTask(getStopProcessingSignal())));
 	}

@@ -10,13 +10,14 @@ import com.hazelcast.client.HazelcastClient;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.IQueue;
 
-import datamodel.WorkerDetail;
 import datamodel.ExecutionTask;
+import datamodel.WorkerDetail;
 import executionservices.RejectedExecutionHandlerImpl;
 import executionservices.RunnableWorkerThread;
 import executionservices.SystemLinkedBlockingQueue;
 import executionservices.SystemMonitorThread;
 import executionservices.SystemThreadPoolExecutor;
+import utils.ApplicationProperties;
 import utils.HazelcastInstanceUtils;
 import utils.SystemUtils;
 
@@ -26,42 +27,37 @@ public class WorkerPoolMain {
 	private static Logger logger = LoggerFactory.getLogger(WorkerPoolMain.class);
 	
 	// Default parameter values 
-	private static int poolCoreSize = 5;
-	private static int poolMaxSize = 10; 
-	private static int queueCapacity = 500; 
-	private static int timeoutSecs = 50; 
-	private static int processTime = 10; 
-	private static int retrySleepTime = 5000; 
-	private static int retryMaxAttempts = 5; 
-	private static int initialSleep = 5; 
-	private static int monitorSleep = 3;
-	private static int refreshAfter = 1000;
+	private static int poolCoreSize;
+	private static int poolMaxSize; 
+	private static int queueCapacity; 
+	private static int timeoutSecs; 
+	private static int processTime; 
+	private static int retrySleepTime; 
+	private static int retryMaxAttempts; 
+	private static int initialSleep; 
+	private static int monitorSleep;
+	private static int refreshAfter;
+	
 	private static int taskNumber = 0;
 	private static String nodeId;
 	private static String localEndPointAddress;
 	private static String localEndPointPort;
 	
-	public static void main(String args[]) throws InterruptedException {
+	public static void main(String args[]) throws Exception {
 		
-		if (args == null || args.length < 10) { 
-			logger.info ("Not all parameters informed. Using default values"); 
-			logger.info (""); 
-			logger.info ("Usage: java WorkerPool <pool core size> <pool max size> <queue capacity> <timeout (secs)> <task process (ms)> <retry sleep (ms)> <retry max attempts> <initial sleep (secs)> <monitor sleep (secs)> <refresh after"); 
-			logger.info ("  Example: java WorkerPool 10 15 20 50 5000 5000 5 5 3 1000"); 
-			logger.info (""); 
-			logger.info ("System will continue processing until a task with " + HazelcastInstanceUtils.getStopProcessingSignal() + " content is received");
-			logger.info (""); 
-		} 
-		poolCoreSize = SystemUtils.getIntParameterOrDefault(args,0,poolCoreSize); 
-		poolMaxSize = SystemUtils.getIntParameterOrDefault(args,1,poolMaxSize); 
-		queueCapacity = SystemUtils.getIntParameterOrDefault(args,2,queueCapacity);
-		timeoutSecs = SystemUtils.getIntParameterOrDefault(args,3,timeoutSecs); 
-		processTime = SystemUtils.getIntParameterOrDefault(args,4,processTime);
-		retrySleepTime = SystemUtils.getIntParameterOrDefault(args,5,retrySleepTime);
-		retryMaxAttempts = SystemUtils.getIntParameterOrDefault(args,6,retryMaxAttempts);
-		initialSleep = SystemUtils.getIntParameterOrDefault(args,7,initialSleep);
-		monitorSleep = SystemUtils.getIntParameterOrDefault(args,8,monitorSleep);
-		refreshAfter = SystemUtils.getIntParameterOrDefault(args,9,refreshAfter);
+		logger.info("WorkerPool started");
+		logger.info("Loading properties from " + ApplicationProperties.APPLICATION_PROPERTIES);
+		
+		poolCoreSize = ApplicationProperties.getIntProperty(ApplicationProperties.WORKER_POOL_CORESIZE);
+		poolMaxSize = ApplicationProperties.getIntProperty(ApplicationProperties.WORKER_POOL_MAXSIZE);
+		queueCapacity = ApplicationProperties.getIntProperty(ApplicationProperties.WORKER_POOL_QUEUE_CAPACITY);
+		timeoutSecs = ApplicationProperties.getIntProperty(ApplicationProperties.WORKER_POOL_TIMEOUT_SECS);
+		processTime = ApplicationProperties.getIntProperty(ApplicationProperties.WORKER_POOL_PROCESS_TIME);
+		retrySleepTime = ApplicationProperties.getIntProperty(ApplicationProperties.WORKER_POOL_RETRY_SLEEP_TIME);
+		retryMaxAttempts = ApplicationProperties.getIntProperty(ApplicationProperties.WORKER_POOL_RETRY_MAX_ATTEMPTS);
+		initialSleep = ApplicationProperties.getIntProperty(ApplicationProperties.WORKER_POOL_INITIAL_SLEEP);
+		monitorSleep = ApplicationProperties.getIntProperty(ApplicationProperties.WORKER_POOL_MONITOR_SLEEP);
+		refreshAfter = ApplicationProperties.getIntProperty(ApplicationProperties.WORKER_POOL_REFRESH_AFTER);
 
 		logger.info ("Waiting " + initialSleep + " secs to start..."); 
 		Thread.sleep(initialSleep*1000); 
