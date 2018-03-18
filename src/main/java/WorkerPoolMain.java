@@ -18,6 +18,7 @@ import executionservices.SystemLinkedBlockingQueue;
 import executionservices.SystemMonitorThread;
 import executionservices.SystemThreadPoolExecutor;
 import utils.ApplicationProperties;
+import utils.Constants;
 import utils.HazelcastInstanceUtils;
 import utils.SystemUtils;
 
@@ -46,18 +47,18 @@ public class WorkerPoolMain {
 	public static void main(String args[]) throws Exception {
 		
 		logger.info("WorkerPool started");
-		logger.info("Loading properties from " + ApplicationProperties.APPLICATION_PROPERTIES);
+		logger.info("Loading properties from " + Constants.APPLICATION_PROPERTIES);
 		
-		poolCoreSize = ApplicationProperties.getIntProperty(ApplicationProperties.WORKER_POOL_CORESIZE);
-		poolMaxSize = ApplicationProperties.getIntProperty(ApplicationProperties.WORKER_POOL_MAXSIZE);
-		queueCapacity = ApplicationProperties.getIntProperty(ApplicationProperties.WORKER_POOL_QUEUE_CAPACITY);
-		timeoutSecs = ApplicationProperties.getIntProperty(ApplicationProperties.WORKER_POOL_TIMEOUT_SECS);
-		processTime = ApplicationProperties.getIntProperty(ApplicationProperties.WORKER_POOL_PROCESS_TIME);
-		retrySleepTime = ApplicationProperties.getIntProperty(ApplicationProperties.WORKER_POOL_RETRY_SLEEP_TIME);
-		retryMaxAttempts = ApplicationProperties.getIntProperty(ApplicationProperties.WORKER_POOL_RETRY_MAX_ATTEMPTS);
-		initialSleep = ApplicationProperties.getIntProperty(ApplicationProperties.WORKER_POOL_INITIAL_SLEEP);
-		monitorSleep = ApplicationProperties.getIntProperty(ApplicationProperties.WORKER_POOL_MONITOR_SLEEP);
-		refreshAfter = ApplicationProperties.getIntProperty(ApplicationProperties.WORKER_POOL_REFRESH_AFTER);
+		poolCoreSize = ApplicationProperties.getIntProperty(Constants.WORKER_POOL_CORESIZE);
+		poolMaxSize = ApplicationProperties.getIntProperty(Constants.WORKER_POOL_MAXSIZE);
+		queueCapacity = ApplicationProperties.getIntProperty(Constants.WORKER_POOL_QUEUE_CAPACITY);
+		timeoutSecs = ApplicationProperties.getIntProperty(Constants.WORKER_POOL_TIMEOUT_SECS);
+		processTime = ApplicationProperties.getIntProperty(Constants.WORKER_POOL_PROCESS_TIME);
+		retrySleepTime = ApplicationProperties.getIntProperty(Constants.WORKER_POOL_RETRY_SLEEP_TIME);
+		retryMaxAttempts = ApplicationProperties.getIntProperty(Constants.WORKER_POOL_RETRY_MAX_ATTEMPTS);
+		initialSleep = ApplicationProperties.getIntProperty(Constants.WORKER_POOL_INITIAL_SLEEP);
+		monitorSleep = ApplicationProperties.getIntProperty(Constants.WORKER_POOL_MONITOR_SLEEP);
+		refreshAfter = ApplicationProperties.getIntProperty(Constants.WORKER_POOL_REFRESH_AFTER);
 
 		logger.info ("Waiting " + initialSleep + " secs to start..."); 
 		Thread.sleep(initialSleep*1000); 

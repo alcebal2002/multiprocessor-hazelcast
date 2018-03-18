@@ -17,9 +17,9 @@ import com.opencsv.CSVReader;
 import datamodel.ExecutionTask;
 import datamodel.FxRate;
 import datamodel.WorkerDetail;
-import utils.HazelcastInstanceUtils;
 import utils.ApplicationProperties;
-import utils.SystemUtils;
+import utils.Constants;
+import utils.HazelcastInstanceUtils;
 
 public class Controller {
 	
@@ -36,15 +36,15 @@ public class Controller {
 	public static void main( String[] args ) throws Exception {
 	  
 		logger.info("Application started");
-		logger.info("Loading application properties from " + ApplicationProperties.APPLICATION_PROPERTIES);
+		logger.info("Loading application properties from " + Constants.APPLICATION_PROPERTIES);
 
 		// Load application properties
-		numberOfTasks = ApplicationProperties.getIntProperty(ApplicationProperties.CONTROLLER_QUEUEPRODUCER_NUMBER_OF_TASKS);
-		sleepTime = ApplicationProperties.getIntProperty(ApplicationProperties.CONTROLLER_QUEUEPRODUCER_SLEEPTIME);
-		sendStopProcessingSignal = ApplicationProperties.getBooleanProperty(ApplicationProperties.CONTROLLER_QUEUEPRODUCER_SENDSTOPPROCESSINGSIGNAL);
-		loadHistoricalData = ApplicationProperties.getBooleanProperty(ApplicationProperties.CONTROLLER_LOAD_HISTORICAL_DATA);
-		writeResultsToFile = ApplicationProperties.getBooleanProperty(ApplicationProperties.CONTROLLER_WRITE_RESULTS_TO_FILE);
-		monitorDelay = ApplicationProperties.getIntProperty(ApplicationProperties.CONTROLLER_MONITOR_DELAY);
+		numberOfTasks = ApplicationProperties.getIntProperty(Constants.CONTROLLER_QUEUEPRODUCER_NUMBER_OF_TASKS);
+		sleepTime = ApplicationProperties.getIntProperty(Constants.CONTROLLER_QUEUEPRODUCER_SLEEPTIME);
+		sendStopProcessingSignal = ApplicationProperties.getBooleanProperty(Constants.CONTROLLER_QUEUEPRODUCER_SENDSTOPPROCESSINGSIGNAL);
+		loadHistoricalData = ApplicationProperties.getBooleanProperty(Constants.CONTROLLER_LOAD_HISTORICAL_DATA);
+		writeResultsToFile = ApplicationProperties.getBooleanProperty(Constants.CONTROLLER_WRITE_RESULTS_TO_FILE);
+		monitorDelay = ApplicationProperties.getIntProperty(Constants.CONTROLLER_MONITOR_DELAY);
 		
 		// Print parameters used
 		printParameters ("Start");
@@ -61,7 +61,7 @@ public class Controller {
 		logger.info ("Producer Started...");
 		for ( int k = 1; k <= numberOfTasks; k++ ) {
 			ExecutionTask executionTask = new ExecutionTask (("Task-"+k),"Calculation",
-			ApplicationProperties.CONTROLLER_QUEUEPRODUCER_TASK_CONTENT.replaceAll("<counter>", ""+k),System.currentTimeMillis());				
+					Constants.CONTROLLER_QUEUEPRODUCER_TASK_CONTENT.replaceAll("<counter>", ""+k),System.currentTimeMillis());				
 
 			HazelcastInstanceUtils.putIntoQueue(HazelcastInstanceUtils.getTaskQueueName(), executionTask );
 			logger.info ("Producing: " + k);
@@ -118,9 +118,9 @@ public class Controller {
     	throws Exception {
     	
     	int counter=0;
-    	logger.info ("Populating historical data from " + ApplicationProperties.getStringProperty(ApplicationProperties.CONTROLLER_HISTORICAL_DATA_PATH) + ApplicationProperties.getStringProperty(ApplicationProperties.CONTROLLER_HISTORICAL_DATA_FILE_NAME) + "...",true);
+    	logger.info ("Populating historical data from " + ApplicationProperties.getStringProperty(Constants.CONTROLLER_HISTORICAL_DATA_PATH) + ApplicationProperties.getStringProperty(Constants.CONTROLLER_HISTORICAL_DATA_FILE_NAME) + "...",true);
     	try {
-    		CSVReader reader = new CSVReader(new InputStreamReader(Controller.class.getClass().getResourceAsStream(ApplicationProperties.getStringProperty(ApplicationProperties.CONTROLLER_HISTORICAL_DATA_PATH) + ApplicationProperties.getStringProperty(ApplicationProperties.CONTROLLER_HISTORICAL_DATA_FILE_NAME))),';');
+    		CSVReader reader = new CSVReader(new InputStreamReader(Controller.class.getClass().getResourceAsStream(ApplicationProperties.getStringProperty(Constants.CONTROLLER_HISTORICAL_DATA_PATH) + ApplicationProperties.getStringProperty(Constants.CONTROLLER_HISTORICAL_DATA_FILE_NAME))),';');
 	        String [] nextLine;
 	        while ((nextLine = reader.readNext()) != null) {
 	        	counter++;
@@ -156,7 +156,7 @@ public class Controller {
 	// Write All the workers final log (summary) into a file
     private static void writeWorkersLog () throws Exception {
 		BufferedWriter bWriter = null;
-		Path path = Paths.get(LocalDateTime.now().format(DateTimeFormatter.ofPattern(ApplicationProperties.getStringProperty(ApplicationProperties.CONTROLLER_WORKER_LOG_FILE_PATTERN)))+ApplicationProperties.getStringProperty(ApplicationProperties.CONTROLLER_WORKER_LOG_FILE_EXTENSION));
+		Path path = Paths.get(LocalDateTime.now().format(DateTimeFormatter.ofPattern(ApplicationProperties.getStringProperty(Constants.CONTROLLER_WORKER_LOG_FILE_PATTERN)))+ApplicationProperties.getStringProperty(Constants.CONTROLLER_WORKER_LOG_FILE_EXTENSION));
 							
 		logger.info ("Writing worker result into file " + path);
 		try {

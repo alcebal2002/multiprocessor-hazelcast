@@ -18,8 +18,8 @@ import freemarker.template.Configuration;
 import freemarker.template.Template;
 import spark.Spark;
 import utils.ApplicationProperties;
+import utils.Constants;
 import utils.HazelcastInstanceUtils;
-import utils.SystemUtils;
 
 public class SparkMain {
 
@@ -33,12 +33,12 @@ public class SparkMain {
 		
 		logger.info("Starting SPARK REST Framework");
 
-		freemarkerConfig.setClassForTemplateLoading(SparkMain.class, ApplicationProperties.getStringProperty(ApplicationProperties.SPARK_TEMPLATE_PATH));
+		freemarkerConfig.setClassForTemplateLoading(SparkMain.class, ApplicationProperties.getStringProperty(Constants.SPARK_TEMPLATE_PATH));
 
-		Spark.staticFileLocation(ApplicationProperties.getStringProperty(ApplicationProperties.SPARK_PUBLIC_PATH));
+		Spark.staticFileLocation(ApplicationProperties.getStringProperty(Constants.SPARK_PUBLIC_PATH));
 		
-		get("/", (req, res) -> ApplicationProperties.getStringProperty(ApplicationProperties.SPARK_WELCOME_MESSAGE));
-        get("/stop", (req, res) -> halt(401, ApplicationProperties.getStringProperty(ApplicationProperties.SPARK_BYE_MESSAGE)));
+		get("/", (req, res) -> ApplicationProperties.getStringProperty(Constants.SPARK_WELCOME_MESSAGE));
+        get("/stop", (req, res) -> halt(401, ApplicationProperties.getStringProperty(Constants.SPARK_BYE_MESSAGE)));
         get("/monitor", (req, res) -> {
         	StringWriter writer = new StringWriter();
         	try {
@@ -58,7 +58,7 @@ public class SparkMain {
         		Map<String, Object> root = new HashMap<String, Object>();
 				root.put( "refreshPage", refreshPage );
         		root.put( HazelcastInstanceUtils.getMonitorMapName (), hzClient.getMap(HazelcastInstanceUtils.getMonitorMapName()) );
-				Template resultTemplate = freemarkerConfig.getTemplate(ApplicationProperties.getStringProperty(ApplicationProperties.SPARK_TEMPLATE_FILE_NAME));
+				Template resultTemplate = freemarkerConfig.getTemplate(ApplicationProperties.getStringProperty(Constants.SPARK_TEMPLATE_FILE_NAME));
 				resultTemplate.process(root, writer);
 //				}
         	} catch (Exception ex) {
