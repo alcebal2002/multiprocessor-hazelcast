@@ -44,7 +44,6 @@ public class SparkMain {
         	try {
         		
         		HazelcastInstance hzClient = HazelcastClient.newHazelcastClient();
-//				if (monitorMap != null && monitorMap.size() > 0) {
 
     			boolean refreshPage = false;
 
@@ -60,8 +59,7 @@ public class SparkMain {
         		root.put( HazelcastInstanceUtils.getMonitorMapName (), hzClient.getMap(HazelcastInstanceUtils.getMonitorMapName()) );
 				Template resultTemplate = freemarkerConfig.getTemplate(ApplicationProperties.getStringProperty(Constants.SPARK_TEMPLATE_FILE_NAME));
 				resultTemplate.process(root, writer);
-//				}
-        	} catch (Exception ex) {
+    		} catch (Exception ex) {
         		 logger.error ("Exception: " + ex.getClass() + " - " + ex.getMessage());
         	}
 			return writer;
