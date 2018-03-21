@@ -41,6 +41,9 @@ public class Constants {
 	public static final String SPARK_WELCOME_MESSAGE = "Welcome to Spark !";
 	public static final String SPARK_BYE_MESSAGE = "Go away!";
 	
+	// Chart.js
+	public static final String[] CHART_DATA_COLORS = {"red","orange","yellow","green","blue","purple","grey"};
+	
 	// Hazelcast Properties
 	// Queue instance names
 	public static final String HZ_TASK_QUEUE_NAME = "hz.taskQueueName";

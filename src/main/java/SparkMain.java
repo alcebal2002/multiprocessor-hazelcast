@@ -41,6 +41,7 @@ public class SparkMain {
         get("/stop", (req, res) -> halt(401, ApplicationProperties.getStringProperty(Constants.SPARK_BYE_MESSAGE)));
         get("/monitor", (req, res) -> {
         	StringWriter writer = new StringWriter();
+        	
         	try {
         		
         		HazelcastInstance hzClient = HazelcastClient.newHazelcastClient();
@@ -52,6 +53,7 @@ public class SparkMain {
     			while (iter.hasNext()) {
     	            Entry<String, WorkerDetail> entry = iter.next();
     	            if (entry.getValue().getActiveStatus()) refreshPage = true;
+    	            
     	        }
     			
         		Map<String, Object> root = new HashMap<String, Object>();

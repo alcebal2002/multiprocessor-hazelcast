@@ -191,6 +191,11 @@ public class WorkerDetail implements Serializable {
 	public final int getTotalExecutions() {
 		return totalExecutions;
 	}
+	
+	public final String getTotalExecutionsWithoutComma() {
+		String regex = "(?<=\\d),(?=\\d)";
+		return (""+totalExecutions).replaceAll(regex, "");
+	}
 
 	public final void setTotalExecutions(int totalExecutions) {
 		this.totalExecutions = totalExecutions;
