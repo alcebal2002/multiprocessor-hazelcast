@@ -27,7 +27,7 @@
 						window.chartColors.red,
 						window.chartColors.green,
 						window.chartColors.yellow,
-						window.chartColors.purple	,
+						window.chartColors.purple,
 						window.chartColors.blue,
 						window.chartColors.grey,
 						window.chartColors.orange,
