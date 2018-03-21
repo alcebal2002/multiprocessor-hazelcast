@@ -41,9 +41,8 @@ public class SparkMain {
         get("/stop", (req, res) -> halt(401, ApplicationProperties.getStringProperty(Constants.SPARK_BYE_MESSAGE)));
         get("/monitor", (req, res) -> {
         	StringWriter writer = new StringWriter();
-        	
+
         	try {
-        		
         		HazelcastInstance hzClient = HazelcastClient.newHazelcastClient();
 
     			boolean refreshPage = false;
