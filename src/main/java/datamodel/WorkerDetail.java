@@ -83,6 +83,9 @@ public class WorkerDetail implements Serializable {
 	public final void setActiveStatus(boolean status) {
 		this.activeStatus = status;
 	}
+	public final String getActiveStatusString() {
+		return activeStatus?"Active":"Inactive";
+	}
 	public final String getInetAddres() {
 		return inetAddres;
 	}
@@ -208,15 +211,16 @@ public class WorkerDetail implements Serializable {
 	public final void setTotalElapsedTime(long totalElapsedTime) {
 		this.totalElapsedTime = totalElapsedTime;
 	}
-/*
+
 	public final String getCsvFormat() {
 		setCsvFormat(toCsvFormat ());
 		return this.csvFormat;
 	}
+	
 	public final void setCsvFormat(String csvFormat) {
 		this.csvFormat = csvFormat;
 	}
-*/
+	
 	public final String toCsvFormat () {
 		return  this.getUuid() + ";" +
 				this.getInetAddres() + ";" +

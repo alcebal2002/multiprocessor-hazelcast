@@ -75,7 +75,7 @@
 	<#assign totalThreads = totalThreads + workerDetail.poolMaxSize>
 	<#assign averageExecutionTime = averageExecutionTime + workerDetail.avgExecutionTime>
 		<tr>
-			<td>${workerDetail.activeStatus?c}</td>
+			<td>${workerDetail.activeStatusString}</td>
 			<td>${workerDetail.inetAddres}:${workerDetail.inetPort}</td>
 			<td>${workerDetail.startTimeString}</td>
 			<td>${workerDetail.stopTimeString}</td>

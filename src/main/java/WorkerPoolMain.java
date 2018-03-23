@@ -133,9 +133,9 @@ public class WorkerPoolMain {
 				executorPool.execute(new RunnableWorkerThread(processTime,executionTaskItem,retrySleepTime,retryMaxAttempts,nodeId));
 				taskNumber++;
 				
-				// Update ClientDetails every <refreshAfter> executions
+				// Update WorkerDetail every <refreshAfter> executions
 				if (taskNumber%refreshAfter == 0) {
-					// Update ClientDetails status to inactive
+					// Update WorkerDetail status to inactive
 					workerDetail.setTotalExecutions(taskNumber);
 					workerDetail.setAvgExecutionTime(executorPool.getAvgExecutionTime());
 					hzClient.getMap(HazelcastInstanceUtils.getMonitorMapName()).put(workerDetail.getUuid(),workerDetail);
@@ -162,7 +162,7 @@ public class WorkerPoolMain {
 		monitor.shutdown(); 
 		logger.info ("Shutting down monitor thread... done"); 
 
-		// Update ClientDetails status to inactive
+		// Update WorkerDetails status to inactive
 		workerDetail.setActiveStatus(false);
 		workerDetail.setStopTime(stopTime);
 		workerDetail.setTotalElapsedTime((stopTime - startTime));
