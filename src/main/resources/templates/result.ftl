@@ -7,61 +7,85 @@
         <link href="/bootstrap-3.3.7-dist/css/bootstrap.css" rel="stylesheet" />
         <script src="/chart.js-2.7.2/dist/Chart.bundle.js"></script>
         <script src="/chart.js-2.7.2/dist/utils.js"></script>
+		<style>
+			* {
+				box-sizing: border-box;
+			}
+
+			/* Create two equal columns that floats next to each other */
+			.column {
+				float: left;
+				width: 50%;
+				padding: 10px;
+				height: 300px; /* Should be removed. Only for demonstration */
+			}
+
+			/* Clear floats after the columns */
+			.row:after {
+				content: "";
+				display: table;
+				clear: both;
+			}
+		</style>
     </head>
     <body>
-	
-  <table class="table table-condensed">
-    <thead>
-      <tr>
-      	<th>Status</th>
-        <th>Address:Port</th>
-        <th>Start Time</th>
-        <th>End Time</th>
-        <th>Elapsed Time</th>
-        <th>Max Pool Size</th>
-        <th># Processed</th>
-        <th>Avg process time</th>
-      </tr>
-    </thead>
-    <tbody>
-<#assign totalExecuted = 0>
-<#assign totalWorkers = 0>
-<#assign totalThreads = 0>
-<#assign averageExecutionTime = 0>
-<#list monitorMap?values as workerDetail>
-	<#assign totalExecuted = totalExecuted + workerDetail.totalExecutions>
-	<#assign totalWorkers = totalWorkers + 1>
-	<#assign totalThreads = totalThreads + workerDetail.poolMaxSize>
-	<#assign averageExecutionTime = averageExecutionTime + workerDetail.avgExecutionTime>
-		<tr>
-			<td>${workerDetail.activeStatusString}</td>
-			<td>${workerDetail.inetAddres}:${workerDetail.inetPort}</td>
-			<td>${workerDetail.startTimeString}</td>
-			<td>${workerDetail.stopTimeString}</td>
-			<td>${workerDetail.totalElapsedTime}</td>
-			<td>${workerDetail.poolMaxSize}</td>
-			<td>${workerDetail.totalExecutions}</td>
-			<td>${workerDetail.avgExecutionTime}</td>
-		</tr>
-</#list>
-<#if totalWorkers gt 0>
-  <#assign averageExecutionTime = averageExecutionTime / totalWorkers>
-</#if>
 
-		<tr>
-			<td><b>${totalWorkers}</b></td>
-			<td colspan="4">&nbsp;</td>
-			<td><b>${totalThreads}</b></td>
-			<td><b>${totalExecuted}</b></td>
-			<td><b>${averageExecutionTime}</b></td>
-		</tr>
-		<tr><td colspan="8">&nbsp;</td></tr>
-    </tbody>
-  </table>
+<div class="row">
+	<div class="column" id="canvas-holder" style="width:40%">
+		<canvas id="chart-area"></canvas>
+	</div>
+	<div class="column" style="width:60%">
+	  <table class="table table-condensed">
+		<thead>
+		  <tr>
+			<th>Status</th>
+			<th>Address:Port</th>
+			<th>Start Time</th>
+			<th>End Time</th>
+			<th>Elapsed Time</th>
+			<th>Max Pool Size</th>
+			<th># Processed</th>
+			<th>Avg process time</th>
+		  </tr>
+		</thead>
+		<tbody>
+	<#assign totalExecuted = 0>
+	<#assign totalWorkers = 0>
+	<#assign totalThreads = 0>
+	<#assign averageExecutionTime = 0>
+	<#list monitorMap?values as workerDetail>
+		<#assign totalExecuted = totalExecuted + workerDetail.totalExecutions>
+		<#assign totalWorkers = totalWorkers + 1>
+		<#assign totalThreads = totalThreads + workerDetail.poolMaxSize>
+		<#assign averageExecutionTime = averageExecutionTime + workerDetail.avgExecutionTime>
+			<tr>
+				<td>${workerDetail.activeStatusString}</td>
+				<td>${workerDetail.inetAddres}:${workerDetail.inetPort}</td>
+				<td>${workerDetail.startTimeString}</td>
+				<td>${workerDetail.stopTimeString}</td>
+				<td>${workerDetail.totalElapsedTime}</td>
+				<td>${workerDetail.poolMaxSize}</td>
+				<td>${workerDetail.totalExecutions}</td>
+				<td>${workerDetail.avgExecutionTime}</td>
+			</tr>
+	</#list>
+	<#if totalWorkers gt 0>
+	  <#assign averageExecutionTime = averageExecutionTime / totalWorkers>
+	</#if>
 
-<div id="canvas-holder" style="width:40%">
-	<canvas id="chart-area"></canvas>
+			<tr>
+				<td><b>${totalWorkers}</b></td>
+				<td colspan="4">&nbsp;</td>
+				<td><b>${totalThreads}</b></td>
+				<td><b>${totalExecuted}</b></td>
+				<td><b>${averageExecutionTime}</b></td>
+			</tr>
+			<tr><td colspan="8">&nbsp;</td></tr>
+		</tbody>
+	  </table>
+  </div>
 </div>
+
 <script>
 	var config = {
 		type: 'doughnut',
