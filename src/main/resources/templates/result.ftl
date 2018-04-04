@@ -29,7 +29,9 @@
 		</style>
     </head>
     <body>
-
+	<#assign currentStatus = statusMap["status"]>
+	${currentStatus}
+	
 <div class="row">
 	<div class="column" id="canvas-holder" style="width:40%">
 		<canvas id="chart-area"></canvas>

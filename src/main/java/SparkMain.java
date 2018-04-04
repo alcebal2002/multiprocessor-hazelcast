@@ -58,6 +58,7 @@ public class SparkMain {
         		Map<String, Object> root = new HashMap<String, Object>();
 				root.put( "refreshPage", refreshPage );
         		root.put( HazelcastInstanceUtils.getMonitorMapName (), hzClient.getMap(HazelcastInstanceUtils.getMonitorMapName()) );
+				root.put( HazelcastInstanceUtils.getStatusMapName (), hzClient.getMap(HazelcastInstanceUtils.getStatusMapName()) );				
 				Template resultTemplate = freemarkerConfig.getTemplate(ApplicationProperties.getStringProperty(Constants.SPARK_TEMPLATE_FILE_NAME));
 				resultTemplate.process(root, writer);
     		} catch (Exception ex) {

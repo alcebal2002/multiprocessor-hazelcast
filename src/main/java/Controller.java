@@ -53,11 +53,13 @@ public class Controller {
 		HazelcastInstanceUtils.getInstance();
 		
 		// Populate historical data from file and put into Hazelcast
+		(HazelcastInstanceUtils.getInstance()).getMap(HazelcastInstanceUtils.getStatusMapName()).put(Constants.HZ_STATUS_ENTRY_KEY,Constants.HZ_STATUS_LOADING_HISTORICAL_DATA);
 		if (loadHistoricalData) {
 			logger.info("[loaded from file / loaded into Hazelcast] : [" + populateHistoricalFxData() + " / " + HazelcastInstanceUtils.getList(HazelcastInstanceUtils.getHistoricalListName()).size() + "]");
 		}
 	
 		// Start queueproducer (simulating incoming tasks) and put execution tasks into the Hazelcast queue
+		HazelcastInstanceUtils.getInstance().getMap(HazelcastInstanceUtils.getStatusMapName()).put(Constants.HZ_STATUS_ENTRY_KEY,Constants.HZ_STATUS_PUBLISHING_TASKS);
 		logger.info ("Producer Started...");
 		for ( int k = 1; k <= numberOfTasks; k++ ) {
 			ExecutionTask executionTask = new ExecutionTask (("Task-"+k),"Calculation",
@@ -73,8 +75,10 @@ public class Controller {
 			HazelcastInstanceUtils.putStopSignalIntoQueue(HazelcastInstanceUtils.getTaskQueueName());
 		}
 		logger.info ("Producer Finished.");
+		HazelcastInstanceUtils.getInstance().getMap(HazelcastInstanceUtils.getStatusMapName()).put(Constants.HZ_STATUS_ENTRY_KEY,Constants.HZ_STATUS_WAITING_TO_START_MONITORING);
 		logger.info ("Waiting " + monitorDelay + " secs to start monitoring");
 		Thread.sleep(monitorDelay*1000);
+		HazelcastInstanceUtils.getInstance().getMap(HazelcastInstanceUtils.getStatusMapName()).put(Constants.HZ_STATUS_ENTRY_KEY,Constants.HZ_STATUS_PROCESSING_TASKS);
 		logger.info ("Checking " + HazelcastInstanceUtils.getMonitorMapName() + " every "+monitorDelay+" secs");
 		Thread.sleep(monitorDelay*1000);
 
@@ -102,10 +106,12 @@ public class Controller {
 		if (writeResultsToFile) {
 			writeWorkersLog ();
 		}
+		HazelcastInstanceUtils.getInstance().getMap(HazelcastInstanceUtils.getStatusMapName()).put(Constants.HZ_STATUS_ENTRY_KEY,Constants.HZ_STATUS_SHUTTING_DOWN);
 		// Shutdown Hazelcast cluster node instance
 		logger.info ("Shutting down hazelcast instace...");
 		HazelcastInstanceUtils.shutdown();
 		
+		HazelcastInstanceUtils.getInstance().getMap(HazelcastInstanceUtils.getStatusMapName()).put(Constants.HZ_STATUS_ENTRY_KEY,Constants.HZ_STATUS_PROCESS_COMPLETED);
 		printParameters ("Finished");
 		// Write cluster nodes execution summary into a file if required
 		// Exit application

@@ -34,6 +34,10 @@ public class HazelcastInstanceUtils {
 		return ApplicationProperties.getStringProperty(Constants.HZ_MONITOR_MAP_NAME);
 	}
 
+	public static String getStatusMapName () throws Exception {
+		return ApplicationProperties.getStringProperty(Constants.HZ_STATUS_MAP_NAME);
+	}
+
 	public static String getStopProcessingSignal () throws Exception {
 		return ApplicationProperties.getStringProperty(Constants.HZ_STOP_PROCESSING_SIGNAL);
 	}
