@@ -30,7 +30,7 @@
     </head>
     <body>
 	<#assign currentStatus = statusMap["status"]>
-	${currentStatus}
+	
 	
 <div class="row">
 	<div class="column" id="canvas-holder" style="width:40%">
@@ -39,6 +39,7 @@
 	<div class="column" style="width:60%">
 	  <table class="table table-condensed">
 		<thead>
+		  <tr><th colspan="8"><i>Status: ${currentStatus}</i></th></tr>
 		  <tr>
 			<th>Status</th>
 			<th>Address:Port</th>
@@ -59,7 +60,7 @@
 		<#assign totalExecuted = totalExecuted + workerDetail.totalExecutions>
 		<#assign totalWorkers = totalWorkers + 1>
 		<#assign totalThreads = totalThreads + workerDetail.poolMaxSize>
-		<#assign averageExecutionTime = averageExecutionTime + workerDetail.avgExecutionTime>
+		<#assign averageExecutionTime = averageExecutionTime + (workerDetail.totalExecutions * workerDetail.avgExecutionTime)>
 			<tr>
 				<td>${workerDetail.activeStatusString}</td>
 				<td>${workerDetail.inetAddres}:${workerDetail.inetPort}</td>
@@ -72,7 +73,7 @@
 			</tr>
 	</#list>
 	<#if totalWorkers gt 0>
-	  <#assign averageExecutionTime = averageExecutionTime / totalWorkers>
+	  <#assign averageExecutionTime = averageExecutionTime / totalExecuted>
 	</#if>
 
 			<tr>

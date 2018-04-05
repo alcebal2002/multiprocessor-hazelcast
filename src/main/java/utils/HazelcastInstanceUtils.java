@@ -87,6 +87,10 @@ public class HazelcastInstanceUtils {
 		getInstance().getList(listName).add(value);
 	}
 
+	public static void setStatus (final String status) throws Exception {
+		getInstance().getMap(getStatusMapName()).put(Constants.HZ_STATUS_ENTRY_KEY,status);
+	}
+	
 	public static String getNodeId () {
     	String result = "unknown";
         try {
