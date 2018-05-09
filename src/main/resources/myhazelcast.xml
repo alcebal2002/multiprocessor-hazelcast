@@ -8,12 +8,14 @@
         <join>
             <multicast enabled="false"/>
             <tcp-ip enabled="true" connection-timeout-seconds="10">
-				<member>172.20.11.138:5701</member>
+				<member>172.20.11.78</member>
 			</tcp-ip>
 			<aws enabled="false"/>
         </join>
+<!--
 		<interfaces enabled="true">
-           	<interface>172.20.11.138</interface>
+           	<interface>172.20.11.78</interface>
 		</interfaces>
+-->
     </network>
 </hazelcast>

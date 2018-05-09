@@ -37,8 +37,8 @@ public class SparkMain {
 
 		Spark.staticFileLocation(ApplicationProperties.getStringProperty(Constants.SPARK_PUBLIC_PATH));
 		
-		get("/", (req, res) -> ApplicationProperties.getStringProperty(Constants.SPARK_WELCOME_MESSAGE));
-        get("/stop", (req, res) -> halt(401, ApplicationProperties.getStringProperty(Constants.SPARK_BYE_MESSAGE)));
+		get("/", (req, res) -> Constants.SPARK_WELCOME_MESSAGE);
+        get("/stop", (req, res) -> halt(401, Constants.SPARK_BYE_MESSAGE));
         get("/monitor", (req, res) -> {
         	StringWriter writer = new StringWriter();
 
