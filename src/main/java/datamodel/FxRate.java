@@ -1,14 +1,8 @@
 package datamodel;
 import java.io.Serializable;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 public class FxRate implements Serializable {
 
-	// Logger
-	private static Logger logger = LoggerFactory.getLogger(FxRate.class);
-	
 	private static final long serialVersionUID = 1L;
 	private String baseCurrency;
 	private String quoteCurrency;
