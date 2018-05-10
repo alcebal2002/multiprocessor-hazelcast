@@ -130,7 +130,10 @@ public class Controller {
 	        while ((nextLine = reader.readNext()) != null) {
 	        	counter++;
 	        	FxRate fxRate = new FxRate (nextLine);
-	        	logger.info ("Line " + counter + " : " + fxRate.toCsvFormat());
+				if (counter%10000 == 0) {
+		        	logger.info ("Loaded " + counter + " FX rates so far");
+				}
+
 	    		HazelcastInstanceUtils.putIntoList(HazelcastInstanceUtils.getHistoricalListName(), fxRate );
 	        }
 	        reader.close();
