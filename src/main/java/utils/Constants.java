@@ -22,8 +22,10 @@ public class Constants {
 		"}";
 	public static final String CONTROLLER_WORKER_LOG_FILE_PATTERN = "controller.worker.logFilePattern";
 	public static final String CONTROLLER_WORKER_LOG_FILE_EXTENSION = "controller.worker.logFileExtension";
+	public static final String CONTROLLER_EXECUTION_TASKS_GROUPING = "controller.execution.tasksGrouping";
 	public static final String CONTROLLER_EXECUTION_INCREASE_PERCENTAGE = "controller.execution.increasePercentage";
 	public static final String CONTROLLER_EXECUTION_DECREASE_PERCENTAGE = "controller.execution.decreasePercentage";
+	public static final String CONTROLLER_EXECUTION_MAX_LEVELS = "controller.execution.maxLevels";
 	
 	// Worker Pool Properties
 	public static final String WORKER_POOL_CORESIZE = "workerpool.coreSize";

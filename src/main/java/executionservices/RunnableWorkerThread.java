@@ -10,6 +10,8 @@ import org.slf4j.LoggerFactory;
 
 import datamodel.ExecutionTask;
 import datamodel.FxRate;
+import utils.ApplicationProperties;
+import utils.Constants;
 import utils.HazelcastInstanceUtils;
 
 /*
@@ -23,15 +25,17 @@ public class RunnableWorkerThread implements Runnable {
 	// Logger
 	private static Logger logger = LoggerFactory.getLogger(RunnableWorkerThread.class);
 
-	private ExecutionTask taskItem; 
+	private ExecutionTask taskItem;
+	private List<FxRate> fxList;
 	private int processTime; // used when simulating executions
 	private int retrySleepTime; 
 	private int retryMaxAttempts; 
 	private long elapsedTimeMillis;
 	private String nodeId;
 
-	public RunnableWorkerThread(final int processTime, final ExecutionTask taskItem, final int retrySleepTime, final int retryMaxAttempts, final String nodeId) { 
-		this.taskItem=taskItem; 
+	public RunnableWorkerThread(final int processTime, final ExecutionTask taskItem, final List<FxRate> fxList, final int retrySleepTime, final int retryMaxAttempts, final String nodeId) { 
+		this.taskItem=taskItem;
+		this.fxList = fxList;
 		this.processTime=processTime; 
 		this.retrySleepTime=retrySleepTime; 
 		this.retryMaxAttempts=retryMaxAttempts;
@@ -79,80 +83,65 @@ public class RunnableWorkerThread implements Runnable {
 				} 
 			}
 			*/
-			FxRate originalFxRate = (FxRate)taskItem.getContent();
-			int positionId = originalFxRate.getPositionId();
-			String currencyPair = originalFxRate.getCurrencyPair();
-			float opening = originalFxRate.getOpen();
-			float increase = 1+(taskItem.getIncreasePercentage()/100);
-			float decrease = 1-(taskItem.getDecreasePercentage()/100);
+			ArrayList<FxRate> selectedRates = (ArrayList<FxRate>)taskItem.getContent();
 			
-			logger.debug ("Processing " + currencyPair + "-" + positionId);
-			
-			List<FxRate> fxList = (List<FxRate>) HazelcastInstanceUtils.getMap(HazelcastInstanceUtils.getHistoricalMapName()).get(currencyPair);
-			FxRate targetFxRate = null;
-			String previousFound = "";
-			
-			Map<String,Integer> mapResults = new HashMap<String,Integer>();
-			
-			int countUp = 0;
-			int countDown = 0;
-
-			for (int i=positionId+1; i<fxList.size(); i++) {
-				targetFxRate = fxList.get(i);
-				logger.debug ("Comparing against " + targetFxRate.getCurrencyPair() + "-" + targetFxRate.getPositionId());
+			for (FxRate originalFxRate : selectedRates) {
 				
-				if (targetFxRate.getHigh() > opening * increase) {
-					if (previousFound.equals("down")) {
-						break;
-					}
-					
-					if (mapResults.containsKey(currencyPair+"-UP["+countUp+"]")) {
-						mapResults.put(currencyPair+"-UP["+countUp+"]",mapResults.get(currencyPair+"-UP["+countUp+"]")+1);
-					} else {
-						mapResults.put(currencyPair+"-UP["+countUp+"]",1);
-					}
-					
-					/*
-					//if (mapUp.containsKey((""+countUp))) {
-					if (HazelcastInstanceUtils.getMap(currencyPair+"-mapUp").containsKey((""+countUp))) {
-						HazelcastInstanceUtils.putIntoMap(currencyPair+"-mapUp",(""+countUp),(Integer)HazelcastInstanceUtils.getFromMap(currencyPair+"-mapUp", (""+countUp))+1);
-						//mapUp.put((""+countUp), mapUp.get((""+countUp)) + 1);
-					} else {
-						HazelcastInstanceUtils.putIntoMap(currencyPair+"-mapUp",(""+countUp),1);
-						//mapUp.put((""+countUp),1);
-					}
-					*/
-					
-					previousFound = "up";
-					opening = opening * increase;
-					countUp++;
-				} else if (targetFxRate.getLow() < opening * decrease) {
-					if (previousFound.equals("up")) {
-						break;
-					}
-					
-					if (mapResults.containsKey(currencyPair+"-DOWN["+countDown+"]")) {
-						mapResults.put(currencyPair+"-DOWN["+countDown+"]",mapResults.get(currencyPair+"-DOWN["+countDown+"]")+1);
-					} else {
-						mapResults.put(currencyPair+"-DOWN["+countDown+"]",1);
-					}
+				int positionId = originalFxRate.getPositionId();
+				String currencyPair = originalFxRate.getCurrencyPair();
+				float opening = originalFxRate.getOpen();
+				float increase = 1+(taskItem.getIncreasePercentage()/100);
+				float decrease = 1-(taskItem.getDecreasePercentage()/100);
+				int maxLevels = taskItem.getMaxLevels();
+				
+				logger.debug ("Processing " + currencyPair + "-" + positionId);
+				
+				FxRate targetFxRate = null;
+				String previousFound = "";
+				
+				Map<String,Integer> mapResults = new HashMap<String,Integer>();
+				
+				int countUp = 1;
+				int countDown = 1;
 
-					/*
-					//if (mapDown.containsKey((""+countDown))) {
-					if (HazelcastInstanceUtils.getMap(currencyPair+"-mapDown").containsKey((""+countDown))) {
-						HazelcastInstanceUtils.putIntoMap(currencyPair+"-mapDown",(""+countDown),(Integer)HazelcastInstanceUtils.getFromMap(currencyPair+"-mapDown", (""+countDown))+1);
-						//mapDown.put((""+countDown), mapDown.get((""+countDown)) + 1);
-					} else {
-						HazelcastInstanceUtils.putIntoMap(currencyPair+"-mapDown",(""+countDown),1);
+				for (int i=positionId+1; i<fxList.size(); i++) {
+					targetFxRate = fxList.get(i);
+					logger.debug ("Comparing against " + targetFxRate.getCurrencyPair() + "-" + targetFxRate.getPositionId());
+					
+					if ((targetFxRate.getHigh() > opening * increase) && (countUp <= maxLevels)) {
+						if (("down").equals(previousFound)) {
+							break;
+						}
+						
+						if (mapResults.containsKey(currencyPair+"-UP["+countUp+"]")) {
+							mapResults.put(currencyPair+"-UP["+countUp+"]",mapResults.get(currencyPair+"-UP["+countUp+"]")+1);
+						} else {
+							mapResults.put(currencyPair+"-UP["+countUp+"]",1);
+						}
+						
+						previousFound = "up";
+						opening = opening * increase;
+						countUp++;
+					} else if ((targetFxRate.getLow() < opening * decrease) && (countDown <= maxLevels)) {
+						if (("up").equals(previousFound)) {
+							break;
+						}
+						
+						if (mapResults.containsKey(currencyPair+"-DOWN["+countDown+"]")) {
+							mapResults.put(currencyPair+"-DOWN["+countDown+"]",mapResults.get(currencyPair+"-DOWN["+countDown+"]")+1);
+						} else {
+							mapResults.put(currencyPair+"-DOWN["+countDown+"]",1);
+						}
+	
+						previousFound = "down";
+						opening = opening * decrease;
+						countDown++;			
 					}
-					*/
-					previousFound = "down";
-					opening = opening * decrease;
-					countDown++;			
 				}
+				// Put results into Hazelcast Results Map 
+				HazelcastInstanceUtils.putIntoQueue(HazelcastInstanceUtils.getResultsQueueName(), mapResults);
 			}
-			// Put results into Hazelcast Results Map 
-			HazelcastInstanceUtils.putIntoQueue(HazelcastInstanceUtils.getResultsQueueName(), mapResults);
+
 		} catch (Exception e) { 
 			e.printStackTrace(); 
 		} 
@@ -185,6 +174,14 @@ public class RunnableWorkerThread implements Runnable {
 
 	public final void setTaskItem(ExecutionTask taskItem) {
 		this.taskItem = taskItem;
+	}
+	
+	public final List<FxRate> getFxList() {
+		return fxList;
+	}
+	
+	public final void setFxList (ArrayList<FxRate> fxList) {
+		this.fxList = fxList;
 	}
 
 	@Override 

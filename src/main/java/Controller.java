@@ -116,7 +116,7 @@ public class Controller {
 			
 			if (resultItem instanceof ExecutionTask) {
 				if ( (HazelcastInstanceUtils.getStopProcessingSignal()).equals(((ExecutionTask)resultItem).getTaskType()) ) {
-					logger.info ("Detected " + HazelcastInstanceUtils.getStopProcessingSignal());
+					logger.info ("Detected " + HazelcastInstanceUtils.getStopProcessingSignal() + " from " + HazelcastInstanceUtils.getResultsQueueName());
 					break;
 				}
 			} else if (resultItem instanceof HashMap) {
@@ -132,7 +132,7 @@ public class Controller {
 		        }
 
 			} else {
-				logger.info (".Consumed Unknown type ");
+				logger.info ("Uknexpected object type detected from " + HazelcastInstanceUtils.getResultsQueueName());
 			}
 		}
 		
@@ -178,8 +178,8 @@ public class Controller {
     	        	
     	        	FxRate fxRate = new FxRate (dataFile.substring(0,dataFile.indexOf(".")),nextLine,fileCounter);
     	        	fxList.add(fxRate);
-    				if (fileCounter%10000 == 0) {
-    		        	logger.info ("Loaded " + fileCounter + " FX rates so far");
+    				if (fileCounter%1000 == 0) {
+    		        	logger.debug ("Loaded " + fileCounter + " FX rates so far");
     				}
     				fileCounter++;
     				totalCounter++;
@@ -206,21 +206,45 @@ public class Controller {
     	logger.info("Putting execution tasks into Hazelcast for processing");
     	Iterator<Entry<String, Object>> iter = HazelcastInstanceUtils.getMap(HazelcastInstanceUtils.getHistoricalMapName()).entrySet().iterator();
 
+    	float increasePercentage = ApplicationProperties.getFloatProperty(Constants.CONTROLLER_EXECUTION_INCREASE_PERCENTAGE);
+    	float decreasePercentage = ApplicationProperties.getFloatProperty(Constants.CONTROLLER_EXECUTION_DECREASE_PERCENTAGE);
+    	int maxLevels = ApplicationProperties.getIntProperty(Constants.CONTROLLER_EXECUTION_MAX_LEVELS);
+    	int executionTasksGrouping = ApplicationProperties.getIntProperty(Constants.CONTROLLER_EXECUTION_TASKS_GROUPING);
+    	
+    	ExecutionTask executionTask = null; 
+    			
 		while (iter.hasNext()) {
             Entry<String, Object> entry = iter.next();
             
             List<FxRate> fxList = (List<FxRate>) entry.getValue();
             int counter = 0;
             
+            ArrayList<FxRate> selectedRates = new ArrayList<FxRate>();
+            
             for (FxRate fxRate : fxList) {
             	counter++;
-                //ExecutionTask executionTask = new ExecutionTask ((entry.getKey()+"-"+counter),"FXRATE",(""+fxRate.getId()),entry.getKey(),System.currentTimeMillis());				
-            	ExecutionTask executionTask = new ExecutionTask ((entry.getKey()+"-"+counter),"FXRATE",fxRate.getPositionId(),ApplicationProperties.getFloatProperty(Constants.CONTROLLER_EXECUTION_INCREASE_PERCENTAGE),ApplicationProperties.getFloatProperty(Constants.CONTROLLER_EXECUTION_DECREASE_PERCENTAGE),fxRate,System.currentTimeMillis());
+            	
+        		selectedRates.add(fxRate);
 
-        		HazelcastInstanceUtils.putIntoQueue(HazelcastInstanceUtils.getTaskQueueName(), executionTask );
-        		logger.info ("Producing: " + counter);
-        		Thread.sleep(sleepTime);            
+            	if (counter%executionTasksGrouping == 0) {
+                	//ExecutionTask executionTask = new ExecutionTask ((entry.getKey()+"-"+counter),"FXRATE",fxRate.getPositionId(),ApplicationProperties.getFloatProperty(Constants.CONTROLLER_EXECUTION_INCREASE_PERCENTAGE),ApplicationProperties.getFloatProperty(Constants.CONTROLLER_EXECUTION_DECREASE_PERCENTAGE),fxRate,System.currentTimeMillis());
+            		executionTask = new ExecutionTask (entry.getKey(),"FXRATE",0,increasePercentage,decreasePercentage,maxLevels,selectedRates,System.currentTimeMillis());
+
+            		HazelcastInstanceUtils.putIntoQueue(HazelcastInstanceUtils.getTaskQueueName(), executionTask);
+            		logger.debug ("Producing: " + counter);
+            		Thread.sleep(sleepTime);
+            		selectedRates.clear();
+            	}
             }
+        	if (selectedRates.size() > 0) {
+        		executionTask = new ExecutionTask (entry.getKey(),"FXRATE",0,increasePercentage,decreasePercentage,maxLevels,selectedRates,System.currentTimeMillis());
+
+        		HazelcastInstanceUtils.putIntoQueue(HazelcastInstanceUtils.getTaskQueueName(), executionTask);
+        		logger.debug ("Producing: " + counter);
+        		Thread.sleep(sleepTime);
+        		selectedRates.clear();
+        	}
+
             logger.info ("Produced " + counter + " tasks for " + entry.getKey());
         }
 		

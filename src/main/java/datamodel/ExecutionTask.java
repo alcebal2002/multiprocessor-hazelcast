@@ -11,6 +11,7 @@ public class ExecutionTask implements Serializable {
 //	private float open = 0;
 	private float increasePercentage = 0;
 	private float decreasePercentage = 0;
+	private int maxLevels = 0;
 	private Object content = null;
 	private long creationTimestamp = 0L;
 	private long elapsedExecutionTime = 0L;
@@ -19,12 +20,13 @@ public class ExecutionTask implements Serializable {
 		this.taskType = taskType;
 	}
 
-	public ExecutionTask(final String taskId, final String taskType, final int positionId, final float increasePercentage, final float decreasePercentage, final Object content, final long creationTimestamp) {
+	public ExecutionTask(final String taskId, final String taskType, final int positionId, final float increasePercentage, final float decreasePercentage, final int maxLevels, final Object content, final long creationTimestamp) {
 		this.taskId = taskId;
 		this.taskType = taskType;
 		this.positionId = positionId;
 		this.increasePercentage = increasePercentage;
 		this.decreasePercentage = decreasePercentage;
+		this.maxLevels = maxLevels;
 		this.content = content;
 		this.creationTimestamp = creationTimestamp;
 	}
@@ -62,6 +64,13 @@ public class ExecutionTask implements Serializable {
 	}
 	public final void setDecreasePercentage (float decreasePercentage) {
 		this.decreasePercentage = decreasePercentage;
+	}
+
+	public final int getMaxLevels() {
+		return this.maxLevels;
+	}
+	public final void setMaxLevels (int maxLevels) {
+		this.maxLevels = maxLevels;
 	}
 
 	public final Object getContent () {

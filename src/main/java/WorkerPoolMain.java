@@ -1,4 +1,6 @@
 import java.sql.Timestamp;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
@@ -11,6 +13,7 @@ import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.IQueue;
 
 import datamodel.ExecutionTask;
+import datamodel.FxRate;
 import datamodel.WorkerDetail;
 import executionservices.RejectedExecutionHandlerImpl;
 import executionservices.RunnableWorkerThread;
@@ -116,6 +119,9 @@ public class WorkerPoolMain {
 		
 		// Listen to Hazelcast tasks queue and submit work to the thread pool for each task 
 		IQueue<ExecutionTask> hazelcastTaskQueue = hzClient.getQueue( HazelcastInstanceUtils.getTaskQueueName() );
+		
+		List<FxRate> fxList;
+		
 		while ( true ) {
 			/*
 			 * Option to avoid getting additional tasks from Hazelcast distributed queue if there is no processing capacity available in the ThreadPool 
@@ -130,8 +136,12 @@ public class WorkerPoolMain {
 					hzClient.getQueue(HazelcastInstanceUtils.getTaskQueueName()).put(new ExecutionTask(HazelcastInstanceUtils.getStopProcessingSignal()));
 					break;
 				}
-				executorPool.execute(new RunnableWorkerThread(processTime,executionTaskItem,retrySleepTime,retryMaxAttempts,nodeId));
-				taskNumber++;
+				
+				fxList = (List<FxRate>) HazelcastInstanceUtils.getMap(HazelcastInstanceUtils.getHistoricalMapName()).get(executionTaskItem.getTaskId());
+				
+				executorPool.execute(new RunnableWorkerThread(processTime,executionTaskItem,fxList,retrySleepTime,retryMaxAttempts,nodeId));
+				taskNumber = taskNumber + ((List<FxRate>)executionTaskItem.getContent()).size(); 
+				//taskNumber++;
 				
 				// Update WorkerDetail every <refreshAfter> executions
 				if (taskNumber%refreshAfter == 0) {
@@ -195,7 +205,8 @@ public class WorkerPoolMain {
 		logger.info ("  - Min execution time: " + executorPool.getMinExecutionTime() + " ms"); 
 		logger.info ("  - Max execution time: " + executorPool.getMaxExecutionTime() + " ms"); 
 		logger.info ("  - Avg execution time: " + executorPool.getAvgExecutionTime() + " ms");
-		logger.info ("  - Executions/second : " + (executorPool.getTotalExecutions() * 1000) / (stopTime - startTime));
+		//logger.info ("  - Executions/second : " + (executorPool.getTotalExecutions() * 1000) / (stopTime - startTime));
+		logger.info ("  - Executions/second : " + (executorPool.getTotalExecutions() * ApplicationProperties.getIntProperty(Constants.CONTROLLER_EXECUTION_TASKS_GROUPING) * 1000) / (stopTime - startTime));
 		logger.info ("**************************************************"); 
 		
 		// Exit application
