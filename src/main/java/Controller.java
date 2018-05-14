@@ -73,7 +73,6 @@ public class Controller {
 		
 		// Put Stop Signal into the Hazelcast queue if required
 		if (sendStopProcessingSignal) {
-			logger.info ("Sending " + HazelcastInstanceUtils.getStopProcessingSignal() + " to " + HazelcastInstanceUtils.getTaskQueueName());
 			HazelcastInstanceUtils.putStopSignalIntoQueue(HazelcastInstanceUtils.getTaskQueueName());
 		}
 		logger.info ("Producer Finished.");
@@ -99,7 +98,6 @@ public class Controller {
 			if (stopMonitoring) {
 				logger.info ("All clients are inactive. Stopping monitoring...");
 				// Puts Stop signal into the results queue
-				logger.info ("Sending " + HazelcastInstanceUtils.getStopProcessingSignal () + " to " + HazelcastInstanceUtils.getResultsQueueName());
 				HazelcastInstanceUtils.putStopSignalIntoQueue(HazelcastInstanceUtils.getResultsQueueName());
 				break;
 			} else {
@@ -115,10 +113,9 @@ public class Controller {
 		logger.info ("Reading from Hazelcast: " + HazelcastInstanceUtils.getResultsQueueName() + "...");
 		while ( true ) {
 			Object resultItem = hazelcastResultsQueue.take();
-			logger.debug ("Consumed Results from : " + HazelcastInstanceUtils.getResultsQueueName());
 			
-			if (resultItem instanceof String) {
-				if ( (HazelcastInstanceUtils.getStopProcessingSignal()).equals(resultItem) ) {
+			if (resultItem instanceof ExecutionTask) {
+				if ( (HazelcastInstanceUtils.getStopProcessingSignal()).equals(((ExecutionTask)resultItem).getTaskType()) ) {
 					logger.info ("Detected " + HazelcastInstanceUtils.getStopProcessingSignal());
 					break;
 				}
@@ -134,6 +131,8 @@ public class Controller {
 					}
 		        }
 
+			} else {
+				logger.info (".Consumed Unknown type ");
 			}
 		}
 		

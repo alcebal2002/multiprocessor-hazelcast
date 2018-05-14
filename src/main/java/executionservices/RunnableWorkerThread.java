@@ -83,6 +83,8 @@ public class RunnableWorkerThread implements Runnable {
 			int positionId = originalFxRate.getPositionId();
 			String currencyPair = originalFxRate.getCurrencyPair();
 			float opening = originalFxRate.getOpen();
+			float increase = 1+(taskItem.getIncreasePercentage()/100);
+			float decrease = 1-(taskItem.getDecreasePercentage()/100);
 			
 			logger.debug ("Processing " + currencyPair + "-" + positionId);
 			
@@ -99,7 +101,7 @@ public class RunnableWorkerThread implements Runnable {
 				targetFxRate = fxList.get(i);
 				logger.debug ("Comparing against " + targetFxRate.getCurrencyPair() + "-" + targetFxRate.getPositionId());
 				
-				if (targetFxRate.getHigh() > opening * taskItem.getIncreasePercentage()) {
+				if (targetFxRate.getHigh() > opening * increase) {
 					if (previousFound.equals("down")) {
 						break;
 					}
@@ -122,9 +124,9 @@ public class RunnableWorkerThread implements Runnable {
 					*/
 					
 					previousFound = "up";
-					opening = opening * taskItem.getIncreasePercentage();
+					opening = opening * increase;
 					countUp++;
-				} else if (targetFxRate.getLow() > opening * taskItem.getDecreasePercentage()) {
+				} else if (targetFxRate.getLow() < opening * decrease) {
 					if (previousFound.equals("up")) {
 						break;
 					}
@@ -145,7 +147,7 @@ public class RunnableWorkerThread implements Runnable {
 					}
 					*/
 					previousFound = "down";
-					opening = opening * taskItem.getDecreasePercentage();
+					opening = opening * decrease;
 					countDown++;			
 				}
 			}
