@@ -9,7 +9,8 @@ public class Constants {
 	public static final String CONTROLLER_MONITOR_DELAY = "controller.monitorDelay";
 	public static final String CONTROLLER_LOAD_HISTORICAL_DATA = "controller.loadHistoricalData";
 	public static final String CONTROLLER_HISTORICAL_DATA_PATH = "controller.historicalDataPath";
-	public static final String CONTROLLER_HISTORICAL_DATA_FILE_NAME = "controller.historicalDataFileName";
+	public static final String CONTROLLER_HISTORICAL_DATA_FILE_EXTENSION = "controller.historicalDataFileExtension";
+	public static final String CONTROLLER_HISTORICAL_DATA_SEPARATOR = "controller.historicalDataSeparator";
 	public static final String CONTROLLER_QUEUEPRODUCER_NUMBER_OF_TASKS = "controller.queueproducer.numberOfTasks";
 	public static final String CONTROLLER_QUEUEPRODUCER_SLEEPTIME = "controller.queueproducer.sleepTime";
 	public static final String CONTROLLER_QUEUEPRODUCER_SENDSTOPPROCESSINGSIGNAL = "controller.queueproducer.sendStopProcessingSignal";
@@ -21,6 +22,8 @@ public class Constants {
 		"}";
 	public static final String CONTROLLER_WORKER_LOG_FILE_PATTERN = "controller.worker.logFilePattern";
 	public static final String CONTROLLER_WORKER_LOG_FILE_EXTENSION = "controller.worker.logFileExtension";
+	public static final String CONTROLLER_EXECUTION_INCREASE_PERCENTAGE = "controller.execution.increasePercentage";
+	public static final String CONTROLLER_EXECUTION_DECREASE_PERCENTAGE = "controller.execution.decreasePercentage";
 	
 	// Worker Pool Properties
 	public static final String WORKER_POOL_CORESIZE = "workerpool.coreSize";
@@ -47,14 +50,15 @@ public class Constants {
 	// Hazelcast Properties
 	// Queue instance names
 	public static final String HZ_TASK_QUEUE_NAME = "hz.taskQueueName";
-	
+	public static final String HZ_RESULTS_QUEUE_NAME = "hz.resultsQueueName";
+
 	// List instance names
-	public static final String HZ_HISTORICAL_DATA_LIST_NAME = "hz.historicalDataListName";
 	
 	// Map instance names
 	public static final String HZ_MONITOR_MAP_NAME = "hz.monitorMapName";
 	public static final String HZ_STATUS_MAP_NAME = "hz.statusMapName";
 	public static final String HZ_STATUS_ENTRY_KEY = "status";
+	public static final String HZ_HISTORICAL_DATA_MAP_NAME = "hz.historicalDataMapName";
 	
 	public static final String HZ_STATUS_LOADING_HISTORICAL_DATA = "Loading Historical Data";
 	public static final String HZ_STATUS_PUBLISHING_TASKS = "Publishing Tasks";

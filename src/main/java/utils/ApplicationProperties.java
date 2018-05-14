@@ -23,7 +23,13 @@ public class ApplicationProperties {
 		
 		return Integer.parseInt(getProperty(properyName));
 	}
-	
+
+	public static float getFloatProperty (final String properyName) 
+			throws Exception {
+			
+			return Float.parseFloat(getProperty(properyName));
+	}
+
 	public static boolean getBooleanProperty (final String properyName) 
 		throws Exception {
 			

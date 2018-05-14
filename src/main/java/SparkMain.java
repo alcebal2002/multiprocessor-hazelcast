@@ -36,6 +36,7 @@ public class SparkMain {
 		freemarkerConfig.setClassForTemplateLoading(SparkMain.class, ApplicationProperties.getStringProperty(Constants.SPARK_TEMPLATE_PATH));
 
 		Spark.staticFileLocation(ApplicationProperties.getStringProperty(Constants.SPARK_PUBLIC_PATH));
+		HazelcastInstance hzClient = HazelcastClient.newHazelcastClient();
 		
 		get("/", (req, res) -> Constants.SPARK_WELCOME_MESSAGE);
         get("/stop", (req, res) -> halt(401, Constants.SPARK_BYE_MESSAGE));
@@ -43,15 +44,14 @@ public class SparkMain {
         	StringWriter writer = new StringWriter();
 
         	try {
-        		HazelcastInstance hzClient = HazelcastClient.newHazelcastClient();
-
+        		
     			boolean refreshPage = false;
 
-    			Iterator<Entry<String, WorkerDetail>> iter = HazelcastInstanceUtils.getMap(HazelcastInstanceUtils.getMonitorMapName()).entrySet().iterator();
+    			Iterator<Entry<String, Object>> iter = HazelcastInstanceUtils.getMap(HazelcastInstanceUtils.getMonitorMapName()).entrySet().iterator();
 
     			while (iter.hasNext()) {
-    	            Entry<String, WorkerDetail> entry = iter.next();
-    	            if (entry.getValue().getActiveStatus()) refreshPage = true;
+    	            Entry<String, Object> entry = iter.next();
+    	            if (((WorkerDetail) entry.getValue()).getActiveStatus()) refreshPage = true;
     	            
     	        }
     			

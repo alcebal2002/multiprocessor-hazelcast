@@ -9,7 +9,6 @@ import com.hazelcast.core.IMap;
 import com.hazelcast.core.IQueue;
 
 import datamodel.ExecutionTask;
-import datamodel.WorkerDetail;
 
 public class HazelcastInstanceUtils {
 
@@ -30,6 +29,10 @@ public class HazelcastInstanceUtils {
 		return ApplicationProperties.getStringProperty(Constants.HZ_TASK_QUEUE_NAME);
 	}
 
+	public static String getResultsQueueName () throws Exception {
+		return ApplicationProperties.getStringProperty(Constants.HZ_RESULTS_QUEUE_NAME);
+	}
+
 	public static String getMonitorMapName () throws Exception {
 		return ApplicationProperties.getStringProperty(Constants.HZ_MONITOR_MAP_NAME);
 	}
@@ -42,8 +45,8 @@ public class HazelcastInstanceUtils {
 		return ApplicationProperties.getStringProperty(Constants.HZ_STOP_PROCESSING_SIGNAL);
 	}
 
-	public static String getHistoricalListName () throws Exception {
-		return ApplicationProperties.getStringProperty(Constants.HZ_HISTORICAL_DATA_LIST_NAME);
+	public static String getHistoricalMapName () throws Exception {
+		return ApplicationProperties.getStringProperty(Constants.HZ_HISTORICAL_DATA_MAP_NAME);
 	}
 
 	public static void putStopSignalIntoQueue (final String queueName) throws Exception {
@@ -59,15 +62,19 @@ public class HazelcastInstanceUtils {
 		}
 	}
 
-	public static IQueue<ExecutionTask> getQueue  (final String queueName) {
-		return getInstance().getQueue(queueName);
+	public static IQueue<ExecutionTask> getExecutionTaskQueue () throws Exception {
+		return getInstance().getQueue(getTaskQueueName());
 	}
 	
+	public static IQueue<Object> getResultsQueue () throws Exception {
+		return getInstance().getQueue(getResultsQueueName());
+	}
+
 	public static IList<Object> getList (final String listName) {
 		return getInstance().getList(listName);
 	}
 
-	public static IMap<String,WorkerDetail> getMap  (final String mapName) {
+	public static IMap<String,Object> getMap  (final String mapName) {
 		return getInstance().getMap(mapName);
 	}
 

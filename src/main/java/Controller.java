@@ -1,25 +1,32 @@
 import java.io.BufferedWriter;
+import java.io.FileReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.hazelcast.core.IQueue;
 import com.opencsv.CSVReader;
 
 import datamodel.ExecutionTask;
 import datamodel.FxRate;
 import datamodel.WorkerDetail;
+import executionservices.RunnableWorkerThread;
 import utils.ApplicationProperties;
 import utils.Constants;
 import utils.HazelcastInstanceUtils;
+import utils.SystemUtils;
 
 public class Controller {
 	
@@ -55,23 +62,18 @@ public class Controller {
 		// Populate historical data from file and put into Hazelcast
 		HazelcastInstanceUtils.setStatus(Constants.HZ_STATUS_LOADING_HISTORICAL_DATA);
 		if (loadHistoricalData) {
-			logger.info("[loaded from file / loaded into Hazelcast] : [" + populateHistoricalFxData() + " / " + HazelcastInstanceUtils.getList(HazelcastInstanceUtils.getHistoricalListName()).size() + "]");
+			logger.info("[FX loaded / #Files] : [" + populateHistoricalFxData() + " / " + HazelcastInstanceUtils.getMap(HazelcastInstanceUtils.getHistoricalMapName()).size() + "]");
 		}
 	
-		// Start queueproducer (simulating incoming tasks) and put execution tasks into the Hazelcast queue
+		// Put execution tasks into the Hazelcast queue
 		HazelcastInstanceUtils.setStatus(Constants.HZ_STATUS_PUBLISHING_TASKS);
 		logger.info ("Producer Started...");
-		for ( int k = 1; k <= numberOfTasks; k++ ) {
-			ExecutionTask executionTask = new ExecutionTask (("Task-"+k),"Calculation",
-					Constants.CONTROLLER_QUEUEPRODUCER_TASK_CONTENT.replaceAll("<counter>", ""+k),System.currentTimeMillis());				
-
-			HazelcastInstanceUtils.putIntoQueue(HazelcastInstanceUtils.getTaskQueueName(), executionTask );
-			logger.info ("Producing: " + k);
-			Thread.sleep(sleepTime);
-		}
+		
+		createExecutionTasks();
 		
 		// Put Stop Signal into the Hazelcast queue if required
 		if (sendStopProcessingSignal) {
+			logger.info ("Sending " + HazelcastInstanceUtils.getStopProcessingSignal() + " to " + HazelcastInstanceUtils.getTaskQueueName());
 			HazelcastInstanceUtils.putStopSignalIntoQueue(HazelcastInstanceUtils.getTaskQueueName());
 		}
 		logger.info ("Producer Finished.");
@@ -87,22 +89,56 @@ public class Controller {
 		while ( true ) {
 			stopMonitoring = true;
 
-			Iterator<Entry<String, WorkerDetail>> iter = HazelcastInstanceUtils.getMap(HazelcastInstanceUtils.getMonitorMapName()).entrySet().iterator();
+			Iterator<Entry<String, Object>> iter = HazelcastInstanceUtils.getMap(HazelcastInstanceUtils.getMonitorMapName()).entrySet().iterator();
 
 			while (iter.hasNext()) {
-	            Entry<String, WorkerDetail> entry = iter.next();
-	            if (entry.getValue().getActiveStatus()) stopMonitoring = false;
+	            Entry<String, Object> entry = iter.next();
+	            if (((WorkerDetail) entry.getValue()).getActiveStatus()) stopMonitoring = false;
 	        }
 			
 			if (stopMonitoring) {
 				logger.info ("All clients are inactive. Stopping monitoring...");
+				// Puts Stop signal into the results queue
+				logger.info ("Sending " + HazelcastInstanceUtils.getStopProcessingSignal () + " to " + HazelcastInstanceUtils.getResultsQueueName());
+				HazelcastInstanceUtils.putStopSignalIntoQueue(HazelcastInstanceUtils.getResultsQueueName());
 				break;
 			} else {
 				logger.info ("Keeping the monitoring running every " + monitorDelay + " secs until all the clients are inactive...");
 				Thread.sleep(monitorDelay*1000);
 			}
 		}
+		
+		// Get all the results from the threads and combine them into a final Results Map
+		// Listen to Hazelcast tasks queue and submit work to the thread pool for each task 
+		Map<String,Integer> completeResultsMap = new HashMap<String,Integer>();
+		IQueue<Object> hazelcastResultsQueue = HazelcastInstanceUtils.getResultsQueue();
+		logger.info ("Reading from Hazelcast: " + HazelcastInstanceUtils.getResultsQueueName() + "...");
+		while ( true ) {
+			Object resultItem = hazelcastResultsQueue.take();
+			logger.debug ("Consumed Results from : " + HazelcastInstanceUtils.getResultsQueueName());
+			
+			if (resultItem instanceof String) {
+				if ( (HazelcastInstanceUtils.getStopProcessingSignal()).equals(resultItem) ) {
+					logger.info ("Detected " + HazelcastInstanceUtils.getStopProcessingSignal());
+					break;
+				}
+			} else if (resultItem instanceof HashMap) {
+				Iterator<Entry<String, Integer>> iter = ((HashMap<String,Integer>)resultItem).entrySet().iterator();
+				
+				while (iter.hasNext()) {
+		            Entry<String, Integer> entry = iter.next();
+					if (completeResultsMap.containsKey(entry.getKey())) {
+						completeResultsMap.put(entry.getKey(),completeResultsMap.get(entry.getKey())+1);
+					} else {
+						completeResultsMap.put(entry.getKey(),entry.getValue());
+					}
+		        }
 
+			}
+		}
+		
+		logger.info("Complete Results: " + completeResultsMap.toString());
+		
 		if (writeResultsToFile) {
 			writeWorkersLog ();
 		}
@@ -117,35 +153,91 @@ public class Controller {
 		//System.exit(0);
 	}
 
-	// Populates historical data and puts the objects into Hazelcast List
-    // FX Historical Data format: basecurrency;quotecurrency;date;value;
+	// Populates historical data and puts the objects into Hazelcast Map
+    // FX Historical Data format: conversionDate,conversionTime,open,high,low,close
     public static int populateHistoricalFxData () 
     	throws Exception {
     	
-    	int counter=0;
-    	logger.info ("Populating historical data from " + ApplicationProperties.getStringProperty(Constants.CONTROLLER_HISTORICAL_DATA_PATH) + ApplicationProperties.getStringProperty(Constants.CONTROLLER_HISTORICAL_DATA_FILE_NAME) + "...",true);
-    	try {
-    		CSVReader reader = new CSVReader(new InputStreamReader(Controller.class.getClass().getResourceAsStream(ApplicationProperties.getStringProperty(Constants.CONTROLLER_HISTORICAL_DATA_PATH) + ApplicationProperties.getStringProperty(Constants.CONTROLLER_HISTORICAL_DATA_FILE_NAME))),';');
-	        String [] nextLine;
-	        while ((nextLine = reader.readNext()) != null) {
-	        	counter++;
-	        	FxRate fxRate = new FxRate (nextLine);
-				if (counter%10000 == 0) {
-		        	logger.info ("Loaded " + counter + " FX rates so far");
-				}
-
-	    		HazelcastInstanceUtils.putIntoList(HazelcastInstanceUtils.getHistoricalListName(), fxRate );
-	        }
-	        reader.close();
-	    	logger.info ("Populating historical data finished",true);
-	    	
-    	} catch (Exception ex) {
-    		logger.error ("Exception in line " + counter + " - " + ex.getClass() + " - " + ex.getMessage());
-    		throw ex;
+    	int totalCounter=0;
+    	
+    	logger.info("Getting all the FX Data files (" + ApplicationProperties.getStringProperty(Constants.CONTROLLER_HISTORICAL_DATA_FILE_EXTENSION) + ") from "+ ApplicationProperties.getStringProperty(Constants.CONTROLLER_HISTORICAL_DATA_PATH));
+    	
+    	List<String> dataFiles = SystemUtils.getFilesFromPath(ApplicationProperties.getStringProperty(Constants.CONTROLLER_HISTORICAL_DATA_PATH),ApplicationProperties.getStringProperty(Constants.CONTROLLER_HISTORICAL_DATA_FILE_EXTENSION));
+    	List<FxRate> fxList;
+    	
+    	for(String dataFile : dataFiles){
+    		int fileCounter=0;
+    		
+    		fxList = new ArrayList<FxRate>();
+        	logger.info ("Populating historical FX data from " + dataFile + "...",true);
+        	
+        	try {
+        		CSVReader reader = new CSVReader(new FileReader(ApplicationProperties.getStringProperty(Constants.CONTROLLER_HISTORICAL_DATA_PATH) + dataFile));
+        		// CSVReader reader = new CSVReader(new InputStreamReader(Controller.class.getClass().getResourceAsStream(ApplicationProperties.getStringProperty(Constants.CONTROLLER_HISTORICAL_DATA_PATH) + ApplicationProperties.getStringProperty(Constants.CONTROLLER_HISTORICAL_DATA_FILE_NAME) + ApplicationProperties.getStringProperty(Constants.CONTROLLER_HISTORICAL_DATA_FILE_EXTENSION))),ApplicationProperties.getStringProperty(Constants.CONTROLLER_HISTORICAL_DATA_SEPARATOR).charAt(0));
+    	        String [] nextLine;
+    	        while ((nextLine = reader.readNext()) != null) {
+    	        	
+    	        	FxRate fxRate = new FxRate (dataFile.substring(0,dataFile.indexOf(".")),nextLine,fileCounter);
+    	        	fxList.add(fxRate);
+    				if (fileCounter%10000 == 0) {
+    		        	logger.info ("Loaded " + fileCounter + " FX rates so far");
+    				}
+    				fileCounter++;
+    				totalCounter++;
+    	        }
+    	        logger.info (dataFile.substring(0,dataFile.indexOf(".")) + " total FX rates loaded: " + fileCounter);
+    	        reader.close();
+    	        
+    	        HazelcastInstanceUtils.putIntoMap(HazelcastInstanceUtils.getHistoricalMapName(),dataFile.substring(0,dataFile.indexOf(".")),fxList);
+    	    	logger.info ("Populating historical data finished",true);
+    	    	
+        	} catch (Exception ex) {
+        		logger.error ("Exception in file " + dataFile + " - line " + fileCounter + " - " + ex.getClass() + " - " + ex.getMessage());
+        		throw ex;
+        	}
     	}
-    	return counter;
+    	return totalCounter;
     }
-    
+
+	// Creates the execution tasks and puts them into Hazelcast Execution Queue
+    @SuppressWarnings("unchecked")
+	public static void createExecutionTasks () 
+    	throws Exception {
+    	
+    	logger.info("Putting execution tasks into Hazelcast for processing");
+    	Iterator<Entry<String, Object>> iter = HazelcastInstanceUtils.getMap(HazelcastInstanceUtils.getHistoricalMapName()).entrySet().iterator();
+
+		while (iter.hasNext()) {
+            Entry<String, Object> entry = iter.next();
+            
+            List<FxRate> fxList = (List<FxRate>) entry.getValue();
+            int counter = 0;
+            
+            for (FxRate fxRate : fxList) {
+            	counter++;
+                //ExecutionTask executionTask = new ExecutionTask ((entry.getKey()+"-"+counter),"FXRATE",(""+fxRate.getId()),entry.getKey(),System.currentTimeMillis());				
+            	ExecutionTask executionTask = new ExecutionTask ((entry.getKey()+"-"+counter),"FXRATE",fxRate.getPositionId(),ApplicationProperties.getFloatProperty(Constants.CONTROLLER_EXECUTION_INCREASE_PERCENTAGE),ApplicationProperties.getFloatProperty(Constants.CONTROLLER_EXECUTION_DECREASE_PERCENTAGE),fxRate,System.currentTimeMillis());
+
+        		HazelcastInstanceUtils.putIntoQueue(HazelcastInstanceUtils.getTaskQueueName(), executionTask );
+        		logger.info ("Producing: " + counter);
+        		Thread.sleep(sleepTime);            
+            }
+            logger.info ("Produced " + counter + " tasks for " + entry.getKey());
+        }
+		
+		/*
+		// (simulating incoming tasks)
+		for ( int k = 1; k <= numberOfTasks; k++ ) {
+			ExecutionTask executionTask = new ExecutionTask (("Task-"+k),"Calculation",
+					Constants.CONTROLLER_QUEUEPRODUCER_TASK_CONTENT.replaceAll("<counter>", ""+k),System.currentTimeMillis());				
+
+			HazelcastInstanceUtils.putIntoQueue(HazelcastInstanceUtils.getTaskQueueName(), executionTask );
+			logger.info ("Producing: " + k);
+			Thread.sleep(sleepTime);
+		}
+		*/
+    }    
+
 	// Print execution parameters 
 	private static void printParameters (final String title) {
 		logger.info ("");
@@ -172,12 +264,11 @@ public class Controller {
 			
 			if (HazelcastInstanceUtils.getMap(HazelcastInstanceUtils.getMonitorMapName()) != null &&
 				HazelcastInstanceUtils.getMap(HazelcastInstanceUtils.getMonitorMapName()).size() > 0) {
-				Iterator<Entry<String, WorkerDetail>> iter = HazelcastInstanceUtils.getMap(HazelcastInstanceUtils.getMonitorMapName()).entrySet().iterator();
-	
+				Iterator<Entry<String, Object>> iter = HazelcastInstanceUtils.getMap(HazelcastInstanceUtils.getMonitorMapName()).entrySet().iterator();
 	
 				while (iter.hasNext()) {
-		            Entry<String, WorkerDetail> entry = iter.next();
-		            bWriter.write(entry.getValue().toCsvFormat());
+		            Entry<String, Object> entry = iter.next();
+		            bWriter.write(((WorkerDetail) entry.getValue()).toCsvFormat());
 		        }
 			} else {
 				 bWriter.write("No workers found");

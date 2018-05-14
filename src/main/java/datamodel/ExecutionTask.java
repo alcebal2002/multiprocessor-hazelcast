@@ -6,7 +6,12 @@ public class ExecutionTask implements Serializable {
 	private static final long serialVersionUID = 1L;
 	private String taskId = null;
 	private String taskType = null;
-	private String content = null;
+	private int positionId = 0;
+//	private String currencyPair = null;
+//	private float open = 0;
+	private float increasePercentage = 0;
+	private float decreasePercentage = 0;
+	private Object content = null;
 	private long creationTimestamp = 0L;
 	private long elapsedExecutionTime = 0L;
 
@@ -14,9 +19,12 @@ public class ExecutionTask implements Serializable {
 		this.taskType = taskType;
 	}
 
-	public ExecutionTask(String taskId, String taskType, String content, long creationTimestamp) {
+	public ExecutionTask(final String taskId, final String taskType, final int positionId, final float increasePercentage, final float decreasePercentage, final Object content, final long creationTimestamp) {
 		this.taskId = taskId;
 		this.taskType = taskType;
+		this.positionId = positionId;
+		this.increasePercentage = increasePercentage;
+		this.decreasePercentage = decreasePercentage;
 		this.content = content;
 		this.creationTimestamp = creationTimestamp;
 	}
@@ -35,7 +43,28 @@ public class ExecutionTask implements Serializable {
 		this.taskType = taskType;
 	}
 
-	public final String getContent () {
+	public final int getPositionId() {
+		return this.positionId;
+	}
+	public final void setPositionId (int positionId) {
+		this.positionId = positionId;
+	}
+
+	public final float getIncreasePercentage() {
+		return this.increasePercentage;
+	}
+	public final void setIncreasePercentage (float increasePercentage) {
+		this.increasePercentage = increasePercentage;
+	}
+
+	public final float getDecreasePercentage() {
+		return this.decreasePercentage;
+	}
+	public final void setDecreasePercentage (float decreasePercentage) {
+		this.decreasePercentage = decreasePercentage;
+	}
+
+	public final Object getContent () {
 		return this.content;
 	}
 	public final void setContent (String content) {
